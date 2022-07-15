@@ -17,7 +17,8 @@
     "dep": "yakumo upgrade",
     "pub": "yakumo publish",
     "dev": "cross-env NODE_ENV=development koishi start -r esbuild-register -r yml-register --watch",
-    "start": "koishi start"
+    "start": "koishi start",
+    "mirai": "cd mirai && go-cqhttp"
   },
   "devDependencies": {
     "@koishijs/client": "^3.4.1",
@@ -27,26 +28,45 @@
     "esbuild": "^0.14.39",
     "esbuild-register": "^3.3.2",
     "typescript": "^4.7.2",
-    "yml-register": "^1.0.0",
     "yakumo": "^0.2.6",
     "yakumo-publish": "^0.2.4",
     "yakumo-upgrade": "^0.2.3",
-    "yakumo-version": "^0.2.4"
+    "yakumo-version": "^0.2.4",
+    "yml-register": "^1.0.0"
   },
   "dependencies": {
-    "@koishijs/cli": "^4.7.4",
-    "@koishijs/plugin-adapter-discord": "^2.1.2",
+    "@koishijs/cli": "^4.7.6",
     "@koishijs/plugin-adapter-onebot": "^4.2.7",
-    "@koishijs/plugin-adapter-telegram": "^2.2.7",
+    "@koishijs/plugin-admin": "1.1.4",
+    "@koishijs/plugin-broadcast": "1.1.1",
+    "@koishijs/plugin-callme": "1.1.1",
     "@koishijs/plugin-console": "^3.4.1",
+    "@koishijs/plugin-database-mongo": "^3.4.1",
     "@koishijs/plugin-dataview": "^1.2.5",
-    "@koishijs/plugin-help": "^1.0.1",
+    "@koishijs/plugin-echo": "2.0.1",
+    "@koishijs/plugin-help": "^1.1.0",
+    "@koishijs/plugin-insight": "2.1.0",
+    "@koishijs/plugin-locales": "1.0.1",
     "@koishijs/plugin-logger": "^1.2.3",
-    "@koishijs/plugin-manager": "^1.9.1",
+    "@koishijs/plugin-manager": "^1.9.3",
+    "@koishijs/plugin-mock": "^1.0.6",
+    "@koishijs/plugin-puppeteer": "3.1.1",
+    "@koishijs/plugin-rate-limit": "1.1.5",
+    "@koishijs/plugin-repeater": "1.0.2",
+    "@koishijs/plugin-respondent": "5.0.1",
     "@koishijs/plugin-sandbox": "^1.1.4",
+    "@koishijs/plugin-schedule": "4.2.1",
     "@koishijs/plugin-status": "^5.4.1",
     "@koishijs/plugin-suggest": "^1.1.0",
-    "koishi": "^4.7.4"
+    "@koishijs/plugin-teach": "3.2.0",
+    "@koishijs/plugin-verifier": "1.0.5",
+    "@sinonjs/fake-timers": "^9.1.2",
+    "koishi": "^4.7.4",
+    "koishi-plugin-baidu": "1.0.3",
+    "koishi-plugin-dice": "^1.0.0",
+    "koishi-plugin-hitokoto": "2.1.4",
+    "koishi-plugin-meme": "2.2.3",
+    "lunar-javascript": "^1.2.32"
   },
   "yakumo": {
     "require": [

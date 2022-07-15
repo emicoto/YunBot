@@ -1,6 +1,7 @@
 lib
 dist
 accounts
+logs
 
 node_modules
 npm-debug.log
@@ -17,3 +18,8 @@ tsconfig.tsbuildinfo
 *.ntvs*
 *.njsproj
 *.sln
+*.db
+*.db.lock
+*.amr
+*.cache
+*.bak

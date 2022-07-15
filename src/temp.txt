@@ -1,0 +1,22 @@
+
+        else if(session.content === "注册账号"){
+
+            if(!userdata[session.userId]){
+                userdata[session.userId] = {name:session.author.nickname, money:100}
+                saveUserdata()
+
+                return "注册成功\n你的账号信息：\n用户名："+userdata[session.userId].name+"\n持有灵石："+userdata[session.userId].money
+            }
+            else{
+                return "已经注册过了。"
+            }
+        }
+
+        else if(session.content === "用户档案"){
+            if(userdata[session.userId]){
+                return "你的账号信息：\n用户名："+userdata[session.userId].name+"\n持有灵石："+userdata[session.userId].money+"\n最后一次投掷结果："+userdata[session.userId]?.lastdice
+            }
+            else{
+                return "找不到对应的用户档案"
+            }
+        }

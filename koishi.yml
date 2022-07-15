@@ -1,18 +1,42 @@
+nickname:
+  - 小昀
+  - 路昀
+prefix:
+  - .
+  - 。
 port: 5140
 maxPort: 5149
-
 plugins:
-  help:
-  suggest:
+  help: null
+  insight: null
+  suggest: null
   console:
     open: true
-  logger:
-  manager:
-  status:
-  sandbox:
+  logger: null
+  manager: null
+  status: null
+  sandbox: null
   adapter-onebot:
-    bots: []
-  adapter-discord:
-    bots: []
-  adapter-telegram:
-    bots: []
+    bots:
+      - selfId: '185632406'
+        endpoint: ws://127.0.0.1:8080
+        protocol: ws
+        disabled: false
+  database-mongo: null
+  locales: null
+  dataview: null
+  admin: null
+  broadcast: null
+  callme: null
+  echo: null
+  schedule: null
+  rate-limit: null
+  repeater: 
+      onRepeat.minTimes: 2
+      onRepeat.probability: 0.80
+  verifier: 
+      onFriendRequest: true
+  baidu: null
+  teach: null
+  ./src/ping: null
+  ./src/com: null
