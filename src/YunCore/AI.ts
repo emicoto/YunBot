@@ -1,7 +1,7 @@
 import { Context, segment } from "koishi";
 import * as f from "./Function"
 import * as s from "./Setting"
-import { Respond, getResCount, whileSleeping, whileWorking, setYunWork } from "./lib/reply"
+import * as r from "./lib/reply"
 
 export default async function YunAI(ctx: Context) {
 
@@ -14,25 +14,25 @@ export default async function YunAI(ctx: Context) {
 		}
 		
 		let uid = session.userId
-		let text = Respond(session.content, uid)
+		let text = r.Respond(session.content, uid)
 
 		// text = ChatEvent(session)
 
 		if(s.yunstate.stats == "sleep"){
-			text = whileSleeping("session",session)
+			text = r.whileSleeping("session",session)
 		}
 
 		if(s.yunstate.stats == "working"){
-			text = whileWorking('session', session)
+			text = r.whileWorking('session', session)
 		}
 
 		if( session.content.match(/(小昀|路昀).+(修行|修炼)\S{0,2}(怎样|如何|什么样|吗)\S{0,3}$/)){
-			return whileWorking('询问修炼进度', session)
+			return r.whileWorking('询问修炼进度', session)
 		}
 
 		if( session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) ){
 			if(f.random(100) <= 30){
-				setYunWork(session)
+				r.setYunWork(session)
 				return f.either([
 					"……静心，打坐……",
 					"……摒除杂念……入定……",
