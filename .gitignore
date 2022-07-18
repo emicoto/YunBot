@@ -8,6 +8,7 @@ yarn-debug.log
 yarn-error.log
 tsconfig.tsbuildinfo
 cache
+leveldb-v3
 
 .env
 .eslintcache
@@ -23,4 +24,3 @@ cache
 *.amr
 *.cache
 *.bak
-*.log
