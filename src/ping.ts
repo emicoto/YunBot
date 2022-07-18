@@ -1,7 +1,14 @@
 import { Bot, Context, segment, Session} from "koishi";
 import { Lunar } from "lunar-javascript"
 import * as f from "./function";
-import {Res} from "./YunCore/lib/reply"
+import { getResCount } from "./YunCore/lib/reply"
+
+var YunWorking
+
+function stopWorking(){
+    clearInterval(YunWorking)
+    console.log("自动修炼已停止")
+}
 
 export default async function ping(ctx: Context) {
     // 如果收到“天王盖地虎”，就回应“宝塔镇河妖”
@@ -18,7 +25,7 @@ export default async function ping(ctx: Context) {
 		let res = [
 			`${time.toLocaleString()}`,
 			`路昀bot已正常启动……`,
-			`已读取自动回复${Res.length}条。`,
+			`已读取自动回复${getResCount()}条。`,
 			`本地控制台：http://localhost:5140/`
 		]
 
@@ -60,6 +67,10 @@ export default async function ping(ctx: Context) {
             f.NewToday()
         }
         let nick = "";
+
+        if (session.content.match(/\[CQ:image,file=(.+)\]$/) && f.random(100) < 30){
+            return session.content
+        }
 
         if (session.author.nickname && session.author.nickname.length > 0) {
             nick = session.author.nickname;
@@ -184,9 +195,6 @@ export default async function ping(ctx: Context) {
                 "……应该还好。",
             ]);
 
-            f.yunstate.work--;
-            f.yunsave();
-
             if (f.yunstate.work === 0) {
                 f.yunstate.exp++;
                 f.yunsave();
@@ -211,7 +219,7 @@ export default async function ping(ctx: Context) {
             ) {
                 return (
                     f.faceicon("普通") +
-                    `\n${text2}（进度${5 - f.yunstate.work}/5)`
+                    `\n${text2}（剩余进度${f.yunstate.work})`
                 );
             }
 
@@ -433,8 +441,17 @@ export default async function ping(ctx: Context) {
         }
         
         else if (session.content === "测试") {
-            /**/
-            return "。";
+            f.yunstate.work = 60
+            YunWorking = setInterval(()=>{
+                f.yunstate.work --;
+                f.yunsave()
+                if(f.yunstate.work==0){
+                    session.send((f.faceicon("普通") +`\n好了，今天就修行到这里吧。（路昀修行经验 +1，总计:${f.yunstate.exp}）`))
+                    stopWorking()
+                }
+                }, 1000)
+                
+            return "测试开始。";
         }
         
         else {

@@ -32,8 +32,9 @@ plugins:
   schedule: null
   rate-limit: null
   repeater: 
-      onRepeat.minTimes: 2
-      onRepeat.probability: 0.80
+      onRepeat:
+        minTimes: 2
+        probability: 0.80
   verifier: 
       onFriendRequest: true
   baidu: null

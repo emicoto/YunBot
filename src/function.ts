@@ -26,13 +26,16 @@ export function initData(){
 
         if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
             NewToday()
-            yunstate.mood = getMood()
         }
         if(!usertoday["1794362968"]){
             initUserToday("1794362968")
         }
         console.log("usertoday",usertoday)
     })
+
+    if(yunstate && usertoday.day != timetick.getDate()){
+        yunstate.mood = getMood()
+    }
 }
 
 

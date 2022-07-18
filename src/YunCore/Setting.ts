@@ -1,11 +1,11 @@
 import fs from 'fs'
 import { createHash } from 'crypto';
 
-var yunstate: YunState, usertoday, userdata
+export var yunstate: YunState, usertoday, userdata
 
-export {
-	yunstate, userdata, usertoday
-}
+export const master = '1794362968'  //师父（主人
+export const yunbot = '185632406'  //小昀本身
+export const senior = '1742029094' //周天
 
 interface UserData{
 	id: number;
@@ -20,7 +20,6 @@ interface UserData{
 
 	level: number;
 	exp: number;
-	nextexp: number;
 
 	HP: number[];
 	BP: number[];
@@ -50,6 +49,11 @@ interface YunState {
 	money: number;
 
 	mood: number;
+    
+    HP:number[];
+    BP:number[];
+    AP:number[];
+
 	sanity: number[];
 
 	stats: string;
@@ -57,6 +61,7 @@ interface YunState {
 
 	shops: Array<any>;
     work: number;
+    levelup: boolean;
 }
 
 export function __extend(ctx){
@@ -111,7 +116,6 @@ export function initData(){
 
         if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
             NewToday()
-            yunstate.mood = getMood()
         }
         if(!usertoday["1794362968"]){
             initUserToday("1794362968")
@@ -126,7 +130,7 @@ export function getMood(){
 	hash.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
 	hash.update('6688')
 
-	let val = parseInt(hash.digest('hex'),16) % 101
+	let val = Math.max(parseInt(hash.digest('hex'),16) % 101,1)
 	return val
 }
 

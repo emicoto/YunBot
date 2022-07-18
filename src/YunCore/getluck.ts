@@ -7,7 +7,7 @@ import { huandaxian,hdxlq } from "./lib/huandaxian"
 import { zhougong, zglq} from "./lib/zhougong"
 
 const levels = [0,20,40,60,80]
-const jackpot = [0,39,42,66,77,100]
+const jackpot = [1,39,42,66,77,100]
 const zgpot = [1]
 const hdxpot = [98,99,100]
 
@@ -42,7 +42,7 @@ export function getJrrp(uid){
 	lk.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
 	lk.update('908')
 
-	let luck = parseInt(lk.digest('hex'),16) % 101
+	let luck = Math.max(parseInt(lk.digest('hex'),16) % 101,1)
 
 	s.usertoday[uid]['jrrp'] = luck
 	s.saveToday()
