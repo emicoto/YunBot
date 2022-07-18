@@ -22,3 +22,4 @@ tsconfig.tsbuildinfo
 *.amr
 *.cache
 *.bak
+*.log
