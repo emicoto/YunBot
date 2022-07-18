@@ -1,6 +1,9 @@
 dist
 accounts
 logs
+mirai
+yun
+locales
 
 node_modules
 npm-debug.log
