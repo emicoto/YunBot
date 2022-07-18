@@ -1,6 +1,7 @@
 import { Bot, Context, segment, Session} from "koishi";
 import { Lunar } from "lunar-javascript"
 import * as f from "./function";
+import {Res} from "./YunCore/lib/reply"
 
 export default async function ping(ctx: Context) {
     // 如果收到“天王盖地虎”，就回应“宝塔镇河妖”
@@ -8,16 +9,44 @@ export default async function ping(ctx: Context) {
     if ( !f.userdata ||!f.userdata['1794362968']) f.initData();
     var botstatus
     var botupdated = 0
-        
+
     ctx.on('bot-added',async(session)=>{
-        session.sendPrivateMessage('1794362968','……路昀bot已启动。')
-        botstatus = 'boton'
+		botstatus = 'boton'
+		console.log('路昀bot已正常启动。数据库准备中……')
+
+		let time = new Date()
+		let res = [
+			`${time.toLocaleString()}`,
+			`路昀bot已正常启动……`,
+			`已读取自动回复${Res.length}条。`,
+			`本地控制台：http://localhost:5140/`
+		]
+
+		let text1 = res.join('\n')
+		let text2 = ``
+
+		let now = time.getHours()
+		let zone = f.getTimeZone(now)
+
+		if(['晚上','深夜'].includes(zone)) text2 = '师父，晚上好。';
+		if(f.between(now,4,6)) text2 = '……师父，早上好？这时间肯定是通宵了吧，可不要熬太久，请注意休息……';
+		if(f.between(now,7,8)) text2 = '师父，早上好……呼啊……起得也太早了吧……（揉眼睛'
+		if(f.between(now,9,13)) text2 ='……师父，早上好。'
+		if(['下午','傍晚'].includes(zone)) text2 = '午安，师父。'
+
+		text2 += '请问今天有什么吩咐吗？'
+
+		session.sendPrivateMessage('1794362968', text1)
+
+		setTimeout(() => {
+			session.sendPrivateMessage('1794362968', text2)
+		}, 1000);
     })
 
     ctx.on('bot-status-updated',async(session)=>{
         setTimeout(()=>{
             if (botstatus == 'boton'){
-            //ctx.broadcast('路昀从睡眠中苏醒，懒洋洋地打了个哈欠：“师父、各位师兄师弟们，早啊……”')
+            ctx.broadcast(f.images('yunneoki.png')+'\n路昀从睡眠中苏醒，懒洋洋地打了个哈欠：“师父、各位师兄弟们，早啊……”')
             console.log('机器人已正常启动。')
             botstatus = 'botrunning'
         }},2000)
@@ -65,16 +94,16 @@ export default async function ping(ctx: Context) {
             if (session.userId == "1794362968") {
                 text = f.either([`早啊，师父。`, `师父早安。`, "师父，早。"]);
 
-                if (f.Yunstate.sleep) {
+                if (f.yunstate.sleep) {
                     text = "呼啊……" + text + "\n我也才起床……";
-                    f.Yunstate.sleep = false;
+                    f.yunstate.sleep = false;
                     f.yunsave();
                 }
             } else {
                 text = f.either([
-                    `……早安，${f.At(session)}`,
-                    `……早，${f.At(session)}`,
-                    `……${f.At(session)}，早上好`,
+                    `……早安，${f.At(session.userId)}`,
+                    `……早，${f.At(session.userId)}`,
+                    `……${f.At(session.userId)}，早上好`,
                 ]);
             }
             return text;
@@ -118,7 +147,7 @@ export default async function ping(ctx: Context) {
                     "……呼啊，早啊。" +
                         (session.userId == "1794362968"
                             ? "师父"
-                            : f.At(session)),
+                            : f.At(session.userId)),
                     f.images("hardwake.jpg"),
                 ]);
             } else {
@@ -131,7 +160,7 @@ export default async function ping(ctx: Context) {
             return text;
         }
         
-        else if (f.Yunstate.sleep) {
+        else if (f.yunstate.sleep) {
             if (f.YunCall(session.content) == true) {
                 return `${f.faceicon("睡眠")}\n……呼……呼……（睡得挺香的样子）`;
             }
@@ -142,7 +171,7 @@ export default async function ping(ctx: Context) {
             return next();
         }
         
-        else if (f.Yunstate.work > 0) {
+        else if (f.yunstate.work > 0) {
             let text = f.either([
                 "…………静心。（打坐中）",
                 "…………勿扰。（打坐中）",
@@ -155,15 +184,15 @@ export default async function ping(ctx: Context) {
                 "……应该还好。",
             ]);
 
-            f.Yunstate.work--;
+            f.yunstate.work--;
             f.yunsave();
 
-            if (f.Yunstate.work === 0) {
-                f.Yunstate.worktimes++;
+            if (f.yunstate.work === 0) {
+                f.yunstate.exp++;
                 f.yunsave();
                 return (
                     f.faceicon("普通") +
-                    `\n好了，今天就修行到这里吧。（路昀修行经验 +1，总计:${f.Yunstate.worktimes}）`
+                    `\n好了，今天就修行到这里吧。（路昀修行经验 +1，总计:${f.yunstate.exp}）`
                 );
             }
 
@@ -182,7 +211,7 @@ export default async function ping(ctx: Context) {
             ) {
                 return (
                     f.faceicon("普通") +
-                    `\n${text2}（进度${5 - f.Yunstate.work}/5)`
+                    `\n${text2}（进度${5 - f.yunstate.work}/5)`
                 );
             }
 
@@ -197,7 +226,7 @@ export default async function ping(ctx: Context) {
             let rate = f.random(1, 100);
             let text = "";
             if (rate < 30) {
-                f.Yunstate.work = 5;
+                f.yunstate.work = 5;
                 text = f.either([
                     "……静心，打坐……",
                     "……摒除杂念……入定……",
@@ -233,16 +262,16 @@ export default async function ping(ctx: Context) {
             session.content === "安"
         ) {
             let text = "";
-            if (f.Yunstate.sleep && f.random(1, 100) > 50) {
+            if (f.yunstate.sleep && f.random(1, 100) > 50) {
                 text = `${f.faceicon("睡眠")}\n……呼……呼……（也在睡了）`;
             } else {
                 if (f.random(1, 100) < 60 && session.userId == "1794362968") {
                     text = "……呜啊，我也困了……\n我也睡啦，师父晚安。";
-                    f.Yunstate.sleep = true;
+                    f.yunstate.sleep = true;
                     f.yunsave();
                 } else if (f.random(1, 100) < 45) {
                     text = `……晚安，${
-                        session.userId == "1794362968" ? "师父" : f.At(session)
+                        session.userId == "1794362968" ? "师父" : f.At(session.userId)
                     }`;
                 }
             }
@@ -282,7 +311,7 @@ export default async function ping(ctx: Context) {
                 `……今天好像是和恋人一起渡过的日子。……可是我没有恋人。\n${f.faceicon(
                     "不安"
                 )}\n嗯？你问我阿宵？我们、只是普通的青梅竹马啦……`,
-                `情人节啊……那么${f.At(session)}有恋人吗？`,
+                `情人节啊……那么${f.At(session.userId)}有恋人吗？`,
                 `${f.faceicon(
                     "害羞笑"
                 )}\n……听说今天是给人送巧克力的节日……嗯，所以……我会有吗？`,
@@ -325,7 +354,7 @@ export default async function ping(ctx: Context) {
         ) {
             let text = f.either([
                 `${f.At(
-                    session
+                    session.userId
                 )} 要一起打丧尸吗？听说挺好玩的……最近我也一直沉迷在其中呢。`,
                 `Project Zomboid，这个游戏挺硬核的，同时也很有趣呢。\n${f.faceicon(
                     "微笑"
@@ -367,7 +396,7 @@ export default async function ping(ctx: Context) {
         }
         
         else if (session.content === "艾特我") {
-            return f.At(session);
+            return f.At(session.userId);
         }
         
         else if (session.content === "上一个掷骰结果") {

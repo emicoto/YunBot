@@ -1,25 +1,9 @@
 import { Context,segment } from "koishi"
+import { createHash } from "crypto"
 import fs from 'fs'
-import { Usertoday } from "./YunCore/Settings"
-interface IUserData{
-
-}
-interface IYunState{
-
-}
-interface IU{
-
-}
-export default class YunBot{
-    static instance:YunBot
-    static userdata:IUserData
-    static yunstate:IYunState
-    static usertoday:IUserData
-}
-
 
 export var userdata
-export var Yunstate
+export var yunstate
 export var usertoday
 
 export function initData(){
@@ -30,31 +14,34 @@ export function initData(){
         }
         if(!data) return;
         userdata = JSON.parse(data.toString());
-        console.log("userdata",userdata)
     })
     fs.readFile('yunstate.json','utf-8',(err,data)=>{
-             if(!data) return;
-        Yunstate = JSON.parse(data.toString());
-        console.log("Yunstate",Yunstate)
+        if(!data) return;
+        yunstate = JSON.parse(data.toString());
+        console.log("yunstate",yunstate)
     })
     fs.readFile('usertoday.json','utf-8',(err,data)=>{
-                  if(!data) return;
+        if(!data) return;
         usertoday = JSON.parse(data.toString());
 
         if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
             NewToday()
-            saveToday()                    
+            yunstate.mood = getMood()
         }
         if(!usertoday["1794362968"]){
             initUserToday("1794362968")
-            saveToday() 
         }
         console.log("usertoday",usertoday)
     })
 }
 
-export function random(min, max) { // min and max included 
-  return Math.floor(Math.random() * (max - min + 1) + min)
+
+export function random(min:number,max?:number){
+    if(!max){
+        max = min;
+        min = 0;
+    }
+    return Math.floor(Math.random()*(max-min+1)+min)
 }
 
 export function either(arr) {
@@ -64,12 +51,12 @@ export function either(arr) {
 }
 
 export function faceicon(str){
-    let path = `file:///H:/Yunbot/data/images/Yun_${str}.png`
+    let path = `file:///H:/_Yunbot/data/images/Yun_${str}.png`
     return segment("image",{url:path})
 }
 
 export function images(str){
-    let path = `file:///H:/Yunbot/data/images/${str}`
+    let path = `file:///H:/_Yunbot/data/images/${str}`
     return segment("image",{url:path})
 }
 
@@ -91,10 +78,20 @@ export function textmatch(text,arr){
     return false
 }
 
+
+export function getMood(){
+	const hash = createHash('sha256')
+	hash.update('185632406')
+	hash.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
+	hash.update('6688')
+
+	let val = parseInt(hash.digest('hex'),16) % 101
+	return val
+}
+
 export function yunsave(){
-    const data = JSON.stringify(Yunstate)
-    fs.writeFileSync('Yunstate.json',data)
-    
+    const data = JSON.stringify(yunstate)
+    fs.writeFileSync('yunstate.json',data)
 }
 
 export function saveUserdata(){
@@ -152,8 +149,8 @@ export function YunCall(text){
     return false
 }
 
-export function At(session){
-    return segment("at", { id : session.userId })
+export function At(uid:string){
+    return segment('at', { id: uid } )
 }
 
 export function getUser(uid){
@@ -219,4 +216,19 @@ export function getLevelChar(lv){
 
 export function expLevel(user){
     return Math.max(Math.floor((user.level+1)*10+Math.pow(user.level+1,2.5)+0.5),20)
+}
+
+export function getTimeZone(hour){
+    if(between(hour,2,4)) return '凌晨'
+    if(between(hour,5,7)) return '黎明'
+    if(between(hour,8,10)) return '上午'
+    if(between(hour,11,13)) return '中午'
+    if(between(hour,14,16)) return '下午'
+    if(between(hour,17,19)) return '傍晚'
+    if(between(hour,20,22)) return '晚上'
+    return '深夜'
+}
+
+export function between(int:number,a:number,b:number){
+    return int >= a && int <= b;
 }

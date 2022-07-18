@@ -20,3 +20,113 @@
                 return "找不到对应的用户档案"
             }
         }
+
+
+    // 更新用户名
+    /**
+    ctx.middleware(async (session ,next)=>{
+    let user = await ctx.database.getUser(session.platform, session.userId)
+    if(!user.name) user.name = session.author.nickname
+    if(user.name.length < 1) user.name = session.author.username
+
+    const QQAdmin = ['1794362968','1034826119'].includes(session.userId)
+
+    if(QQAdmin && user.authority < 4){
+			user.authority = session.userId == '1794362968' ? 5 : 4
+    }
+
+    await ctx.database.setUser(session.platform, session.userId, user)
+    return next()
+
+})
+    ctx.command('my-command')
+		.option('writer', '-w <id>')
+		.option('writer', '--anonymous', { value: 0 })
+		.action(({ options }) => JSON.stringify(options))
+
+    ctx.command('setrole <message> [target] [username]','管理指令。可以设置被艾特群员的权限。')
+    .action(async ({ session },message, target, username) => {
+		let level = {
+			owner:5, admin:4, leader:3, high:2, member:1, banned: 0
+		}
+		let userdata
+		let order = await ctx.database.getUser(session.platform, session.userId)
+
+		if(session.userId !== '1794362968' || (session.userId !== '1794362968' && order.authority < 4) ){
+			return '没有权限。'
+		}
+		else{
+			const parsedTarget = target ? s.parse(target)[0] : null
+
+			console.log(message,username,parsedTarget)
+
+			if(parsedTarget){
+				userdata = await ctx.database.getUser(session.platform, parsedTarget.data.id);
+
+				console.log('\nbefore:',userdata);
+
+				userdata['authority'] = level[message];
+				if(username) userdata['name'] = username;
+				if(!userdata.name) userdata['name'] = "";
+
+				console.log('\nafter:',userdata);
+
+				await ctx.database.setUser(session.platform, parsedTarget.data.id, userdata);
+
+				userdata = await ctx.database.getUser(session.platform, parsedTarget.data.id);
+			}
+			else{
+				userdata = order;
+				userdata['authority'] = level[message];
+				if(username) userdata['name'] = username;
+				if(!userdata.name) userdata['name'] = "";
+
+				await ctx.database.setUser(session.platform, session.userId, userdata)
+				userdata = await ctx.database.getUser(session.platform, session.userId);
+			}
+		
+			return JSON.stringify(userdata)			
+		}     
+    })
+
+    ctx.command('checkdata <message>','debug指令，可以在控制台看到指定类型的数据。')
+    .action(async ({ session }, message) => {
+		 const data = await ctx.database.get(message,null)
+		 console.log(data);
+		 return 'please check in the log.'
+    })
+
+    ctx.command('editdata <message>', 'debug')
+		.action(async ({ session }, message) => {
+
+				let stats = await ctx.database.stats()
+				console.log(stats)
+				if ( !stats.tables?.keywords ){
+						ctx.model.extend("keywords",{
+						id:"unsigned",
+						name:"string",
+						group:"list"
+				},{
+						autoInc: true
+				})
+				}
+				let data = await ctx.database.get('keywords', { id: 1 })
+				console.log(data)
+
+				let data = await ctx.database.get('keywords',{name:'送礼'})
+				console.log(data)
+				data[0].group.push('送礼')
+				await ctx.database.set('keywords', {name:'送礼'} , { group: data[0].group })
+
+				let newdata = await ctx.database.get('keywords', {name:'送礼'})
+				console.log(newdata)
+		})
+
+    /*ctx.command('cleardata <message>')
+    .action(async ({ session },message)=>{
+		ctx.database.remove(message,null)
+		let data = await ctx.database.get(message,null)
+		console.log(data)
+		return 'all data is cleared, please check in the log.'
+    })
+*/

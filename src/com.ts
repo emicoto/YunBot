@@ -1,36 +1,9 @@
-import { Context, Next, template, segment, Random, User, s, Time } from "koishi";
+import { Context, s, Time } from "koishi";
 import { Lunar, Tao } from "lunar-javascript"
-const { createHash } = require('crypto')
 import * as f from "./function"
 
-//require("@koishijs/command-utils")
-const joption = {
-	'level-0':"还是闷头睡觉吧……",
-	'level-20':"摆烂了，就好了。",
-	'level-40':'普通地渡过普通的一天就好了吧……',
-	"level-60":'小赌怡情，大赌伤心……不如出门走走寻找机遇？',
-	"level-80":'可以试试赌一把，但不一定有SSR',
-
-	'jackpot-0':"……某种程度来说，也是很厉害。",
-	"jackpot-39":"不知为何，这个数字感觉很绿。",
-	"jackpot-42":"……宇宙的真理？",
-	"jackpot-66":"666，是魔鬼，还是天使？",
-	"jackpot-77":"……如果是老虎机，就能中奖了吧。",
-	'jackpot-100':"……这是，紫微星天降了！",
-}
-const levels = [0,20,40,60,80]
-const jackpot = [0,39,42,66,77,100]
-
-function intoChar(str: string){
-	const N = [
-		'〇','一','二','三','四','五','六','七','八','九'
-	]
-	let s = ""
-	for(var i=0; i<str.length; i++){
-		s+= N[parseInt(str[i])]
-	}
-	return s
-}
+import getluck from "./getluck-fork";
+import { getJrrp, getJrrpComment } from "./getluck-fork"
 
 function getShichen(){
 	const gan = [
@@ -64,164 +37,10 @@ function getChinaTime(){
   return cntime
 }
 
-
-function getJrrp(uid){
-	  f.getUser(uid)
-
-    const luck = createHash('sha256')
-	  luck.update(uid)
-    luck.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
-    luck.update('908')
-
-    let luckvar = parseInt(luck.digest('hex'),16) % 101
-
-    f.usertoday[uid]['jrrp'] = luckvar
-    f.saveToday()
-
-    return luckvar
-}
-
-
-function getJrrpComment(luck){
-
-	let comment = ''
-
-	const jackpotIndex = jackpot.indexOf(luck)
-	if (jackpotIndex != -1){
-		let indexkey = `jackpot-${luck}`
-		comment = joption[indexkey]
-	}
-
-	if(!comment){
-		let key
-
-		const keyIndex = levels.findIndex(level => luck <= level)
-
-		if(keyIndex == -1 ){
-			key = levels[levels.length - 1]
-		}
-		else{
-			key = levels[keyIndex - 1]
-		}
-
-		let indexkey = `level-${key}`
-
-		comment = "我的建议是："+joption[indexkey]
-	}
-	
-	return comment
-}
-
 export default function com(ctx: Context){
 
-    // 更新用户名
-    /**
-    ctx.middleware(async (session ,next)=>{
-    let user = await ctx.database.getUser(session.platform, session.userId)
-    if(!user.name) user.name = session.author.nickname
-    if(user.name.length < 1) user.name = session.author.username
+	ctx.plugin(getluck)
 
-    const QQAdmin = ['1794362968','1034826119'].includes(session.userId)
-
-    if(QQAdmin && user.authority < 4){
-			user.authority = session.userId == '1794362968' ? 5 : 4
-    }
-
-    await ctx.database.setUser(session.platform, session.userId, user)
-    return next()
-
-})
-    ctx.command('my-command')
-		.option('writer', '-w <id>')
-		.option('writer', '--anonymous', { value: 0 })
-		.action(({ options }) => JSON.stringify(options))
-
-    ctx.command('setrole <message> [target] [username]','管理指令。可以设置被艾特群员的权限。')
-    .action(async ({ session },message, target, username) => {
-		let level = {
-			owner:5, admin:4, leader:3, high:2, member:1, banned: 0
-		}
-		let userdata
-		let order = await ctx.database.getUser(session.platform, session.userId)
-
-		if(session.userId !== '1794362968' || (session.userId !== '1794362968' && order.authority < 4) ){
-			return '没有权限。'
-		}
-		else{
-			const parsedTarget = target ? s.parse(target)[0] : null
-
-			console.log(message,username,parsedTarget)
-
-			if(parsedTarget){
-				userdata = await ctx.database.getUser(session.platform, parsedTarget.data.id);
-
-				console.log('\nbefore:',userdata);
-
-				userdata['authority'] = level[message];
-				if(username) userdata['name'] = username;
-				if(!userdata.name) userdata['name'] = "";
-
-				console.log('\nafter:',userdata);
-
-				await ctx.database.setUser(session.platform, parsedTarget.data.id, userdata);
-
-				userdata = await ctx.database.getUser(session.platform, parsedTarget.data.id);
-			}
-			else{
-				userdata = order;
-				userdata['authority'] = level[message];
-				if(username) userdata['name'] = username;
-				if(!userdata.name) userdata['name'] = "";
-
-				await ctx.database.setUser(session.platform, session.userId, userdata)
-				userdata = await ctx.database.getUser(session.platform, session.userId);
-			}
-		
-			return JSON.stringify(userdata)			
-		}     
-    })
-
-    ctx.command('checkdata <message>','debug指令，可以在控制台看到指定类型的数据。')
-    .action(async ({ session }, message) => {
-		 const data = await ctx.database.get(message,null)
-		 console.log(data);
-		 return 'please check in the log.'
-    })
-
-    ctx.command('editdata <message>', 'debug')
-		.action(async ({ session }, message) => {
-
-				let stats = await ctx.database.stats()
-				console.log(stats)
-				if ( !stats.tables?.keywords ){
-						ctx.model.extend("keywords",{
-						id:"unsigned",
-						name:"string",
-						group:"list"
-				},{
-						autoInc: true
-				})
-				}
-				let data = await ctx.database.get('keywords', { id: 1 })
-				console.log(data)
-
-				let data = await ctx.database.get('keywords',{name:'送礼'})
-				console.log(data)
-				data[0].group.push('送礼')
-				await ctx.database.set('keywords', {name:'送礼'} , { group: data[0].group })
-
-				let newdata = await ctx.database.get('keywords', {name:'送礼'})
-				console.log(newdata)
-		})
-
-    /*ctx.command('cleardata <message>')
-    .action(async ({ session },message)=>{
-		ctx.database.remove(message,null)
-		let data = await ctx.database.get(message,null)
-		console.log(data)
-		return 'all data is cleared, please check in the log.'
-    })
-*/
 	ctx.command("黄历时间","显示现在的黄历时间")
 		.shortcut("黄历", {prefix: true})
 		.action(()=>{
@@ -254,7 +73,6 @@ export default function com(ctx: Context){
 				return s('poke', { qq: session.userId })
 			}
 			else {
-				console.log(parsedTarget.data.id,parsedTarget)
 				return s('poke', {qq: parsedTarget.data.id})
 			}
 		})
@@ -265,25 +83,6 @@ export default function com(ctx: Context){
 				ctx.bots.get(`onebot:185632406`).sendMessage(session.channelId,'o(-。- o)===3 ) σ- . -)σ')
 				return s('poke', {qq: session.userId})
 
-		})
-
-	ctx.command("jrrp","今日人品")
-		.shortcut('今日气运',{prefix:false})
-		.action(({ session }, target) =>{
-			let name
-			if (!name) name = session.author.nickname
-			if (!name) name = session.author.username
-
-			const luckValue = getJrrp(session.userId)
-
-			const renderResult = comment => {
-					let text = `${f.faceicon("普通")}\n……要检测气运值嘛？那麻烦把手放到这边……\n（指了指放在桌子上的镜子）\n嗯……今天${name}的气运值是${luckValue}啊……\n${comment}`
-				return text
-			}
-
-			let comment = getJrrpComment(luckValue)
-
-			return renderResult(comment)
 		})
 
 	ctx.command('个人面板',"个人面板")
@@ -336,7 +135,6 @@ export default function com(ctx: Context){
 			}
 
 			if( !f.usertoday[uid]['jrrp'] || f.usertoday[uid]['jrrp'] == -1){
-			console.log(f.usertoday[uid]['jrrp'])
 				luck = getJrrp(uid)
 				text += `……好像还没检测今日气运呢。来，麻烦把手放到检测器上。\n嗯……今天的气运有${luck}呢。\n`+getJrrpComment(luck)+"\n然后，"
 			}
@@ -347,12 +145,12 @@ export default function com(ctx: Context){
 			text += "签到是吗？在这里打个卡就可以去领镐子了。\n"
 
 			let num = f.random(3,10) + luck
-		console.log(luck,num)
 			text += `\n你拿起镐子，辛勤地在灵矿峰下挥舞。最后获得了${num}个灵石。`
 			
 			user['money'] += num
 			f.usertoday[uid]['sign'] = true
 			f.saveUserdata()
+			f.saveToday()
 
 			return text
 
@@ -400,8 +198,24 @@ export default function com(ctx: Context){
 
     ctx.command('test', '测试')
 		.action( async({ session }, message)=>{
-				console.log(Time.minute)
-				return "只是个测试"
+
+				/*ctx.model.extend("user",{
+					YunData: "json"
+				})
+
+				let data = await ctx.database.getUser(session.platform, session.userId)
+
+				console.log(data)
+				let user = data.YunData
+
+				user['money'] = 100
+
+				await ctx.database.setUser(session.platform, session.userId, {YunData: user})
+				//let user = ctx.database.getUser(session.platform,session.userId)*/
+
+				let mood = f.getMood()
+
+				return "小昀今天的心情值有："+mood
 		})
     
     ctx.command('打坐修炼','打坐修炼', { maxUsage:5,minInterval: Time.minute*10})
@@ -415,7 +229,8 @@ export default function com(ctx: Context){
 			}
 			else{
 				name = session.author.nickname
-				if (!name) name = session.author.username
+				if(!name) name = session.author.username
+				await ctx.database.setUser(session.platform, uid, {name: name})
 			}
 
 			let user = f.getUser(uid)
@@ -430,8 +245,6 @@ export default function com(ctx: Context){
 			let getexp = Math.max(Math.floor(today.jrrp/10),1) + f.random(1,30)
 
 			let text = `@${name} 你静心打坐，领悟到了${getexp}的悟道值。\n悟道经验变化：${user.exp}=>${user.exp+getexp}`
-
-			console.log(name,getexp,today.jrrp)
 
 			user.exp += getexp
 
@@ -463,11 +276,12 @@ export default function com(ctx: Context){
 			else{
 				name = session.author.nickname
 				if(!name) name = session.author.username
+				await ctx.database.setUser(session.platform, uid, {name: name})
 			}
 
 			let user = f.getUser(uid)
 			let goal = 50 - Math.floor(Math.min(user.level,90)/2)
-			console.log('goal',goal)
+			console.log(name,'goal',goal)
 
 			if( user.exp >= f.expLevel(user)){
 				text = `@${name} 你沐浴更衣，在一个黄道吉日中，选择了个洞天福地释放灵识与天地连接，试图参悟些什么……\n`
