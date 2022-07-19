@@ -68,6 +68,8 @@ export default function Daily(ctx: Context){
             let data = await s.getUser(ctx, uid)
             let name = await s.getUserName(ctx,session)
             let luck
+            
+            s.getToday(uid)
 
             if(!data.flag?.signed){
                 return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"
@@ -90,14 +92,12 @@ export default function Daily(ctx: Context){
                 ['奋笔疾书',20 + ( uid==s.brother ? 50 : 0)]]
                 )}，对修道之心有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}`
             
-            if(s.usertoday.userwork > 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 10 && f.random(100) > 60 ){
+            if(s.usertoday.userwork > 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
 
                 let txt1 = `不知是否被同门师兄弟的修炼热情感染，路昀也稍微打气精神，跟着${name}一起开始修炼了。`
 
+                await session.send(txt1)
                 setYunWork(session)
-                setTimeout(() => {
-                    session.send(txt1)
-                }, 1000);
 
             }
 
