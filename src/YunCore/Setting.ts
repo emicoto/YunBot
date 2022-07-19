@@ -1,127 +1,100 @@
+import { Context, segment, Session } from "koishi"
 import fs from 'fs'
 import { createHash } from 'crypto';
+import { compare } from "./Function";
 
-export var yunstate: YunState, usertoday, userdata
+export var yunstate: YunState, usertoday
 
 export const master = '1794362968'  //师父（主人
 export const yunbot = '185632406'  //小昀本身
 export const senior = '1742029094' //周天
 
-interface UserData{
-	id: number;
-	name: string;
-	nick: string;
-	money: number;
-	favo: number;
+export interface UserData{
+	money: number; 
+	favo: number; trust: number;
 
-	luck: number;
-	lastluck: number;
-	lastroll: string;
+	luck: number; lastluck: number; lastroll: string;
 
-	level: number;
-	exp: number;
+	title:string;
 
-	HP: number[];
-	BP: number[];
-	AP: number[];
+	level: number; exp: number; soul: string;
 
-	equip: Array<any>;
-	items: Array<any>;
+	HP: number; maxHP: number;
+	AP: number; maxAP: number;
+	SP: number; maxSP:number;	
+	BP: number;
+
+	equip: any;  items: any;
 	skill: Array<any>;
+	storage: Array<any>;
+	titles: string[];
+	flag: any;
 }
 
 interface UserToday{
 	luck: number;
 	sign: boolean;
 	roll: number;
-	daily: number[];
-    kuji: Kuji;
+	daily: UserDaily;
+	kuji: Kuji;
+}
+
+interface UserDaily {
+	work: number;  //打工次数
+	gift: number;  //送礼次数
+	talk: number;  //聊天事件触发次数
+	clean: number; //打扫次数
+	go:   boolean;  //每日历练
 }
 
 interface Kuji{
-    no : number;
-    pot: string
+	no : number;
+	pot: string
 }
 
-interface YunState {
-	level: number;
-	exp: number;
+export interface YunState {
+	level: number; exp: number; soul:string;
+	talent: string[]; mood: number;
+
 	money: number;
-
-	mood: number;
-    
-    HP:number[];
-    BP:number[];
-    AP:number[];
-
-	sanity: number[];
+	HP: number; maxHP: number;   
+	san: number;
+	maxsan: number;	
+	BP: number;
 
 	stats: string;
-	acount: string;
 
 	shops: Array<any>;
-    work: number;
-    levelup: boolean;
+	work: number;
+	flag: any;
 }
 
 export function __extend(ctx){
-    ctx.model.extend("keywords",{
-        id:"unsigned",
-        name:"string",
-        group:"list",
-    })
-
-    ctx.model.extend("YunUser",{
-        id:"unsigned",
-        name:"string",
-        nick:"string",
-        money:"number",
-        favo:"number",
-
-        luck:"number",
-        lastluck:"number",
-        lastroll:"string",
-
-        level:"number",
-        exp:"number",
-
-        HP: "list",
-        BP: "list",
-        AP: "list",
-
-        equip:"json",
-        items:"json",
-        skill:"json",
-    })
+	ctx.model.extend("user",{
+		YunData:"json",
+		nick:"string",
+	})
 }
 
-
 export function initData(){
-    let timetick = new Date()
-    fs.readFile('user.json','utf-8',(err,data)=>{
-        if(err){
-            throw err;
-        }
-        if(!data) return;
-        userdata = JSON.parse(data.toString());
-    })
-    fs.readFile('yunstate.json','utf-8',(err,data)=>{
-        if(!data) return;
-        yunstate = JSON.parse(data.toString());
-        console.log("yunstate",yunstate)
-    })
-    fs.readFile('usertoday.json','utf-8',(err,data)=>{
-        if(!data) return;
-        usertoday = JSON.parse(data.toString());
+	let timetick = new Date()
+	fs.readFile('yunstate.json','utf-8',(err,data)=>{
+		if(!data) return;
+		yunstate = JSON.parse(data.toString());
+		console.log("yunstate",yunstate)
+	})
+	fs.readFile('usertoday.json','utf-8',(err,data)=>{
+		if(!data) return;
+		usertoday = JSON.parse(data.toString());
 
-        if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
-            NewToday()
-        }
-        if(!usertoday["1794362968"]){
-            initUserToday("1794362968")
-        }
-        console.log("usertoday",usertoday)
-    })
+		if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
+			NewToday()
+		}
+		if(!usertoday["1794362968"]){
+			initUserToday("1794362968")
+		}
+		console.log("usertoday",usertoday)
+	})
 }
 
 export function getMood(){
@@ -135,68 +108,134 @@ export function getMood(){
 }
 
 export function yunsave(){
-    const data = JSON.stringify(yunstate)
-    fs.writeFileSync('yunstate.json',data)
-}
+	const data1 = JSON.stringify(yunstate)
+	fs.writeFileSync('yunstate.json',data1)
 
-export function saveUserdata(){
-    const data = JSON.stringify(userdata)
-    fs.writeFileSync('user.json',data) 
+	const data2 = JSON.stringify(usertoday)
+	fs.writeFileSync('usertoday.json',data2) 
 }
 
 export function saveToday(){
-    const data = JSON.stringify(usertoday)
-    fs.writeFileSync('usertoday.json',data)   
-}
-
-export function saveAll(){
-    yunsave()
-    saveUserdata()
-    saveToday()
+	const data = JSON.stringify(usertoday)
+	fs.writeFileSync('usertoday.json',data)   
 }
 
 export function NewToday(){
-    let timetick = new Date()
-    usertoday = {
-        month : timetick.getMonth()+1,
-        day : timetick.getDate()
-    }
+	let timetick = new Date()
+	usertoday = {
+		month : timetick.getMonth()+1,
+		day : timetick.getDate(),
+		yunwork: 0,
+		userwork:0,
+		rank:[],
+		luckrank:[],
+	}
 }
 
-export function getUser(uid){
-    if (!usertoday[uid]){
-        initUserToday(uid)
-        saveToday()
-    }
+export async function makeRank( ctx:Context ){
+	const data = await ctx.database.get('user',null)
+	let rank = []
+	let luck = []
 
-    if (!userdata[uid]){
-        initUserData(uid)
-        saveUserdata()
-    }
-    if(!userdata[uid]?.level){
-        userdata[uid].level = 1;
-        userdata[uid].exp = 0
-        saveUserdata()
-    }
-    return userdata[uid]
+	for(let i in data){
+		if(data[i]['YunData']?.level){
+			rank[i] = { level: data[i]['YunData'].level , user: data[i]['name'] }
+			luck[i] = { luck: data[i]['YunData'].luck, user: data[i]['name'] }
+		}
+	}
+
+	rank.sort(compare("level"))
+	luck.sort(compare("luck"))
+
+	usertoday['rank'] = rank
+	usertoday['luckrank'] = luck
+}
+
+export async function getUser(ctx:Context, uid:string) {
+	let data, user:UserData
+
+	data = await ctx.database.getUser('onebot', uid)
+		
+	if(!data.YunData?.money){
+		user = {
+			money: 100, favo: 0, trust: 0,
+			luck: 0, lastluck: 0, lastroll: '',
+			level: 1, exp: 0,
+			soul:'杂金木水火土',
+			title:'',
+
+			HP:25, maxHP:25,
+			AP:5, maxAP:5,
+			SP:10, maxSP:10,
+
+			BP:5,
+		
+			skill:[],
+			equip:{ head:{}, coat:{}, middle:{}, skin:{}, weapon:{}, },
+			items:{},
+			storage:[],
+			titles:[],
+			flag:{},
+		}
+		data.YunData = user
+	}
+
+	user = data.YunData
+	return user
+}
+
+export async function setUser(ctx:Context, uid: string, data) {
+	await ctx.database.setUser('onebot', uid, { YunData: data})
+}
+
+
+export async function getUserName(ctx:Context, session:Session ) {
+	let user, name
+		
+	user = await ctx.database.getUser(session.platform, session.userId)
+
+	if(user.name && user.name.length >= 1) name = user.name;
+	if(user.nick && user.nick.length >= 1) name = user.nick;
+
+	if(!name){
+		name = session.author.nickname;
+		if(!name) name = session.author.username;
+		await ctx.database.setUser(session.platform, session.userId, { name: name})
+	}
+
+	return name
+}
+
+
+export async function setFavo(ctx:Context, uid:string, val:number) {
+	let data = await getUser(ctx, uid)
+
+	data['favo'] += val
+	console.log(data['favo'])
+	
+	await ctx.database.setUser('onebot', uid, { YunData: data})
+}
+
+export async function setTrust(ctx:Context, uid:string, val:number) {
+	let data = await getUser(ctx, uid)
+
+	data['trust'] += val
+	console.log(data['trust'])
+	
+	await ctx.database.setUser('onebot', uid, { YunData: data})
 }
 
 export function getToday(uid){
-    if (!usertoday[uid]){
-        initUserToday(uid)
-        saveToday()
-    }
-    return usertoday[uid]
+	if (!usertoday[uid]){
+		initUserToday(uid)
+		saveToday()
+	}
+	return usertoday[uid]
 }
 
 export function initUserToday(uid){
-    usertoday[uid] = {
-        roll:0, sign:false
-    }
+	usertoday[uid] = {
+		roll:0, sign:false
+	}
 }
 
-export function initUserData(uid){
-    userdata[uid] = {
-        lastdice:0, money:0, fav:0, level:0, exp:0
-    }
-}

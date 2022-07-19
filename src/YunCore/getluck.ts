@@ -31,12 +31,10 @@ const YunOpinion = {
 	"hdx-100":"……居然！是头签？！……看来今天运气爆棚，心想事成吧。",
 }
 
-if(!s.usertoday || !s.yunstate){
-	s.initData()
-}
+if(!s.usertoday ) s.initData();
 
 export function getJrrp(uid){
-	s.getUser(uid)
+
 	const lk = createHash('sha256')
 	lk.update(uid)
 	lk.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
@@ -44,7 +42,7 @@ export function getJrrp(uid){
 
 	let luck = Math.max(parseInt(lk.digest('hex'),16) % 101,1)
 
-	s.usertoday[uid]['jrrp'] = luck
+	s.usertoday[uid]['luck']= luck
 	s.saveToday()
 
 	return luck
@@ -90,22 +88,24 @@ export function getOmikuji(luck,uid){
 	let txt
 	let pot = ''
 
-	if(s.usertoday[uid].kuji){
+	let user = s.getToday(uid)
 
-		pot = s.usertoday[uid].kuji.pot
+	if(user.kuji){
 
-		if(s.usertoday[uid].kuji.pot=="黄大仙"){
-			kuji = hdxlq[s.usertoday[uid].kuji.no]
+		pot = user.kuji.pot
+
+		if(user.kuji.pot=="黄大仙"){
+			kuji = hdxlq[user.kuji.no]
 		}
 		else{
-			kuji = zglq[s.usertoday[uid].kuji.no]
+			kuji = zglq[user.kuji.no]
 		}
 
 	}else{
 		if(s.yunstate.mood < 66){
 			kuji = huandaxian(luck)
 			pot = '黄大仙'
-			s.usertoday[uid]['kuji']={
+			user['kuji']={
 				pot:pot,
 				no:kuji.id-1
 			}
@@ -113,11 +113,12 @@ export function getOmikuji(luck,uid){
 		else{
 			kuji = zhougong(luck)
 			pot = '周公'
-			s.usertoday[uid]['kuji']={
+			user['kuji']={
 				pot:pot,
 				no:kuji.id-1
 			}
 		}
+		s.saveToday()
 	}
 
 	txt = `第${kuji.no}签呢。我看看……（拿起签文读了起来。）\n${kuji.luck}签 ${kuji.title}\n${kuji.text}\n`
@@ -129,21 +130,21 @@ export function getOmikuji(luck,uid){
 
 export default function getluck(ctx: Context){
 
-	ctx.command("每日一卦","今日气运")
+	ctx.command("每日一卦","jrrp。小昀帮你算今天一卦。")
 		.alias("jrrp")
 		.shortcut('卜卦')
 		.action(async({ session }, target)=>{
 			let uid = session.userId
-			let user = await ctx.database.getUser(session.platform, uid)
-			let name = user.name
-
-			if(!name){
-				name = session.author.nickname
-				if(!name) name = session.author.username
-				await ctx.database.setUser(session.platform, uid, {name: name})
-			}
+			let data = s.getUser(ctx, uid)
+			let name = s.getUserName(ctx, session)
 
 			const luck = getJrrp(uid)
+
+			if(data['lastluck'] !== data['luck']) {
+				data['lastluck'] = data['luck'];
+			}
+			data['luck'] = luck
+			s.setUser(ctx,uid,data)
 
 			let res1 = [
 				`${f.faceicon("普通")}`,

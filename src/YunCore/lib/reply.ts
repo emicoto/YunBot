@@ -1,5 +1,5 @@
 import{ random, either, images, maybe, At, faceicon }  from '../Function'
-import { yunstate, yunsave, master, senior, userdata } from '../Setting'
+import { yunstate, yunsave, master, senior, getUser, setFavo, setTrust} from '../Setting'
 import { expLevel } from '../Function'
 
 export const Res = [
@@ -14,8 +14,9 @@ export const Res = [
 },
 { //id.2
 	m:/(醒来|醒了|睡醒|起床|吓醒|惊醒|困醒|帅醒)\S{0,3}$|早啊|早安|早上好|大家早|^早{0,2}$|[床]\S{0,5}[起来]\S{0,3}$|[床]\S{0,5}[出来]\S{0,3}$|/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		let text
+
 		if(uid == master ){
 			text = either(['早啊……师父。','师父，早安。','师父，早？']);
 
@@ -37,7 +38,7 @@ export const Res = [
 },
 { //id.3
 	m:/(\S{2})一时爽[\S+](\S{2})[火葬场]/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		let txt = str.match(/(\S{2})一时爽/)
 		return maybe([
 			[`next`,30],
@@ -47,7 +48,7 @@ export const Res = [
 },
 { //id.4
 	m:/^(.+)一时爽$/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		let txt = str.match(/^(.+)一时爽$/)
 
 		if(str.match('挖坑')) txt[1] = '填坑';
@@ -75,7 +76,7 @@ export const Res = [
 },
 { //id.6
 	m:/(小昀|路昀).+(醒醒|醒来|不给睡|起床|起来)|(醒醒|醒来|不给睡|起床|起来).+(小昀|路昀)/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		if(random(100) < 60){
 
 			yunstate.stats = 'wake'
@@ -97,7 +98,7 @@ export const Res = [
 },
 { //id.7
 	m:/^((?!还没|没有|没想|不困|说到这个).)*((困了|睡了|睡去|睡觉|晚安|去睡|睡啦|眠去|眠了|安安啦|歇了)\.{0,8}$|^安{1,5}$)/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		if (uid == master && random(100) < 50 ){
 			yunstate.stats = 'sleep'
 			yunsave()
@@ -117,8 +118,8 @@ export const Res = [
 	}
 },
 { //id.8
-	m:/^哈{2,}$|^\S{0,1}乐\S{0,4}$|^h{3,}$|^23{3,}$|^w{1,}$|^\S{0,5}生草了\S{0,3}哈{0,}$|^艹{1,}\S{0,3}$/,
-	re:(str,uid)=>{
+	m:/^哈{2,}$|^\S{0,1}乐\S{0,4}$|^h{3,}$|^23{2,}$|^w{1,}$|^\S{0,5}生草了\S{0,3}哈{0,}$|^艹{1,}\S{0,3}$/,
+	re:(str,uid,ctx)=>{
 
 		if(str.match(/^\S{0,5}生草了\S{0,3}哈{0,}$/)){
 			str = images('kusa.jpg')
@@ -127,7 +128,7 @@ export const Res = [
 		return either([
 			'next',
 			'hhh',
-			'乐了',
+			'乐',
 			images('doge.jpg'),
 			'艹',
 			images('dance.gif'),
@@ -136,10 +137,10 @@ export const Res = [
 	}
 },
 { //id.9
-	m:/\[CQ:image,file=(.+)\]$|\[CQ:image,file=(.+)\]$/,
-	re:(str,uid)=>{
+	m:/^\[CQ:image,file=(.+)\]$|^\[CQ:image,file=(.+)\].{1,24}/,
+	re:(str,uid,ctx)=>{
 
-		if(str.match(/\[CQ:image,file=(.+)\]/)){
+		if(str.match(/^\[CQ:image,file=(.+)\].{1,24}/)){
 			let u = str.match(/\[CQ:image,file=(.+)\]/)
 			let url = u[1]
 		}
@@ -153,13 +154,13 @@ export const Res = [
 { //id.10
 	m:/涩涩|色色|瑟瑟|透透|很色|很涩|色爆|涩爆|射爆|蛇爆|涩图|色图|瑟图/,
 	re: maybe([
-		[images("nosese.jpg"),50],
-		['next',50],		
+		[images("nosese.jpg"),40],
+		['next',80],
 		])
 },
 {//id.11
 	m:/情人节快乐|情人节|恋人|伴侣/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		let txt = maybe([
 			["next",10],
 			[`${faceicon("害羞笑")}\n……听说今天是给人送巧克力的节日……嗯，所以……我会有吗？`,15],				
@@ -178,7 +179,7 @@ export const Res = [
 },
 { //id.12
 	m:/(小昀|路昀|有人).+(来玩|来打|一起|联机)\S{0,4}(游戏|丧尸|僵尸|环世界|MC|我的世界|PZ|僵毁)/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		let m = str.match(Res[12].m)
 		let game = m[3]
 
@@ -199,7 +200,7 @@ export const Res = [
 },
 { //id.13
 	m:/(玩|打|联机)\S{0,3}(PZ|僵毁|丧毁|僵尸毁灭计划|丧尸毁灭计划|丧尸|僵尸)/,
-	re:(str,uid)=>{
+	re:(str,uid,ctx)=>{
 		return maybe([
 			['next',20],
 			[`Project Zomboid，这个游戏挺硬核的，同时也很有趣呢。\n${faceicon("微笑")}\n在末日的黄昏下，人在圈中悠闲地种菜，外面确尸山遍野什么的……不觉得这样的挺有种矛盾感、一种特别的末日浪漫吗？`,10],			
@@ -211,11 +212,10 @@ export const Res = [
 },
 {//id.14
 	m:/(小昀|路昀)\S{0,2}(笨蛋|傻逼|蠢蛋|傻瓜|笨笨|傻蛋)|(死|蠢|笨|傻|臭)\S{0,2}(小昀|路昀)/,
-	re: async (str,uid)=>{
+	re: async (str,uid,ctx)=>{
 
-			//let data = await ctx.database.get('YunUser',{uid:uid})
-			//let user = data[0]
-			//user.favo -= random(20,50)
+		let favo = random(10,30)
+		let trust = random(10,30)
 
 		let txt = either([
 			"……呜，你这是在骂我吗？",
@@ -225,7 +225,9 @@ export const Res = [
 		])		
 
 		if(str.match(/宝|亲亲|摸摸/)){
-			return faceicon("生气") + "…………。好好地称呼人就不行吗？\n（好感下降了一点）"
+			favo = random(3,10)
+			setFavo(ctx, uid, -favo)
+			return faceicon("生气") + "…………。好好地称呼人就不行吗？\n（好感下降了）"
 		}
 
 		if(str.match(/(死|蠢|笨|傻|臭)\S{0,2}(小昀|路昀)/)){
@@ -239,28 +241,35 @@ export const Res = [
 			])
 
 			txt += '\n（好感度与信赖度都大幅下降了）'
+			favo = random(20,50)
+			trust = random(20,50)
+
+			setFavo(ctx,uid,-favo)
+			setTrust(ctx,uid,-trust)
 
 			return faceicon('愤怒')+txt
 		}
 
 		txt = faceicon('生气') + txt + "\n（好感度与信赖度都下降了）"
+		setFavo(ctx,uid,-favo)
+		setTrust(ctx,uid,-trust)
 
 		return txt
 	}
 },
 { //id.15
 	m:/(小昀|路昀)~{0,2}\S{0,5}(出来|在吗|过来|招呼|接客|见客|客人来啦)\S{0,5}$|(小昀|路昀)\S{0,5}$/,
-	re:(str,uid)=>{
-		let txt = faceicon("普通")+"\n……在叫我吗？"
+	re:(str,uid,ctx)=>{
+		let txt = faceicon("普通")+"\n……在叫我吗？" + (uid== master? '师父' : '')
 		return txt
 	}
 },
 ]
 
-export function Respond(str,uid){
+export function Respond(str,uid,ctx){
 	for(let i in Res){
 		if(str.match(Res[i].m)){
-			if(typeof(Res[i].re)=='function') return Res[i].re(str,uid);
+			if(typeof(Res[i].re)=='function') return Res[i].re(str,uid,ctx);
 			return Res[i].re
 		}
 	}
@@ -283,6 +292,9 @@ export function whileSleeping(mode, session?){
 	else{
 		if(session.content.match(Res[7].m) && random(100) > (100-25) ){
 			return `${faceicon("睡眠")}\n（也在睡了）`
+		}
+		if(session.content.match(Res[15].m)){
+			return `${faceicon("睡眠")}\n（已经睡着了，叫不动的样子……）`
 		}
 		if(random(1000) > (1000-25) && session.content.length > 4){
 			return either([
@@ -333,6 +345,10 @@ export function whileWorking(mode, session?){
 	}
 }
 
+export function whileGaming(mode, session?){
+
+}
+
 export function setYunWork(session){
 	yunstate.work = 150
 	yunstate.stats = 'working'
@@ -348,7 +364,7 @@ export function setYunWork(session){
 		yunsave();
 
 		if( yunstate.work == 0 ){
-			let getexp = Math.floor(random(3,60)*(1+(yunstate.level/10))+0.5)
+			let getexp = Math.floor(random(3,60)*(1+(yunstate.level/10))*1.5+0.5)
 			yunstate.exp += getexp
 			yunstate.stats = 'wake'
 			yunsave()
@@ -356,7 +372,7 @@ export function setYunWork(session){
 			session.send(`${faceicon("普通")}\n……好了，今天就修炼到这里吧……。\n(路昀的悟道经验+${getexp}， 目前进度：${yunstate.exp}/${expLevel(yunstate)})`)
 
 			if ( yunstate.exp >= expLevel(yunstate)){
-				yunstate.levelup = true
+				yunstate.flag.levelup = true
 				session.send(`嗯……好像已经到瓶颈了。得找个时间去突破了……`)
 			}
 

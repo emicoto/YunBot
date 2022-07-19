@@ -4,6 +4,7 @@ import * as f from "./function"
 
 import getluck from "./getluck-fork";
 import { getJrrp, getJrrpComment } from "./getluck-fork"
+import { setFavo } from "./YunCore/Setting";
 
 function getShichen(){
 	const gan = [
@@ -198,24 +199,12 @@ export default function com(ctx: Context){
 
     ctx.command('test', '测试')
 		.action( async({ session }, message)=>{
-
-				/*ctx.model.extend("user",{
-					YunData: "json"
+				ctx.model.extend("user",{
+					YunData:"json",
+					nick:"string",
 				})
-
-				let data = await ctx.database.getUser(session.platform, session.userId)
-
-				console.log(data)
-				let user = data.YunData
-
-				user['money'] = 100
-
-				await ctx.database.setUser(session.platform, session.userId, {YunData: user})
-				//let user = ctx.database.getUser(session.platform,session.userId)*/
-
-				let mood = f.getMood()
-
-				return "小昀今天的心情值有："+mood
+				setFavo(ctx, session.userId, 10)
+				return '测试结果详细请看Log.'
 		})
     
     ctx.command('打坐修炼','打坐修炼', { maxUsage:5,minInterval: Time.minute*10})

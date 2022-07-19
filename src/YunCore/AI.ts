@@ -5,18 +5,20 @@ import * as r from "./lib/reply"
 
 export default async function YunAI(ctx: Context) {
 
-	if( !s.usertoday || !s.yunstate || !s.userdata ) s.initData();
+	if( !s.usertoday || !s.yunstate ) s.initData();
 
 	ctx.middleware(async(session, next)=>{
 		let timetick = new Date()
 		if( s.usertoday?.day != timetick.getDate()) {
 			s.NewToday()
+			s.yunstate.mood = s.getMood()
+			s.yunsave()
 		}
 		
 		let uid = session.userId
-		let text = r.Respond(session.content, uid)
+		let text = r.Respond(session.content, uid, ctx)
 
-		// text = ChatEvent(session)
+		// text = e.ChatEvent(session)
 
 		if(s.yunstate.stats == "sleep"){
 			text = r.whileSleeping("session",session)

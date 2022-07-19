@@ -14,7 +14,7 @@ export default function YunCore(ctx: Context){
     s.__extend(ctx)
     s.initData()
     s.yunstate.mood = s.getMood()
-    s.saveAll()
+    s.yunsave()
 
 
 	var botstatus
