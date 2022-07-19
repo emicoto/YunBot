@@ -364,10 +364,11 @@ export function setYunWork(session){
 		s.yunstate.work --;
 		s.yunsave()
 
-		if( s.yunstate.work == 0 ){
+		if( s.yunstate.work <= 0 ){
 			let getexp = Math.floor(f.random(3,60)*(1+(s.yunstate.level/10))*1.5+0.5)
 			s.yunstate.exp += getexp
 			s.yunstate.stats = 'free'
+			s.yunstate.work = 0
 			s.yunsave()
 
 			session.send(`${f.faceicon("普通")}\n……好了，今天就修炼到这里吧……。\n(路昀的悟道经验+${getexp}， 目前进度：${s.yunstate.exp}/${f.expLevel(s.yunstate.level)})`)
