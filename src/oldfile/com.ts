@@ -4,7 +4,6 @@ import * as f from "./function"
 
 import getluck from "./getluck-fork";
 import { getJrrp, getJrrpComment } from "./getluck-fork"
-import { setFavo } from "./YunCore/Setting";
 
 function getShichen(){
 	const gan = [

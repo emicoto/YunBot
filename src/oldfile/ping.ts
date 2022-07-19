@@ -1,7 +1,7 @@
 import { Bot, Context, segment, Session} from "koishi";
 import { Lunar } from "lunar-javascript"
 import * as f from "./function";
-import { getResCount } from "./YunCore/lib/reply"
+import { getResCount } from "../YunCore/Reply"
 
 var YunWorking
 

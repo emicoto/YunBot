@@ -1,7 +1,7 @@
 //周公灵签
 //https://www.zgjm.org/chouqian/zhougong/1.html
 
-const { random, between } = require('../../function')
+const { random, between } = require('../Function')
 const zgpool = [
 	[1,1],
 	[2,10],

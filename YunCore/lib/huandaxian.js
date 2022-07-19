@@ -1,7 +1,7 @@
 //黄大仙灵签
 //https://www.zgjm.org/chouqian/huangdaxian/1.html
 
-const { random, between } = require('../../function')
+const { random, between } = require('../Function')
 const hdxpool = [
 	[1,18],
 	[19,56],

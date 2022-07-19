@@ -1,13 +1,13 @@
 import { Context, segment } from "koishi";
 import * as f from "./Function"
 import * as s from "./Setting"
-import * as r from "./lib/reply"
+import * as r from "./Reply"
+
 
 export default async function YunAI(ctx: Context) {
 
-	if( !s.usertoday || !s.yunstate ) s.initData();
-
 	ctx.middleware(async(session, next)=>{
+
 		let timetick = new Date()
 		if( s.usertoday?.day != timetick.getDate()) {
 			s.NewToday()
@@ -16,6 +16,7 @@ export default async function YunAI(ctx: Context) {
 		}
 		
 		let uid = session.userId
+		let name = await s.getUserName(ctx, session)
 		let text = r.Respond(session.content, uid, ctx)
 
 		// text = e.ChatEvent(session)
@@ -33,7 +34,7 @@ export default async function YunAI(ctx: Context) {
 		}
 
 		if( session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) ){
-			if(f.random(100) <= 30){
+			if(f.random(100) > 70 ){
 				r.setYunWork(session)
 				return f.either([
 					"……静心，打坐……",
@@ -48,6 +49,23 @@ export default async function YunAI(ctx: Context) {
 				+ '活着都这么累了……今天不如休息吧？好不好？',
 				'……好困（揉揉眼睛',
 				]);
+			}
+		}
+
+		if( !text || text == "next"){
+			if(session.content.length > 1 && f.random(1000) < 20){
+				session.send('o(-。- o)===3 ) σ- . -)σ"')
+				return segment("poke", { qq: session.userId });
+			}
+			else if( session.content.length > 1 && f.random(1000) < 20){
+				return f.either([
+					f.images("doge.jpg"),
+					f.images("seekinside.png"),
+					f.images("moyu.png"),
+					f.images("cat_drink.jpg"),
+					f.images('dance.gif'),
+					f.images('cat.gif')
+				])
 			}
 		}
 

@@ -3,11 +3,58 @@ import fs from 'fs'
 import { createHash } from 'crypto';
 import { compare } from "./Function";
 
-export var yunstate: YunState, usertoday
+export default class YunBot {
+	public static yunstate: YunState;
+	public static usertoday: any;
 
-export const master = '1794362968'  //师父（主人
-export const yunbot = '185632406'  //小昀本身
-export const senior = '1742029094' //周天
+	public static getYunData() {
+		if ( !yunstate ){
+			fs.readFile('Yunstate.json','utf-8',(err,data)=>{
+				if(!data) return;
+				if(err) throw new Error("error occured while reading file:Yunstate.json");
+					yunstate = JSON.parse(data.toString());
+			})
+		}
+		if(yunstate) {
+			yunstate.mood = getMood()
+			return yunstate
+		}
+	}
+	public static getUsertoday(){
+		let timetick = new Date()
+		if( !usertoday ){
+			fs.readFile('Yunstate.json','utf-8',(err,data)=>{
+				if(!data) return;
+				if(err) throw new Error("error occured while reading file:usertoday.json");
+				usertoday = JSON.parse(data.toString());
+
+				if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
+					NewToday()
+				}
+				if(!usertoday["1794362968"]){
+					initUserToday("1794362968")
+				}
+				console.log("getUsertoday:",usertoday)
+			})
+		}
+		if(usertoday) return usertoday
+	}
+}
+
+export var yunstate : YunState = YunBot.yunstate
+export var usertoday : any = YunBot.usertoday
+export const master: string = '1794362968'
+export const yunbot: string = '185632406'
+export const senior: string = '1742029094'
+export const cleaner: string = '1632519382'
+export const brother: string = '541084126'
+
+if(!yunstate){
+	YunBot.getYunData()
+	YunBot.getUsertoday()
+	console.log('数据同步中……')
+}
+
 
 export interface UserData{
 	money: number; 
@@ -23,6 +70,8 @@ export interface UserData{
 	AP: number; maxAP: number;
 	SP: number; maxSP:number;	
 	BP: number;
+
+	ATK:number; DEF:number;
 
 	equip: any;  items: any;
 	skill: Array<any>;
@@ -69,16 +118,17 @@ export interface YunState {
 	flag: any;
 }
 
+
 export function __extend(ctx){
 	ctx.model.extend("user",{
 		YunData:"json",
 		nick:"string",
 	})
 }
-
+/*
 export function initData(){
 	let timetick = new Date()
-	fs.readFile('yunstate.json','utf-8',(err,data)=>{
+	fs.readFile('Yunstate.json','utf-8',(err,data)=>{
 		if(!data) return;
 		yunstate = JSON.parse(data.toString());
 		console.log("yunstate",yunstate)
@@ -95,7 +145,7 @@ export function initData(){
 		}
 		console.log("usertoday",usertoday)
 	})
-}
+}*/
 
 export function getMood(){
 	const hash = createHash('sha256')
@@ -109,10 +159,7 @@ export function getMood(){
 
 export function yunsave(){
 	const data1 = JSON.stringify(yunstate)
-	fs.writeFileSync('yunstate.json',data1)
-
-	const data2 = JSON.stringify(usertoday)
-	fs.writeFileSync('usertoday.json',data2) 
+	fs.writeFileSync('Yunstate.json',data1)
 }
 
 export function saveToday(){
@@ -147,8 +194,8 @@ export async function makeRank( ctx:Context ){
 	rank.sort(compare("level"))
 	luck.sort(compare("luck"))
 
-	usertoday['rank'] = rank
-	usertoday['luckrank'] = luck
+	YunBot.usertoday['rank'] = rank
+	YunBot.usertoday['luckrank'] = luck
 }
 
 export async function getUser(ctx:Context, uid:string) {
@@ -164,11 +211,11 @@ export async function getUser(ctx:Context, uid:string) {
 			soul:'杂金木水火土',
 			title:'',
 
-			HP:25, maxHP:25,
+			HP:30, maxHP:30,
 			AP:5, maxAP:5,
 			SP:10, maxSP:10,
 
-			BP:5,
+			BP:5,  ATK:5, DEF: 5,
 		
 			skill:[],
 			equip:{ head:{}, coat:{}, middle:{}, skin:{}, weapon:{}, },
@@ -178,8 +225,9 @@ export async function getUser(ctx:Context, uid:string) {
 			flag:{},
 		}
 		data.YunData = user
+		await ctx.database.setUser('onebot', uid, { YunData: user })
 	}
-
+	
 	user = data.YunData
 	return user
 }

@@ -136,9 +136,11 @@ export function getLevelChar(lv){
 	return text
 }
 
-
-export function expLevel(user){
-	return Math.max(Math.floor((user.level+1)*10+Math.pow(user.level+1,2.5)+0.5),20)
+export function expLevel(level){
+	let a = Math.max(Math.floor(75/20+0.5),1.5)
+	let result = (level+1)*10 + Math.pow(level,2.5) + (Math.pow(level,a))
+	result = Math.floor(result/20)*20
+	return result
 }
 
 export function getTimeZone(hour){
@@ -150,4 +152,38 @@ export function getTimeZone(hour){
 	if(between(hour,17,19)) return '傍晚'
 	if(between(hour,20,22)) return '晚上'
 	return '深夜'
+}
+
+export function getSoulBuff(string){
+	let type, chara
+	type = string.match(/天/)
+	chara = string.match(/金|木|水|火|土/g)
+
+	let list = [1.2,1.1,1,0.9,0.8]
+
+	if(type) return 1.5
+	return list[chara.length-1]
+}
+
+export function printSoul(string){
+	let type, chara,text
+	type = string.match(/天/)
+	chara = string.match(/金|木|水|火|土/g)
+
+	let list = ['单','双','三','杂',"杂"]
+	
+	text = chara.join("")
+
+	if(!type) text += ` · ${list[chara.length-1]}灵根`;
+	else text = `${type} · ${text}灵根`;
+
+	return text
+}
+
+export function expCount(getexp,data){
+	getexp *= 1+(data.level/5)
+	getexp *= getSoulBuff(data.soul)
+	getexp = Math.floor(getexp+0.5)
+
+	return getexp
 }

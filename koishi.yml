@@ -27,7 +27,6 @@ plugins:
   dataview: null
   admin: null
   broadcast: null
-  callme: null
   echo: null
   schedule: null
   rate-limit: null
@@ -39,5 +38,6 @@ plugins:
       onFriendRequest: true
   baidu: null
   teach: null
-  ./src/ping: null
-  ./src/com: null
+  dice: null
+  hitokoto: null
+  ./YunCore/index: null

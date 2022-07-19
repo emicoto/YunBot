@@ -1,13 +1,12 @@
 import { Context } from "koishi"
 import { createHash } from "crypto" 
-import * as f from "./Function"
-import * as s from "./Setting"
+import { faceicon, images, random, At, getUser, usertoday, saveToday, yunstate, initData}  from "./function"
 
-import { huandaxian,hdxlq } from "./lib/huandaxian"
-import { zhougong, zglq} from "./lib/zhougong"
+import { huandaxian,hdxlq } from "../YunCore/lib/huandaxian"
+import { zhougong, zglq} from "../YunCore/lib/zhougong"
 
 const levels = [0,20,40,60,80]
-const jackpot = [1,39,42,66,77,100]
+const jackpot = [0,39,42,66,77,100]
 const zgpot = [1]
 const hdxpot = [98,99,100]
 
@@ -31,19 +30,21 @@ const YunOpinion = {
 	"hdx-100":"……居然！是头签？！……看来今天运气爆棚，心想事成吧。",
 }
 
-if(!s.usertoday ) s.initData();
+if(!usertoday || !yunstate){
+	initData()
+}
 
 export function getJrrp(uid){
-
+	getUser(uid)
 	const lk = createHash('sha256')
 	lk.update(uid)
 	lk.update((new Date().getTime() / (1000 * 60 * 60 * 24)).toFixed(0))
 	lk.update('908')
 
-	let luck = Math.max(parseInt(lk.digest('hex'),16) % 101,1)
+	let luck = parseInt(lk.digest('hex'),16) % 101
 
-	s.usertoday[uid]['luck']= luck
-	s.saveToday()
+	usertoday[uid]['jrrp'] = luck
+	saveToday()
 
 	return luck
 }
@@ -88,24 +89,22 @@ export function getOmikuji(luck,uid){
 	let txt
 	let pot = ''
 
-	let user = s.getToday(uid)
+	if(usertoday[uid].kuji){
 
-	if(user.kuji){
+		pot = usertoday[uid].kuji.pot
 
-		pot = user.kuji.pot
-
-		if(user.kuji.pot=="黄大仙"){
-			kuji = hdxlq[user.kuji.no]
+		if(usertoday[uid].kuji.pot=="黄大仙"){
+			kuji = hdxlq[usertoday[uid].kuji.no]
 		}
 		else{
-			kuji = zglq[user.kuji.no]
+			kuji = zglq[usertoday[uid].kuji.no]
 		}
 
 	}else{
-		if(s.yunstate.mood < 66){
+		if(yunstate.mood < 66){
 			kuji = huandaxian(luck)
 			pot = '黄大仙'
-			user['kuji']={
+			usertoday[uid]['kuji']={
 				pot:pot,
 				no:kuji.id-1
 			}
@@ -113,12 +112,11 @@ export function getOmikuji(luck,uid){
 		else{
 			kuji = zhougong(luck)
 			pot = '周公'
-			user['kuji']={
+			usertoday[uid]['kuji']={
 				pot:pot,
 				no:kuji.id-1
 			}
 		}
-		s.saveToday()
 	}
 
 	txt = `第${kuji.no}签呢。我看看……（拿起签文读了起来。）\n${kuji.luck}签 ${kuji.title}\n${kuji.text}\n`
@@ -130,24 +128,24 @@ export function getOmikuji(luck,uid){
 
 export default function getluck(ctx: Context){
 
-	ctx.command("每日一卦","jrrp。小昀帮你算今天一卦。")
+	ctx.command("每日一卦","今日气运")
 		.alias("jrrp")
 		.shortcut('卜卦')
 		.action(async({ session }, target)=>{
 			let uid = session.userId
-			let data = s.getUser(ctx, uid)
-			let name = s.getUserName(ctx, session)
+			let user = await ctx.database.getUser(session.platform, uid)
+			let name = user.name
+
+			if(!name){
+				name = session.author.nickname
+				if(!name) name = session.author.username
+				await ctx.database.setUser(session.platform, uid, {name: name})
+			}
 
 			const luck = getJrrp(uid)
 
-			if(data['lastluck'] !== data['luck']) {
-				data['lastluck'] = data['luck'];
-			}
-			data['luck'] = luck
-			s.setUser(ctx,uid,data)
-
 			let res1 = [
-				`${f.faceicon("普通")}`,
+				`${faceicon("普通")}`,
 				`嗯？${name}想检测下今天的气运吗？ 那……麻烦先抽个签吧。\n（指了指放在桌子上的签筒）`,
 				]
 			
@@ -166,21 +164,22 @@ export default function getluck(ctx: Context){
 	
 	ctx.command("黄大仙灵签","黄大仙灵签")
 		.alias("hdxlq")
+		.option("no","-no")
 		.action(({ session })=>{
-			let no = f.random(99)
+			let no = random(99)
 			let kuji = hdxlq[no]
-			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/huangdaxian/${kuji.no}.html\n${f.images(`hdxlq/${kuji.no}.png`)}`
+			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/huangdaxian/${kuji.no}.html\n${images(`hdxlq/${kuji.no}.png`)}`
 			
-			return f.At(session.userId)+txt
+			return At(session.userId)+txt
 		})
 	
 	ctx.command("周公灵签","周公灵签")
 		.alias("zglq")
 		.action(({ session })=>{
-			let no = f.random(99)
+			let no = random(99)
 			let kuji = zglq[no]
-			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/zhougong/${kuji.no}.html\n${f.images(`zglq/${kuji.no}.png`)}`
+			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/zhougong/${kuji.no}.html\n${images(`zglq/${kuji.no}.png`)}`
 			
-			return f.At(session.userId)+txt
+			return At(session.userId)+txt
 		})
 }
