@@ -2,7 +2,7 @@ import { Context, RuntimeError, segment, Time } from "koishi";
 import { Lunar, Tao } from "lunar-javascript";
 
 import * as f from "./Function"
-import * as s from "./Setting"
+import YunBot, * as s from "./Setting"
 
 export default function Com(ctx: Context){
 
@@ -74,11 +74,19 @@ export default function Com(ctx: Context){
             }
         })
     
-    ctx.command('陪同修炼','和路昀一起修炼',{ maxUsage:2, minInterval: Time.hour})
+    ctx.command('陪同修炼','和路昀一起修炼',{ minInterval: Time.hour/2})
         .action(async ({ session }) => {
             let uid = session.userId
             let data = await s.getUser(ctx, uid)
             let name = await s.getUserName(ctx, session)
+			let today = s.getToday(uid)
             
+			if(f.ComUsage(today,'陪同修炼',2)){
+				return '……我已经累了……'
+			}
+			else{
+				today.usage['陪同修炼'] ++
+			}
+			
         })
 }

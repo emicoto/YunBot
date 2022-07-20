@@ -114,6 +114,14 @@ export function getChinaTime(){
 }
 
 
+export function ComUsage(utoday, str:string, limit:number){
+    if ( !utoday.usage[str] ) utoday.usage[str] = 0;
+    if ( utoday.usage[str] >= limit ) return false
+	console.log(utoday.usage)
+    return true
+}
+
+
 export function getLevelChar(lv){
 	let level = [
 		'入门','破幻','灵动','开元','结丹','解灵','归一','通天','大乘'

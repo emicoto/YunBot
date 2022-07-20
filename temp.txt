@@ -23,9 +23,6 @@ DEF : 5+ 等级加成（每2级+1，每10级+10） + 装备加成 + 土灵根加
 火 ATK +100%  | +50% | +30% | +20% | +10%
 土 DEF +100%  | +50% | +30% | +20% | +10%
 
-· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n
-${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }
-
     ctx.command('my-command')
 		.option('writer', '-w <id>')
 		.option('writer', '--anonymous', { value: 0 })

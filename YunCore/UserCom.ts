@@ -2,7 +2,7 @@ import { Context, RuntimeError, segment, Time } from "koishi";
 
 import * as f from "./Function"
 import * as s from "./Setting"
-import { LingGenUtils } from "./utils";
+import { LingGenUtils } from "./lib/LingGen";
 
 export default function UserCom(ctx: Context) {
 
@@ -92,7 +92,7 @@ export default function UserCom(ctx: Context) {
 
 		if (data.flag?.signed) return '已经注册过了哦。';
 
-		await session.send('好的，麻烦先在这里填个名字……\n……嗯，要注意的是，不可以有特殊字符或图片、表情哦\n以及用户名与原有的相同可能会导致存档失败。可以用.username查看现有用户名。')
+		await session.send('好的，麻烦先在这里填个名字……\n……嗯，要注意的是，不可以有特殊字符或图片、表情哦')
 
 		let username = await session.prompt(Time.minute * 2)
 		if (!username) return '……写个名字太久了，目前流程已经失效了。'
@@ -176,13 +176,18 @@ export default function UserCom(ctx: Context) {
 		let txt = ''
 		let user = await ctx.database.getUser(session.platform, uid)
 		let data = await s.getUser(ctx, uid)
+		let today = s.getToday(uid)
+
+		if( !today.usage['小灵通'] ) today.usage['小灵通'] = 0;
+
+		today.usage['小灵通'] ++
+		s.saveToday()
 
 		let level = f.getLevelChar(data.level)
 		let needexp = f.expLevel(data.level)
 		let soul = f.printSoul(data.soul)
-		let today = s.getToday(uid)
 
-		txt = `· ${user.name}的个人面板：\n· 昵称：${user.nick}\n${data.title.length > 1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运： ${data.luck}\n—————————————————\nHP：${data.HP}/${data.maxHP}  SP:${data.SP}/${data.maxSP}\nAP: ${data.AP}/${data.maxAP}\nATK:${data.ATK} DEF:${data.DEF}\n—————————————————\n· 持有灵石：${data.money}\n`
+		txt = `· ${user.name}的个人面板：\n${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }———————————————\nHP：${data.HP}/${data.maxHP}  SP:${data.SP}/${data.maxSP}\nAP: ${data.AP}/${data.maxAP}\nATK:${data.ATK} DEF:${data.DEF}\n———————————————\n· 持有灵石：${data.money}\n`
 		return txt
 	})
 

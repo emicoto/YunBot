@@ -18,7 +18,7 @@ export default function Daily(ctx: Context){
             let today = s.getToday(uid)
 
             if(today.sign === true){
-                return "今天已经签到过了。"
+                return "……今天已经打过卡了。"
             }
 
             if(!data.flag?.signed){
@@ -64,7 +64,7 @@ export default function Daily(ctx: Context){
 
         })
     
-    ctx.command("修炼","进行日常修炼", { maxUsage:5, minInterval: Time.minute*10})
+    ctx.command("修炼","进行日常修炼", { minInterval: Time.minute*10})
         .action( async({ session }) =>{
             let uid = session.userId
             let data = await s.getUser(ctx, uid)
@@ -77,12 +77,18 @@ export default function Daily(ctx: Context){
                 return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"
             }
 
+            if(f.ComUsage(today, '修炼', 5) === false){
+                return "一天最多只能修炼五次而已……"
+            }else{
+                today.usage['修炼']++
+            }
+
             if(today.luck <= 0){
                 luck = getJrrp(uid)
             }
             luck = today.luck
 
-            let getexp = Math.max(Math.floor(luck/10+0.5),1) + f.random(1,30)
+            let getexp = Math.max(Math.floor(luck/10+0.5),1) + f.random(3,30)
             getexp = f.expCount(getexp,data)
 
             let txt = `@${name} 你${f.maybe([
@@ -94,7 +100,7 @@ export default function Daily(ctx: Context){
                 ['奋笔疾书',20 + ( uid==s.brother ? 50 : 0)]]
                 )}，对修道之心有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}`
             
-            if(s.usertoday.userwork > 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
+            if(s.usertoday.userwork >= 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
 
                 let txt1 = `不知是否被同门师兄弟的修炼热情感染，路昀也稍微打气精神，跟着${name}一起开始修炼了。`
 
@@ -112,13 +118,21 @@ export default function Daily(ctx: Context){
             return txt
         })
     
-    ctx.command('境界突破',"境界突破", {maxUsage:2})
+    ctx.command('境界突破',"境界突破", { minInterval: Time.minute*10})
         .alias('突破')
         .action( async({ session })=>{
             let uid = session.userId
             let data = await s.getUser(ctx,uid)
             let name = await s.getUserName(ctx, session)
             let today = s.getToday(uid)
+
+            if ( f.ComUsage(today, '突破', 2) === false ){
+                return '一天只能尝试突破两次哦。'
+            }
+            else{
+                today.usage['突破'] ++
+                s.saveToday()
+            }
 
             if(!data.flag?.signed){
                 return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"

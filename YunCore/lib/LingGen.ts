@@ -1,4 +1,4 @@
-import { random } from "./Function";
+import { random } from "../Function";
 
 
 export enum LingGen {
@@ -80,7 +80,7 @@ export class LingGenUtils {
 
   }
   private getElements(num: number = 1) {
-    const el = [Elements.金, Elements.木, Elements.水, Elements.火, Elements.土]
+    const el = [Elements.木, Elements.火, Elements.金, Elements.水, Elements.土]
 const arr = []
 const equalQB=this.equalQB();
 const equalQA=this.equalQA();
@@ -92,18 +92,18 @@ return [el[_result]];
 case 2:
 arr.push(...el.splice(this._result, 1));
 if(equalQB &&  !equalQA)arr.push(...el.splice(_qa, 1));
-else if(equalQA &&  !equalQB)arr.push(...el.splice(this._qb, 1));
+else if(equalQA &&  !equalQB)arr.push(...el.splice(_qb, 1));
 else {
 arr.push(el[random(3)])
 }
 return arr
 case 3:
 if(!equalQB && !equalQA && !equalQAandQB){
-arr.push(el[_result],el[this._qb],el[_qa])
+arr.push(el[_result],el[_qb],el[_qa])
 }else{
 arr.push(...el.splice(_result, 1));
 if(equalQB &&  !equalQA)arr.push(...el.splice(_qa, 1));
-else if(equalQA &&  !equalQB)arr.push(...el.splice(this._qb, 1));
+else if(equalQA &&  !equalQB)arr.push(...el.splice(_qb, 1));
 if(arr.length>1)arr.push(el[random(2)])
 else{
 for (let index = 0; index < 2; index++) {
@@ -113,14 +113,17 @@ for (let index = 0; index < 2; index++) {
 }
 return arr
 case 4:
-
     arr.push(...el.splice(_result, 1));
     for (let index = 0; index < 3; index++) {
       arr.push(...el.splice(random(el.length - 1), 1))
     }
 return arr
 case 5:
-return el;
+    arr.push(...el.splice(_result, 1));
+    for (let index = 0; index < 4; index++) {
+      arr.push(...el.splice(random(el.length - 1), 1))
+    }
+return arr;
 }
   }
 private equalQA=()=>this._result === this._qa;

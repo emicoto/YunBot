@@ -1,0 +1,98 @@
+{
+  "_id": {
+    "$oid": "62ccd7b71344fc736b917a13"
+  },
+  "flag": 0,
+  "authority": 5,
+  "locale": "",
+  "onebot": "1794362968",
+  "id": "00000001",
+  "lastCall": {
+    "$date": {
+      "$numberLong": "1658298189747"
+    }
+  },
+  "name": "时棂月",
+  "usage": {},
+  "timers": {},
+  "YunData": {
+    "money": 10048,
+    "favo": 10,
+    "trust": 100,
+    "luck": 60,
+    "lastluck": 60,
+    "lastroll": "",
+    "level": 75,
+    "exp": 11456,
+    "soul": "天金",
+    "title": "掌门",
+    "HP": 2000,
+    "maxHP": 2000,
+    "AP": 10,
+    "maxAP": 10,
+    "SP": 800,
+    "maxSP": 800,
+    "BP": 4250,
+    "ATK": 450,
+    "DEF": 250,
+    "skill": [
+      {
+        "id": 1,
+        "name": "泠月心法",
+        "type": "被动",
+        "ATKbuff": 1.5,
+        "DEFbuff": 2,
+        "BPbuff": 2.5
+      },
+      {
+        "id": 2,
+        "name": "虚月真剑",
+        "type": "被动",
+        "ATKbuff": 2,
+        "DEFbuff": 0,
+        "BPbuff": 2
+      },
+      {
+        "id": 3,
+        "name": "幻梦之境",
+        "type": "特殊",
+        "action": "stun"
+      },
+      {
+        "id": 4,
+        "name": "通天一击",
+        "type": "主动",
+        "ATK": 100,
+        "ATKRoll": 500
+      }
+    ],
+    "equip": {
+      "head": {},
+      "coat": {},
+      "middle": {},
+      "skin": {},
+      "weapon": {
+        "id": 1,
+        "name": "冷烟管剑",
+        "ATK": 250,
+        "BP": 1250,
+        "skill": "幻梦之境"
+      }
+    },
+    "items": {},
+    "storage": [],
+    "titles": [],
+    "flag": {
+      "signed": true,
+      "长生果": 5,
+      "女娲果": 5
+    },
+    "accesory": {
+      "face": {},
+      "ear": {},
+      "hand": {},
+      "leg": {}
+    }
+  },
+  "nick": "师父"
+}

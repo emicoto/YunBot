@@ -32,7 +32,6 @@ export default class YunBot {
 				if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
 					YunBot.NewToday()
 				}
-				console.log("check user today", usertoday)
 				
 				if( usertoday && !usertoday?.user[master]){
 					usertoday.user[master] = new UserToday()
@@ -67,8 +66,6 @@ export class TodayData{
 		this.user = {};
 	}
 }
-
-
 
 export var yunstate : YunState = YunBot.yunstate
 export var usertoday : TodayData = YunBot.usertoday
