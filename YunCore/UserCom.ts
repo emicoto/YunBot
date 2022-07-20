@@ -156,8 +156,11 @@ export default function UserCom(ctx: Context) {
       let rate = f.random(100) + (s.usertoday[uid]['luck'] > 0 ? s.usertoday[uid]['luck'] / 10 : 0);
       console.log(username, '灵根测试', rate)
 
-      const lg = LingGenUtils.getLingGen(rate)
-      const utils = new LingGenUtils(lg, result);
+let qa = s.usertoday[uid]['flag']['qa']-1
+            let qb = s.usertoday[uid]['flag']['qb']-1
+
+      const linggen = LingGenUtils.getLingGen(rate)
+      const utils = new LingGenUtils({{lg, result，qa，qb});
       data.soul = utils.getSoul();
 
       await s.setUser(ctx, uid, data)
