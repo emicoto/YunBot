@@ -160,7 +160,7 @@ let qa = s.usertoday[uid]['flag']['qa']-1
             let qb = s.usertoday[uid]['flag']['qb']-1
 
       const linggen = LingGenUtils.getLingGen(rate)
-      const utils = new LingGenUtils({{lg, result，qa，qb});
+      const utils = new LingGenUtils({lg, result，qa，qb});
       data.soul = utils.getSoul();
 
       await s.setUser(ctx, uid, data)
