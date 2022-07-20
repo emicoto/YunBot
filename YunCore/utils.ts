@@ -16,6 +16,12 @@ export enum Elements {
   水 = "水",
   金 = "金",
 }
+inteface ILingGen{
+linggen:LingGen,
+result:number,
+qa:number,
+qb:number
+}
 
 export class LingGenUtils {
   public static getLingGen(rate: number) {
@@ -38,9 +44,13 @@ export class LingGenUtils {
   private _LingGen: LingGen;
   private _Elements: Elements[];
   private _result: number;
-  constructor(linggen: LingGen, result: number) {
+  private _qa:number;
+  private _qb:number;
+  constructor({linggen,result,qa,qb}:ILingGen) {
     this._LingGen = linggen;
     this._result = result;
+    this._qa = qa;
+    this._qb = qb;
     this.init();
   }
   private init() {
@@ -67,20 +77,51 @@ export class LingGenUtils {
   }
   private getElements(num: number = 1) {
     const el = [Elements.金, Elements.木, Elements.水, Elements.火, Elements.土]
-    if (num == 1) {
-      return [el[this._result]]
-    }
-    else if (num >= 5) {
-      return el;
-    }
-    const arr = []
-    arr.push(...el.splice(this._result, 1))
-    const NUM = num - 1;
-    for (let index = 0; index < NUM; index++) {
+const arr = []
+const equalQB=this.equalQB();
+const equalQA=this.equalQA();
+const equalQAandQB=this.equalQAandQB();
+const {_result,_qa,_qa}=this;
+    switch(num){
+case 1:
+return [el[_result]];
+case 2:
+arr.push(...el.splice(this._result, 1));
+if(equalQB &&  !equalQA)arr.push(...el.splice(_qa, 1));
+else if(equalQA &&  !equalQB)arr.push(...el.splice(_qb, 1));
+else {
+arr.push(el[random(3)])
+}
+return arr
+case 3:
+if(!equalQB && !equalQA && !equalQAandQB){
+arr.push(el[_result],el[_qb],el[_qa])
+}else{
+arr.push(...el.splice(_result, 1));
+if(equalQB &&  !equalQA)arr.push(...el.splice(_qa, 1));
+else if(equalQA &&  !equalQB)arr.push(...el.splice(_qb, 1));
+if(arr.length>1)arr.push(el[random(2)])
+else{
+for (let index = 0; index < 2; index++) {
+      arr.push(...el.splice(random(el.length - 1), 1))
+  }
+}
+}
+return arr
+case 4:
+
+    arr.push(...el.splice(_result, 1));
+    for (let index = 0; index < 3; index++) {
       arr.push(...el.splice(random(el.length - 1), 1))
     }
-    return arr
+return arr
+case 5:
+return el;
+}
   }
+private equalQA=()=>this._result === this._qa;
+private equalQB=()=>this._result === this._qb;
+private equalQAandQB()=()=>this._qa === this._qb;
   public getElementsString() {
     return this._Elements.join("")
   }
