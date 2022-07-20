@@ -12,27 +12,25 @@ export const Res = [
 	re:f.images("yun_newyear.png"),
 },
 { //id.2
-	m:/(醒来|醒了|睡醒|起床|吓醒|惊醒|困醒|帅醒)\S{0,3}$|早啊|早安|早上好|大家早|^早\S{0,2}$|[床]\S{0,5}[起来]\S{0,3}$|[床]\S{0,5}[出来]\S{0,3}$/,
+	m:/(小昀|路昀).+(醒醒|醒来|不给睡|起床|起来)|(醒醒|醒来|不给睡|起床|起来).+(小昀|路昀)/,
 	re:(str,uid,ctx)=>{
-		let text
+		if(f.random(100) < 60){
 
-		if(uid == s.master ){
-			text = f.either(['早啊……师父。','师父，早安。','师父，早？']);
+			s.yunstate.stats = 'wake'
+			s.yunsave()
 
-			if(s.yunstate.stats == 'sleep'){
-				text = '呼啊……（打着哈欠）\n'+text+'\n我也才起床……';
-				s.yunstate.stats = 'wake';
-				s.yunsave();
-			}
+			return f.either([
+				"……呜……醒了。",
+				"……呼啊，早啊。" +
+				(uid == s.master ? "师父" : uid == s.senior ? "师叔" :f.At(uid)),
+				f.images("hardwake.jpg"),
+			])
 		}else{
-			text = f.maybe([
-				['next',25],
-				[`……早安，${f.At(uid)}`,50],
-				[`……早，${f.At(uid)}`,50],
-				[`……${f.At(uid)}，早上好`,50],
-			]);
+			return f.either([
+				"……呜。再五分钟。（翻身过去继续睡）",
+				f.faceicon("睡眠") + "\n……呼……呼……（依然在睡）",
+			])
 		}
-		return 'next'
 	}
 },
 { //id.3
@@ -74,25 +72,27 @@ export const Res = [
 	])
 },
 { //id.6
-	m:/(小昀|路昀).+(醒醒|醒来|不给睡|起床|起来)|(醒醒|醒来|不给睡|起床|起来).+(小昀|路昀)/,
+	m:/(醒来|醒了|睡醒|起床|吓醒|惊醒|困醒|帅醒)\S{0,3}$|早啊|早安|早上好|大家早|^早\S{0,2}$|[床]\S{0,5}[起来]\S{0,3}$|[床]\S{0,5}[出来]\S{0,3}$/,
 	re:(str,uid,ctx)=>{
-		if(f.random(100) < 60){
+		let text = 'next'
 
-			s.yunstate.stats = 'wake'
-			s.yunsave()
+		if(uid == s.master ){
+			text = f.either(['早啊……师父。','师父，早安。','师父，早？']);
 
-			return f.either([
-				"……呜……醒了。",
-				"……呼啊，早啊。" +
-				(uid == s.master ? "师父" : uid == s.senior ? "师叔" :f.At(uid)),
-				f.images("hardwake.jpg"),
-			])
+			if(s.yunstate.stats == 'sleep'){
+				text = '呼啊……（打着哈欠）\n'+text+'\n我也才起床……';
+				s.yunstate.stats = 'wake';
+				s.yunsave();
+			}
 		}else{
-			return f.either([
-				"……呜。再五分钟。（翻身过去继续睡）",
-				f.faceicon("睡眠") + "\n……呼……呼……（依然在睡）",
-			])
+			text = f.maybe([
+				['next',25],
+				[`……早安，${f.At(uid)}`,50],
+				[`……早，${f.At(uid)}`,50],
+				[`……${f.At(uid)}，早上好`,50],
+			]);
 		}
+		return text
 	}
 },
 { //id.7
@@ -348,6 +348,9 @@ export function whileGaming(mode, session?){
 }
 
 export function setYunWork(session){
+
+	if(s.yunstate.stats == 'working') return;
+	
 	s.yunstate.work = 150
 	s.yunstate.stats = 'working'
 	s.yunsave()
@@ -385,4 +388,8 @@ export function setYunWork(session){
 
 	console.log('自主修炼已设置。')
 
+}
+
+export function wakeYunUp(txt){
+	return(txt.match(Res[2].m) || txt.match(Res[6].m))
 }

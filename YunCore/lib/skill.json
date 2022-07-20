@@ -1,0 +1,14 @@
+[
+    {
+        "id":0,
+        "name":"无",
+        "type":"被动/攻击/防御/恢复",
+        "atk":0,
+        "def":0,
+        "bp":0,
+        "atkRoll":0,
+        "defRoll":0,
+        "recover":0,
+        "sp":0
+    }
+]

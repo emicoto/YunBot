@@ -1,4 +1,5 @@
 import { Context, segment, Session } from "koishi"
+import { getUser } from "./Setting";
 
 export function between(int:number,a:number,b:number){
 	return int >= a && int <= b;
@@ -154,35 +155,52 @@ export function getTimeZone(hour){
 	return '深夜'
 }
 
-export function getSoulBuff(string){
+//获取灵根对修炼加值
+export function getExpBuff(string){
 	let type, chara
 	type = string.match(/天/)
 	chara = string.match(/金|木|水|火|土/g)
 
-	let list = [1.2,1.1,1,0.9,0.8]
+	let list = [1.5,1.25,1,0.8,0.6]
 
-	if(type) return 1.5
-	return list[chara.length-1]
+	let buff = list[chara.length-1]
+	if(type) buff += 0.5
+
+	return buff
 }
 
-export function SoulBuff(string){
-	let type, chara, count
-	type = string.match(/天/)
-	chara = string.match(/金|木|水|火|土/g)
-	count = string.length
+//获取灵根加值
+export function SoulBuff(str){
+	let type, chara, count, buff
+	type = str.includes("天")
+	chara = str.match(/金|木|水|火|土/g)
+	count = str.replace("天","".length)
 
-	if(type){
-		string.replace("天","")
-		count = string.length
+	switch (count) {
+		case 1:
+			buff = 1
+			break
+		case 2:
+			buff = 0.5
+			break
+		case 3:
+			buff = 0.3
+			break
+		case 4:
+			buff = 0.2
+			break
+		case 5:
+			buff = 0.1
+			break
 	}
-
-	
+	if(type) buff *= 2
+	return buff	
 }
 
-export function printSoul(string){
+export function printSoul(str){
 	let type, chara,text
-	type = string.match(/天/)
-	chara = string.match(/金|木|水|火|土/g)
+	type = str.match(/天/)
+	chara = str.match(/金|木|水|火|土/g)
 
 	let list = ['单','双','三','杂',"杂"]
 	
@@ -195,9 +213,80 @@ export function printSoul(string){
 }
 
 export function expCount(getexp,data){
-	getexp *= 1+(data.level/5)
-	getexp *= getSoulBuff(data.soul)
+	getexp *= Math.min((data.level/5),1)
+	getexp *= getExpBuff(data.soul)
 	getexp = Math.floor(getexp+0.5)
 
 	return getexp
+}
+
+export function getSoulInfo(str){
+	let type, chara ,count
+	type = str.match(/天/)
+	chara = str.match(/金|木|水|火|土/g)
+	count = str.replace("天","").length()
+
+	let info = {
+		t: false,
+		chara:chara,
+		count:count,
+	}
+
+	if(type) info.t = true;
+	
+	return info
+}
+
+export async function CountStats(ctx:Context, uid:string){
+	let data = await getUser(ctx, uid)
+	let level = data.level
+	let souldata = getSoulInfo(data.soul)
+
+	//先获得各数值的基础运算
+	let BP = level*5 + (level/10)*100
+	let HP = 20 + level*10
+	let SP = 5+ level*5
+	let ATK = 5 + Math.floor(level/2) + Math.floor(level/10)*10
+	let DEF = 5 + Math.floor(level/2) + Math.floor(level/10)*10
+
+	//计算灵根加成
+	if(data.soul.includes('木')) HP *= SoulBuff(data.soul);
+	if(data.soul.includes('水')) SP *= SoulBuff(data.soul);
+	
+	if(data.soul.includes("金") && data.soul.includes("火")) ATK *= SoulBuff(data.soul)*2 ;
+	else if(data.soul.includes('金')||data.soul.includes('火')) ATK *= SoulBuff(data.soul);
+
+	if(data.soul.includes('土')) DEF *= SoulBuff(data.soul);
+
+	let hpbuff=0, spbuff=0, atkbuff=0, defbuff=0, bpbuff=0
+
+	//计算装备加成
+	let list = ['head','coat','middle','skin','weapon']
+	for(let i in list){
+		let equip = data.equip[list[i]]
+
+		if(equip?.ATK > 0){
+			ATK += equip.ATK
+		}
+		if(equip?.DEF > 0){
+			DEF += equip.DEF
+		}
+		if(equip?.BP > 0){
+			BP += equip.BP
+		}
+		if(equip?.ATKbuff){
+			atkbuff += equip.ATKbuff
+		}
+		if(equip?.DEFbuff){
+			defbuff += equip.DEFbuff
+		}
+		if(equip?.HPbuff){
+			hpbuff += equip.HPbuff
+		}
+		if(equip?.SPbuff){
+			spbuff += equip.SPbuff
+		}
+	}
+
+
 }

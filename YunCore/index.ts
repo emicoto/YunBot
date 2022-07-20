@@ -32,12 +32,15 @@ export default async function YunCore(ctx: Context){
 	var botupdated = 0
 
     //指令触发前的事件
-    ctx.before('command/execute', ({session, command})=>{
+    ctx.before('command/execute', async ({session, command})=>{
         if(!session.user) return;
+        let d = await ctx.database.getUser(session.platform,session.userId)
         if(s.yunstate.stats == 'sleep' && !notignore.includes(command.name)){
+            console.log('调用次数检测',d.usage, d.timers)
             return r.whileSleeping('command')
         }
         if(s.yunstate.stats == 'working' && !notignore.includes(command.name)){
+            console.log('调用次数检测',d.usage, d.timers)
             let text = r.whileWorking('command')
             if(text) return text
         }

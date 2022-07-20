@@ -9,7 +9,7 @@ export default async function YunAI(ctx: Context) {
 	ctx.middleware(async(session, next)=>{
 
 		let timetick = new Date()
-		if( s.usertoday?.day != timetick.getDate()) {
+		if( s.usertoday.day != timetick.getDate()) {
 			s.NewToday()
 			s.yunstate.mood = s.getMood()
 			s.yunsave()
@@ -17,18 +17,15 @@ export default async function YunAI(ctx: Context) {
 		
 		let uid = session.userId
 		let name = await s.getUserName(ctx, session)
-		let text
+		let text = r.Respond(session.content, uid, ctx)
 
 		// text = e.ChatEvent(session)
 		
-		if(s.yunstate.stats == "sleep"){
+		if(s.yunstate.stats == "sleep" && !(r.wakeYunUp(session.content))){
 			text = r.whileSleeping("session",session)
 		}
 		else if(s.yunstate.stats == "working"){
 			text = r.whileWorking('session', session)
-		}
-		else{
-			text = r.Respond(session.content, uid, ctx)
 		}
 
 		if( session.content.match(/(小昀|路昀).+(修行|修炼)\S{0,2}(怎样|如何|什么样|吗)\S{0,3}$/)){

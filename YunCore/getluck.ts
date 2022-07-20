@@ -34,7 +34,7 @@ const YunOpinion = {
 export function getJrrp(uid){
 
 	
-	s.getToday(uid)
+	let today = s.getToday(uid)
 
 	const lk = createHash('sha256')
 	lk.update(uid)
@@ -43,7 +43,7 @@ export function getJrrp(uid){
 
 	let luck = Math.max(parseInt(lk.digest('hex'),16) % 101,1)
 
-	s.usertoday[uid]['luck']= luck
+	today.luck = luck
 	s.saveToday()
 
 	return luck
@@ -91,7 +91,7 @@ export function getOmikuji(luck,uid){
 
 	let user = s.getToday(uid)
 
-	if(user.kuji){
+	if(user.kuji?.no){
 
 		pot = user.kuji.pot
 
@@ -106,7 +106,7 @@ export function getOmikuji(luck,uid){
 		if(s.yunstate.mood < 66){
 			kuji = huandaxian(luck)
 			pot = '黄大仙'
-			user['kuji']={
+			user.kuji={
 				pot:pot,
 				no:kuji.id-1
 			}
@@ -114,7 +114,7 @@ export function getOmikuji(luck,uid){
 		else{
 			kuji = zhougong(luck)
 			pot = '周公'
-			user['kuji']={
+			user.kuji={
 				pot:pot,
 				no:kuji.id-1
 			}

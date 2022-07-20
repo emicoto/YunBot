@@ -15,7 +15,9 @@ export default function Daily(ctx: Context){
             let data = await s.getUser(ctx, uid)
             let name = await s.getUserName(ctx, session)
 
-            if(s.usertoday[uid]?.sign === true){
+            let today = s.getToday(uid)
+
+            if(today.sign === true){
                 return "今天已经签到过了。"
             }
 
@@ -26,12 +28,12 @@ export default function Daily(ctx: Context){
             let luck
             let text = "路昀：“"
 
-            if(!s.usertoday[uid]['luck']){
+            if(today.luck <= 0){
                 luck = getJrrp(uid)
                 text += `……还没算气运吧？来，先抽个签吧……”（指了指一旁的签筒）。\n “嗯……今天${name}的气运有${luck}呢。”\n小昀的今日一言：${getJrrpComment(luck)}\n\n“然后，`
             }
 
-            luck = s.usertoday[uid]['luck']
+            luck = today.luck
 
             text += "打卡对吗？ 在这里刷一下小灵通就可以去领稿子了。”"
 
@@ -39,7 +41,7 @@ export default function Daily(ctx: Context){
             
             text += `\n@${name} 你拿起稿子，辛勤地在灵矿峰下挥舞。\n最后获得了${num}灵石。`
 
-            s.usertoday[uid]['sign'] = true
+            today.sign = true
             data['money'] += num
 
             await s.setUser(ctx, uid, data)
@@ -69,16 +71,16 @@ export default function Daily(ctx: Context){
             let name = await s.getUserName(ctx,session)
             let luck
             
-            s.getToday(uid)
+            let today = s.getToday(uid)
 
             if(!data.flag?.signed){
                 return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"
             }
 
-            if(!s.usertoday[uid]['luck']){
+            if(today.luck <= 0){
                 luck = getJrrp(uid)
             }
-            luck = s.usertoday[uid].luck
+            luck = today.luck
 
             let getexp = Math.max(Math.floor(luck/10+0.5),1) + f.random(1,30)
             getexp = f.expCount(getexp,data)
@@ -116,13 +118,14 @@ export default function Daily(ctx: Context){
             let uid = session.userId
             let data = await s.getUser(ctx,uid)
             let name = await s.getUserName(ctx, session)
+            let today = s.getToday(uid)
 
             if(!data.flag?.signed){
                 return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"
             }
 
             let getexp
-            let text = `在一个黄道吉日里，@${name} 你沐浴更衣后，`+ f.either([
+            let text = `在一个黄道吉日里，@${name} 你沐浴更衣后，`+ f.maybe([
                 ['盘腿而坐，闭目冥思感应天地',30],
                 ['收拾整顿，用抹布细心打扫道观的所有角落',10 + ( uid == s.cleaner ? 70 : 0)],
                 ['单脚独立，在瀑布下洗涤身心',30],
@@ -136,7 +139,7 @@ export default function Daily(ctx: Context){
             let goal = 50 - Math.floor(Math.min(data.level,90)/2)
             console.log(name,'goal',goal)
 
-            if( data.exp >= f.expLevel(data.level) && f.random(100) - data.luck/10 < goal){
+            if( data.exp >= f.expLevel(data.level) && f.random(100) - today.luck/10 < goal){
 
                 text+= `你领悟了一丝天地之道！ 你突破了，从${f.getLevelChar(data.level)}变成${f.getLevelChar(data.level+1)}了！`
                 data.exp -= f.expLevel(data.level)
@@ -144,7 +147,7 @@ export default function Daily(ctx: Context){
 
             }
             else{
-                getexp = f.random(3,20) + Math.max(data.luck/5,1)
+                getexp = f.random(3,20) + Math.max(today.luck/5,1)
                 getexp = f.expCount(getexp,data)
 
                 text += `你没悟到什么，只是获得了一点心得。\n悟道经验 +${getexp}`
