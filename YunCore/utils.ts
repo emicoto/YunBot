@@ -121,7 +121,7 @@ return el;
   }
 private equalQA=()=>this._result === this._qa;
 private equalQB=()=>this._result === this._qb;
-private equalQAandQB()=()=>this._qa === this._qb;
+private equalQAandQB=()=>this._qa === this._qb;
   public getElementsString() {
     return this._Elements.join("")
   }
