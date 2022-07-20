@@ -50,6 +50,39 @@ export default function UserCom(ctx: Context){
 			}	
 		})
     
+    ctx.command("username <username:text>","设置用户名")
+        .userFields(['id','name'])
+        .action(async ({ session }, username) => {
+            const { user } = session;
+            if( ! username ){
+                if(user.name){
+                    return '你的用户名为：'+user.name
+                }
+                return '你的用户名为空。'
+            }
+
+            let txt = `${username}……吗？\n了解了，已经记录到门派档案。`
+			if(username.includes("[CQ:")){
+				return '禁止包含纯文本以外的内容'
+			}
+			if(username.match(/((?=[\x21-\x7e]+)[^A-Za-z0-9])/)){
+				return '不能含有特殊字符'
+			}
+			try{
+				user.name = username;
+				await user.$update();
+				return txt
+			}
+			catch(error){
+				if(RuntimeError.check(error,"duplicate-entry")){
+					return '……不能重名。'
+				}else{
+					ctx.logger("common").warn(error);
+					return "因不明原因设置失败了。详情请看后台日志。"
+				}
+			}
+        })
+    
     ctx.command("入门申请",'填写入门申请表。')
         .alias('sign')
         .action(async ({ session }) => {
@@ -58,7 +91,7 @@ export default function UserCom(ctx: Context){
 
             if(data.flag?.signed) return '已经注册过了哦。';
             
-            await session.send('好的，麻烦先在这里填个名字……\n……嗯，要注意的是，不可以有特殊字符或图片、表情哦')
+            await session.send('好的，麻烦先在这里填个名字……\n……嗯，要注意的是，不可以有特殊字符或图片、表情哦\n以及用户名与原有的相同可能会导致存档失败。可以用.username查看现有用户名。')
 
             let username = await session.prompt(Time.minute*2)
             if(!username) return '……写个名字太久了，目前流程已经失效了。'
@@ -133,12 +166,10 @@ export default function UserCom(ctx: Context){
                 if(f.random(100) > 90){
                     data.soul = '天'+list[result]
                 }
-
-                await s.setUser(ctx,uid,data)
-                return txt+f.printSoul(data.soul)
         
             }
-            if(rate >= 80 ){ //双
+
+            else if(rate >= 80 ){ //双
                 
                 data.soul = list[result]
                 
@@ -153,16 +184,16 @@ export default function UserCom(ctx: Context){
                 }
                 else{
                     
-                    let str = list.join("").replace(data.soul,"")
+                    let str = list.join("")
+                    str = str.replace(list[result],"")
                     str = str[f.random(3)]
                     data.soul += str
                     
                 }
 
-                await s.setUser(ctx, uid, data)
-                return txt+f.printSoul(data.soul)
             }
-            if( rate >= 60 ){ //三
+
+            else if( rate >= 60 ){ //三
 
                 if( result != qb &&  result != qa && qa != qb ){
                     data.soul = list[result]+list[qb]+list[qa]
@@ -172,10 +203,10 @@ export default function UserCom(ctx: Context){
                     data.soul = list[result]
                     let str = '金木水火土'
 
-                    if(result != qb){
+                    if(result != qb && qb != qa){
                         data.soul += list[qb]
                     }
-                    else if(result != qa){
+                    else if(result != qa && qb != qa){
                         data.soul += list[qa]
                     }
 
@@ -195,17 +226,38 @@ export default function UserCom(ctx: Context){
                         data.soul += b
                     }                   
                 }
-                await s.setUser(ctx,uid,data)
-                return txt+f.printSoul(data.soul)
-            }
-            if( rate > 40){ //四
-                let str = '金木水火土'
-                str = str.replace(list[result],"")
-                data.soul = str
-                return txt + f.printSoul(data.soul)
             }
 
-            data.soul = '杂金木水火土'
+            else if( rate > 40){ //四
+                let str = '金木水火土'
+                data.soul = list[result]
+                str = str.replace(list[result],"")
+
+                let t=[]
+
+                for(let i=0; i< 4; i++){
+                    let s = str[f.random(str.length-1)]
+                    t[i] = s
+                    str.replace(t[i],"")
+                }
+                data.soul += t.join("")
+            }
+
+            else{
+                let str = '金木水火土'
+                let t = []
+                t[0] = list[result]
+                str = str.replace(list[result],"")
+
+                for(let i=1; i<5; i++){
+                    let s = str[f.random(str.length-1)]
+                    t[i] = s
+                    str.replace(t[i],"")
+                }
+                data.soul = t.join("")
+            }
+
+            await s.setUser(ctx,uid,data)
             return txt+f.printSoul(data.soul)
 
         })

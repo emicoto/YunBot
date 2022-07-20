@@ -233,7 +233,9 @@ export async function getUser(ctx:Context, uid:string) {
 }
 
 export async function setUser(ctx:Context, uid: string, data) {
-	await ctx.database.setUser('onebot', uid, { YunData: data})
+	await ctx.database.set('user',{ onebot : uid}, { YunData: data})
+	let d = await ctx.database.getUser('onebot', uid)
+	console.log('存档中',d)
 }
 
 

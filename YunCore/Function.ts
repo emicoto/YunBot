@@ -165,6 +165,20 @@ export function getSoulBuff(string){
 	return list[chara.length-1]
 }
 
+export function SoulBuff(string){
+	let type, chara, count
+	type = string.match(/天/)
+	chara = string.match(/金|木|水|火|土/g)
+	count = string.length
+
+	if(type){
+		string.replace("天","")
+		count = string.length
+	}
+
+	
+}
+
 export function printSoul(string){
 	let type, chara,text
 	type = string.match(/天/)

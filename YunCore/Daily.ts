@@ -139,8 +139,8 @@ export default function Daily(ctx: Context){
             if( data.exp >= f.expLevel(data.level) && f.random(100) - data.luck/10 < goal){
 
                 text+= `你领悟了一丝天地之道！ 你突破了，从${f.getLevelChar(data.level)}变成${f.getLevelChar(data.level+1)}了！`
+                data.exp -= f.expLevel(data.level)
                 data.level += 1
-                data.exp = 0
 
             }
             else{
