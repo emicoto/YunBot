@@ -210,7 +210,7 @@ export default function UserCom(ctx: Context){
                         data.soul += list[qa]
                     }
 
-                    str.replace(list[result],"")
+                    str = str.replace(list[result],"")
 
                     if(data.soul.length > 1){
                         str = str.replace(data.soul[1],"")
@@ -238,7 +238,7 @@ export default function UserCom(ctx: Context){
                 for(let i=0; i< 4; i++){
                     let s = str[f.random(str.length-1)]
                     t[i] = s
-                    str.replace(t[i],"")
+                    str = str.replace(t[i],"")
                 }
                 data.soul += t.join("")
             }
@@ -252,7 +252,7 @@ export default function UserCom(ctx: Context){
                 for(let i=1; i<5; i++){
                     let s = str[f.random(str.length-1)]
                     t[i] = s
-                    str.replace(t[i],"")
+                    str = str.replace(t[i],"")
                 }
                 data.soul = t.join("")
             }
