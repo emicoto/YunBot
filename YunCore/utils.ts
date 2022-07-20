@@ -3,6 +3,7 @@ import { random } from "./Function";
 
 export enum LingGen {
   天灵根,
+  单灵根
   双灵根,
   三灵根,
   四灵根,
@@ -18,8 +19,8 @@ export enum Elements {
 
 export class LingGenUtils {
   public static getLingGen(rate: number) {
-    if (rate >= 100) {
-      return LingGen.天灵根
+    if (rate >= 90 {
+      return random(100)=> 90?LingGen.天灵根:LingGen.单灵根;
     }
     else if (rate >= 80) {
       return LingGen.双灵根
@@ -46,6 +47,7 @@ export class LingGenUtils {
 
     switch (this._LingGen) {
       case LingGen.天灵根:
+      case LingGen.单灵根:
         this._Elements = this.getElements()
         break;
       case LingGen.双灵根:
@@ -87,6 +89,7 @@ export class LingGenUtils {
     switch (this._LingGen) {
       case LingGen.天灵根:
         return "天" + str;
+      case LingGen.单灵根:
       case LingGen.双灵根:
       case LingGen.三灵根:
       case LingGen.四灵根:
