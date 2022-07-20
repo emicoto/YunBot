@@ -98,7 +98,7 @@ export default function Daily(ctx: Context){
                 ['参阅经书',30 + ( uid==s.senior ? 30 : 0)],
                 ['吞纳吸气',30],
                 ['奋笔疾书',20 + ( uid==s.brother ? 50 : 0)]]
-                )}，对修道之心有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}`
+                )}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}`
             
             if(s.usertoday.userwork >= 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
 
@@ -157,12 +157,13 @@ export default function Daily(ctx: Context){
 
                 text+= `你领悟了一丝天地之道！ 你突破了，从${f.getLevelChar(data.level)}变成${f.getLevelChar(data.level+1)}了！`
                 data.exp -= f.expLevel(data.level)
+                data.exp = Math.max(Math.floor(data.exp/3+0.5),0)
                 data.level += 1
 
             }
             else{
-                getexp = f.random(3,20) + Math.max(today.luck/5,1)
-                getexp = f.expCount(getexp,data)
+                getexp = f.random(2,25) + Math.max(today.luck/5,1)
+                getexp = Math.floor(getexp * f.getExpBuff(data)+0.5)
 
                 text += `你没悟到什么，只是获得了一点心得。\n悟道经验 +${getexp}`
                 data.exp += getexp

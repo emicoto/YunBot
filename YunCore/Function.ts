@@ -163,11 +163,11 @@ export function getTimeZone(hour){
 	return '深夜'
 }
 
-//获取灵根对修炼加值
-export function getExpBuff(string){
+//获取灵根和主功法对修炼加值
+export function getExpBuff(data){
 	let type, chara
-	type = string.match(/天/)
-	chara = string.match(/金|木|水|火|土/g)
+	type = data.soul.match(/天/)
+	chara = data.soul.match(/金|木|水|火|土/g)
 
 	let list = [1.5,1.25,1,0.8,0.6]
 
@@ -221,8 +221,8 @@ export function printSoul(str){
 }
 
 export function expCount(getexp,data){
-	getexp *= Math.min((data.level/5),1)
-	getexp *= getExpBuff(data.soul)
+	getexp *= Math.max((data.level/5),1)
+	getexp *= getExpBuff(data)
 	getexp = Math.floor(getexp+0.5)
 
 	return getexp
@@ -294,6 +294,14 @@ export async function CountStats(ctx:Context, uid:string){
 		if(equip?.SPbuff){
 			spbuff += equip.SPbuff
 		}
+		if(equip?.BPbuff){
+			bpbuff += equip.BPbuff
+		}
+	}
+
+	//计算技能加成，技能作为列表存在于技能表中。每人最多10个技能。
+	for(let i in data.skill){
+
 	}
 
 

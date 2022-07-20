@@ -2,6 +2,7 @@ import { Context, segment } from "koishi";
 import * as f from "./Function"
 import * as s from "./Setting"
 import * as r from "./Reply"
+import YunBot from "./Setting";
 
 
 export default async function YunAI(ctx: Context) {
@@ -10,7 +11,7 @@ export default async function YunAI(ctx: Context) {
 
 		let timetick = new Date()
 		if( s.usertoday.day != timetick.getDate()) {
-			s.NewToday()
+			YunBot.NewToday()
 			s.yunstate.mood = s.getMood()
 			s.yunsave()
 		}
@@ -33,7 +34,7 @@ export default async function YunAI(ctx: Context) {
 		}
 
 		if( session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) ){
-			if(f.random(100) > 70 ){
+			if(f.random(100) > 80 && s.usertoday.yunwork < 10 ){
 				r.setYunWork(session)
 				return f.either([
 					"……静心，打坐……",

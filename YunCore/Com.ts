@@ -81,11 +81,11 @@ export default function Com(ctx: Context){
             let name = await s.getUserName(ctx, session)
 			let today = s.getToday(uid)
             
-			if(f.ComUsage(today,'陪同修炼',2)){
+			if(f.ComUsage(today,'陪同修炼',2) === false ){
 				return '……我已经累了……'
 			}
 			else{
-				today.usage['陪同修炼'] ++
+				//today.usage['陪同修炼'] ++
 			}
 			
         })

@@ -124,14 +124,14 @@ export const Res = [
 			str = f.images('kusa.jpg')
 		}
 
-		return f.either([
-			'next',
-			'hhh',
-			'乐',
-			f.images('doge.jpg'),
-			'艹',
-			f.images('dance.gif'),
-			str,
+		return f.maybe([
+			['next',30],
+			['艹',10],			
+			['hhh',20],
+			['乐',30],
+			[f.images('doge.jpg'),30],
+			[f.images('dance.gif'),30],
+			[str,30],
 		])
 	}
 },

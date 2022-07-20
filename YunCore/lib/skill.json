@@ -3,12 +3,30 @@
         "id":0,
         "name":"无",
         "type":"被动/攻击/防御/恢复",
-        "atk":0,
-        "def":0,
-        "bp":0,
+        "ATK":0,
+        "DEF":0,
+        "BP":0,
         "atkRoll":0,
         "defRoll":0,
         "recover":0,
-        "sp":0
-    }
+        "sp":0,
+        "ATKbuff":0,
+        "DEFbuff":0,
+        "BPbuff":0
+    },
+    {
+        "id":1,
+        "name":"灵犀心法",
+        "type":"被动",
+        "ATK":0,
+        "DEF":0,
+        "BP":0,
+        "atkRoll":0,
+        "defRoll":0,
+        "recover":0,
+        "sp":0,
+        "ATKbuff":0,
+        "DEFbuff":0,
+        "BPbuff":0
+    },
 ]

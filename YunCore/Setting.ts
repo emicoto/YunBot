@@ -1,7 +1,7 @@
-import { Context, segment, Session, User } from "koishi"
+import { Context, Session } from "koishi"
 import fs from 'fs'
 import { createHash } from 'crypto';
-import { compare, random } from "./Function";
+import { compare } from "./Function";
 
 
 export default class YunBot {
@@ -14,6 +14,7 @@ export default class YunBot {
 				if(!data) return;
 				if(err) throw new Error("error occured while reading file:Yunstate.json");
 					yunstate = JSON.parse(data.toString());
+					console.log("getYunState:",yunstate)
 			})
 		}
 		if(yunstate) {
@@ -113,7 +114,7 @@ export interface UserData{
 	ATK:number; DEF:number;
 
 	equip: any;  accesory: any; items: any;
-	skill: Array<any>;
+	skill: Array<any>; core:any;
 	storage: Array<any>;
 	titles: string[];
 	flag: any;
@@ -126,7 +127,7 @@ export class UserData{
 		this.luck = 0;	this.lastluck = 0;	this.lastroll = "";
 
 		this.title = "";
-		this.level = 0;	this.exp = 0;
+		this.level = 1;	this.exp = 0;
 		this.soul = "金木水火土";
 
 		this.HP = 30; this.maxHP = 30;
@@ -135,7 +136,7 @@ export class UserData{
 
 		this.BP = 5; this.ATK = 5; this.DEF = 5;
 
-		this.skill = [];
+		this.skill = []; this.core = {}
 		this.equip = { head:{}, coat:{}, middle:{}, skin:{}, weapon:{},};
 		this.accesory={ face:{}, ear:{}, hand:{}, leg:{}};
 		this.items = {};
@@ -178,12 +179,19 @@ interface UserDaily {
 export interface YunState {
 	level: number; exp: number; soul:string;
 	talent: string[]; mood: number;
+	title:string;
 
 	money: number;
-	HP: number; maxHP: number;   
+	HP: number; maxHP: number;
+	AP: number; maxAP: number;
+	SP: number; maxSP: number;
 	san: number;
 	maxsan: number;	
 	BP: number;
+
+	ATK:number; DEF:number; core:any
+	equip:any; accesory:any; skill:Array<any>;
+	items:any;
 
 	stats: string;
 
@@ -246,22 +254,22 @@ export async function getUser(ctx:Context, uid:string) {
 	let data, user
 
 	data = await ctx.database.getUser('onebot', uid)
+
+	if( data.YunData?.money > 0 && !data.YunData?.accesory ){
+		data.YunData['accesory'] = { face:{}, ear:{}, hand:{}, leg:{} }	
+	}
+
+	if( data.YunData?.money > 0 && data.YunData?.core ){
+		data.YunData['core'] = {}
+	}
 		
 	if(!data.YunData?.money){
 		user = new UserData()
 		data.YunData = user
-		await setUser(ctx, uid, user)
-	}
+	}	
 
-	if(data.YunData?.money > 0 && !data.YunData?.accesory){
-		user = data.YunData
-		user.accesory = { face:{}, ear:{}, hand:{}, leg:{} }
-		await setUser(ctx, uid, user)
-
-		data.YunData = user
-	}
-	
 	user = data.YunData;
+	await setUser(ctx, uid, user)
 
 	return user
 }
