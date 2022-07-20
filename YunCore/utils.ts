@@ -3,7 +3,7 @@ import { random } from "./Function";
 
 export enum LingGen {
   天灵根,
-  单灵根
+  单灵根,
   双灵根,
   三灵根,
   四灵根,
