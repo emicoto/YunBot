@@ -171,7 +171,7 @@ export default function UserCom(ctx: Context) {
 
 	})
 
-  ctx.command('小灵通', '个人面板')
+  ctx.command('小灵通', '个人面板', { minInterval: Time.minute*2})
 	.userFields(['name'])
 	.action(async ({ session }) => {
 		let uid = session.userId
@@ -198,7 +198,7 @@ export default function UserCom(ctx: Context) {
 		return txt
 	})
 
-	ctx.command('查看路昀','路昀的个人面板')
+	ctx.command('查看路昀','路昀的个人面板',{ minInterval: Time.minute*5})
 	.action(async ({ session }) => {
 		let time = f.getChinaTime()
 		let zone = f.getTimeZone(time.getHours())
@@ -219,7 +219,7 @@ export default function UserCom(ctx: Context) {
 		if(['凌晨','黎明'].includes(zone) && f.random(100) > 90 ) dress = 'sp';
 
 		let txt = [
-			'路昀的状态 --- | Yunbot v0.83',
+			'路昀的状态 --- | Yunbot ver0.8.5',
 			f.images(`Yunstand_${dress}_${mood}.png`),
 			`· 心情：${'♥'.repeat(Math.floor(data.mood/20+0.5))}`,
 			`· 特征：${data.talent.join('、')}`,

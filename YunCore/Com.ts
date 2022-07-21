@@ -59,8 +59,6 @@ export default function Com(ctx: Context){
 		.action( async({ session }, message)=>{
 			//s.usertoday.user = {}
 			//console.log(s.usertoday.user[session.userId])
-			s.usertoday = YunBot.getUsertoday()
-			s.yunstate.flag['breakbuff'] = 40
 			console.log(s.usertoday)
 			return `本地档案已更新。`
 		})
