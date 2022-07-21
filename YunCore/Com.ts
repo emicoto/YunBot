@@ -103,7 +103,7 @@ export default function Com(ctx: Context){
 			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
 
 			if(!data.core?.id){
-				txt = '……嗯？似乎还没有主修的心法吧。那么我帮你选一套吧。';
+				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n说的话有点多，累了……\n基础心法学哪套都差不多，那么就随便挑一本好了……`;
 				
 				let pool = ['灵犀心法','灵空心法','灵虚心法']
 				let id = f.random(2)
@@ -118,8 +118,8 @@ export default function Com(ctx: Context){
 				return txt
 			}
 
-			if(f.ComUsage(today,'修习心法',5) === false){
-				return '……欲速则不达，心法的休息一天最多3次而已……'
+			if(f.ComUsage(today,'修习心法',3) === false){
+				return '……欲速则不达，心法的修习一天最多3次而已……'
 			}
 			else{
 				let core = data.core
