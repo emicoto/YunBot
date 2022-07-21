@@ -111,7 +111,7 @@ export interface UserData{
 	SP: number; maxSP:number;	
 	BP: number;
 
-	ATK:number; DEF:number;
+	ATK:number; DEF:number; SPD:number;
 
 	equip: any;  accesory: any; items: any;
 	skill: Array<any>; core:any;
@@ -250,20 +250,24 @@ export async function makeRank( ctx:Context ){
 	YunBot.usertoday['luckrank'] = luck
 }
 
-export async function getUser(ctx:Context, uid:string) {
+export async function getUser(ctx:Context, uid:string) : Promise<UserData> {
 	let data, user
 
 	data = await ctx.database.getUser('onebot', uid)
 
-	if( data.YunData?.money > 0 && !data.YunData?.accesory ){
+	if( data.YunData?.flag?.signed === true && !data.YunData?.accesory ){
 		data.YunData['accesory'] = { face:{}, ear:{}, hand:{}, leg:{} }	
 	}
 
-	if( data.YunData?.money > 0 && data.YunData?.core ){
+	if( data.YunData?.flag?.signed === true && !data.YunData?.core ){
 		data.YunData['core'] = {}
 	}
+
+	if( data.YunData?.flag?.signed === true && !data.YunData?.SPD ){
+		data.YunData['SPD'] = 5
+	}
 		
-	if(!data.YunData?.money){
+	if(!data.YunData?.flag?.signed){
 		user = new UserData()
 		data.YunData = user
 	}	

@@ -1,8 +1,9 @@
 import { Context, RuntimeError, segment, Time } from "koishi";
 import { Lunar, Tao } from "lunar-javascript";
-
+import { CountStats } from "./lib/CountStats";
+import { CoreLib } from "./lib/Skill"
 import * as f from "./Function"
-import YunBot, * as s from "./Setting"
+import  * as s from "./Setting"
 
 export default function Com(ctx: Context){
 
@@ -86,7 +87,56 @@ export default function Com(ctx: Context){
 			}
 			else{
 				//today.usage['陪同修炼'] ++
+				return '本功能还没做完。'
 			}
 			
         })
+	
+	ctx.command('修习心法','修习主心法', { minInterval: Time.hour/3})
+		.action(async ({ session })=>{
+			let uid = session.userId
+			let data = await CountStats(ctx, uid)
+			let name = await s.getUserName(ctx, session)
+			let today = s.getToday(uid)
+			let txt = ''
+
+			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
+
+			if(!data.core?.id){
+				txt = '……嗯？似乎还没有主修的心法吧。那么我帮你选一套吧。';
+				
+				let pool = ['灵犀心法','灵空心法','灵虚心法']
+				let id = f.random(2)
+				let n = pool[id]
+				let newcore = {}
+
+				newcore = JSON.parse(JSON.stringify(CoreLib[n]));
+				data.core = newcore;
+				await s.setUser(ctx, uid, data)
+
+				txt += `\n嗯，就这本吧。\n(${name}获得了心法：${n}）`
+				return txt
+			}
+
+			if(f.ComUsage(today,'修习心法',5) === false){
+				return '……欲速则不达，心法的休息一天最多3次而已……'
+			}
+			else{
+				let core = data.core
+				let exp = 1 + f.random(2)
+				let getexp = 3 + f.random(10) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
+				getexp = f.expCount(getexp,data)
+
+				let nexexp = Math.floor(core.level*10*Math.pow(core.grade+0.5,2)+0.5)
+
+				txt = `灵气流转，通过自身天地八脉灵脉，气息沉淀过后，多少获得了一些心得。\n悟道经验变化：${data.exp}+${getexp}=${data.exp+getexp}\n心法修炼进度：${exp+core.exp}/${nexexp}`
+
+				data.exp += getexp
+				data.core.exp += exp
+
+				await s.setUser(ctx, uid, data)
+
+				return txt
+			}
+		})
 }

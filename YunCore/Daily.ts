@@ -150,15 +150,17 @@ export default function Daily(ctx: Context){
 
             text += `，试图从中捕捉一丝道理……\n`
 
-            let goal = 50 - Math.floor(Math.min(data.level,90)/2)
-            console.log(name,'goal',goal)
+            let goal =  await f.getBreakRate(ctx, uid)
+                console.log(name,'突破概率',goal)
 
-            if( data.exp >= f.expLevel(data.level) && f.random(100) - today.luck/10 < goal){
+            if( data.exp >= f.expLevel(data.level) && f.random(100) < goal){
 
                 text+= `你领悟了一丝天地之道！ 你突破了，从${f.getLevelChar(data.level)}变成${f.getLevelChar(data.level+1)}了！`
                 data.exp -= f.expLevel(data.level)
                 data.exp = Math.max(Math.floor(data.exp/3+0.5),0)
                 data.level += 1
+
+                if(data.flag?.breakbuff > 0) data.flag.breakbuff = 0;
 
             }
             else{

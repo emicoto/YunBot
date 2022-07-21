@@ -1,5 +1,5 @@
 import { Context, segment, Session } from "koishi"
-import { getUser } from "./Setting";
+import { getToday, getUser, UserData } from "./Setting";
 
 export function between(int:number,a:number,b:number){
 	return int >= a && int <= b;
@@ -115,22 +115,22 @@ export function getChinaTime(){
 
 
 export function ComUsage(utoday, str:string, limit:number){
-    if ( !utoday.usage[str] ) utoday.usage[str] = 0;
-    if ( utoday.usage[str] >= limit ) return false
-	console.log(utoday.usage)
-    return true
+	if ( !utoday.usage[str] ) utoday.usage[str] = 0;
+	if ( utoday.usage[str] >= limit ) return false
+	//console.log(utoday.usage)
+	return true
 }
 
 
 export function getLevelChar(lv){
 	let level = [
-		'入门','破幻','灵动','开元','结丹','解灵','归一','通天','大乘'
+		'入门','破幻','灵动','开元','结丹','解灵','归一','通天','大乘',"真仙"
 	]
 	let char = [
 		'一','二','三','四','五','六','七','八','九','十'
 	]
 
-	lv = Math.min(lv-1,90)
+	lv = Math.min(lv-1,100)
 
 	let m = Math.min(Math.floor(lv/10),8)
 	let i = lv%10
@@ -152,6 +152,25 @@ export function expLevel(level){
 	return result
 }
 
+export async function getBreakRate(ctx:Context, uid:string){
+	let goal = 90
+	let data = await getUser(ctx, uid)
+	let today = getToday(uid)
+
+	let level = data.level
+
+	goal -= Math.max((level/10),1)*(5-getExpBuff(data,1))
+	goal -= level/2
+	
+	goal /= 1+level/20
+	if(level%10==0) goal /= 2
+
+	if(data.flag?.breakbuff) goal += data.flag.breakbuff
+	if(today.luck > 0) goal += today.luck/15
+
+	return Math.max(Math.floor(goal+0.5),2)
+}
+
 export function getTimeZone(hour){
 	if(between(hour,2,4)) return '凌晨'
 	if(between(hour,5,7)) return '黎明'
@@ -164,7 +183,7 @@ export function getTimeZone(hour){
 }
 
 //获取灵根和主功法对修炼加值
-export function getExpBuff(data){
+export function getExpBuff(data,mode?){
 	let type, chara
 	type = data.soul.match(/天/)
 	chara = data.soul.match(/金|木|水|火|土/g)
@@ -173,20 +192,21 @@ export function getExpBuff(data){
 
 	let buff = list[chara.length-1]
 	if(type) buff += 0.5
+	if( !mode && data.core?.ExpBuff) buff *= 1+data.core.ExpBuff
 
 	return buff
 }
 
 //获取灵根加值
-export function SoulBuff(str){
+export function getSoulBuff(str){
 	let type, chara, count, buff
 	type = str.includes("天")
 	chara = str.match(/金|木|水|火|土/g)
-	count = str.replace("天","".length)
+	count = chara.length
 
 	switch (count) {
 		case 1:
-			buff = 1
+			buff = 1.05
 			break
 		case 2:
 			buff = 0.5
@@ -201,8 +221,17 @@ export function SoulBuff(str){
 			buff = 0.1
 			break
 	}
-	if(type) buff *= 2
-	return buff	
+	if(type) buff *= 1.5
+	
+	let result = {
+		HP:(chara.includes('木') ? buff : 0) + ( chara.includes('水') ? buff * 0.3 : 0),
+		SP:(chara.includes('水') ? buff : 0) + (chara.includes('金') ? buff * 0.3 : 0),
+		
+		ATK: (chara.includes('火') ? buff : 0) + (chara.includes('木') ? buff * 0.3 : 0),
+		DEF:(chara.includes('土') ? buff : 0) + (chara.includes('火') ? buff * 0.3 : 0),
+		SPD:(chara.includes('金') ? buff : 0) + (chara.includes('土') ? buff * 0.3 : 0),
+	}
+	return result
 }
 
 export function printSoul(str){
@@ -243,66 +272,4 @@ export function getSoulInfo(str){
 	if(type) info.t = true;
 	
 	return info
-}
-
-export async function CountStats(ctx:Context, uid:string){
-	let data = await getUser(ctx, uid)
-	let level = data.level
-	let souldata = getSoulInfo(data.soul)
-
-	//先获得各数值的基础运算
-	let BP = level*5 + (level/10)*100
-	let HP = 20 + level*10
-	let SP = 5+ level*5
-	let ATK = 5 + Math.floor(level/2) + Math.floor(level/10)*10
-	let DEF = 5 + Math.floor(level/2) + Math.floor(level/10)*10
-
-	//计算灵根加成
-	if(data.soul.includes('木')) HP *= SoulBuff(data.soul);
-	if(data.soul.includes('水')) SP *= SoulBuff(data.soul);
-	
-	if(data.soul.includes("金") && data.soul.includes("火")) ATK *= SoulBuff(data.soul)*2 ;
-	else if(data.soul.includes('金')||data.soul.includes('火')) ATK *= SoulBuff(data.soul);
-
-	if(data.soul.includes('土')) DEF *= SoulBuff(data.soul);
-
-	let hpbuff=0, spbuff=0, atkbuff=0, defbuff=0, bpbuff=0
-
-	//计算装备加成
-	let list = ['head','coat','middle','skin','weapon']
-	for(let i in list){
-		let equip = data.equip[list[i]]
-
-		if(equip?.ATK > 0){
-			ATK += equip.ATK
-		}
-		if(equip?.DEF > 0){
-			DEF += equip.DEF
-		}
-		if(equip?.BP > 0){
-			BP += equip.BP
-		}
-		if(equip?.ATKbuff){
-			atkbuff += equip.ATKbuff
-		}
-		if(equip?.DEFbuff){
-			defbuff += equip.DEFbuff
-		}
-		if(equip?.HPbuff){
-			hpbuff += equip.HPbuff
-		}
-		if(equip?.SPbuff){
-			spbuff += equip.SPbuff
-		}
-		if(equip?.BPbuff){
-			bpbuff += equip.BPbuff
-		}
-	}
-
-	//计算技能加成，技能作为列表存在于技能表中。每人最多10个技能。
-	for(let i in data.skill){
-
-	}
-
-
 }

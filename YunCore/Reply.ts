@@ -1,6 +1,14 @@
 import * as f from './Function'
 import * as s from "./Setting"
 
+
+const Restype = {
+	'晚安语':/^((?!还没|没有|没想|不困|说到这个).)*((困了|睡了|睡去|睡觉|晚安|去睡|睡啦|眠去|眠了|安安啦|歇了)\.{0,8}$|^安{1,5}$)/,
+	'召唤语':/(小昀|路昀)~{0,2}\S{0,5}(出来|在吗|过来|招呼|接客|见客|客人来啦)\S{0,5}$|(小昀|路昀)\S{0,5}$/,
+	'叫醒语':/(小昀|路昀).+(醒醒|醒来|不给睡|起床|起来)|(醒醒|醒来|不给睡|起床|起来).+(小昀|路昀)/,
+	'早安语':/(醒来|醒了|睡醒|起床|吓醒|惊醒|困醒|帅醒)\S{0,3}$|早啊|早安|早上好|大家早|^早\S{0,2}$|[床]\S{0,5}[起来]\S{0,3}$|[床]\S{0,5}[出来]\S{0,3}$/,
+}
+
 export const Res = [
 
 { //id.0
@@ -12,7 +20,7 @@ export const Res = [
 	re:f.images("yun_newyear.png"),
 },
 { //id.2
-	m:/(小昀|路昀).+(醒醒|醒来|不给睡|起床|起来)|(醒醒|醒来|不给睡|起床|起来).+(小昀|路昀)/,
+	m:Restype['叫醒语'],
 	re:(str,uid,ctx)=>{
 		if(f.random(100) < 60){
 
@@ -72,7 +80,7 @@ export const Res = [
 	])
 },
 { //id.6
-	m:/(醒来|醒了|睡醒|起床|吓醒|惊醒|困醒|帅醒)\S{0,3}$|早啊|早安|早上好|大家早|^早\S{0,2}$|[床]\S{0,5}[起来]\S{0,3}$|[床]\S{0,5}[出来]\S{0,3}$/,
+	m:Restype['早安语'],
 	re:(str,uid,ctx)=>{
 		let text = 'next'
 
@@ -96,7 +104,7 @@ export const Res = [
 	}
 },
 { //id.7
-	m:/^((?!还没|没有|没想|不困|说到这个).)*((困了|睡了|睡去|睡觉|晚安|去睡|睡啦|眠去|眠了|安安啦|歇了)\.{0,8}$|^安{1,5}$)/,
+	m:Restype['晚安语'],
 	re:(str,uid,ctx)=>{
 		if (uid == s.master && f.random(100) < 50 ){
 			s.yunstate.stats = 'sleep'
@@ -256,12 +264,33 @@ export const Res = [
 	}
 },
 { //id.15
-	m:/(小昀|路昀)~{0,2}\S{0,5}(出来|在吗|过来|招呼|接客|见客|客人来啦)\S{0,5}$|(小昀|路昀)\S{0,5}$/,
+	m:Restype['召唤语'],
 	re:(str,uid,ctx)=>{
 		let txt = f.faceicon("普通")+"\n……在叫我吗？" + (uid== s.master? '师父' : '')
 		return txt
 	}
 },
+{//id.16 摸了 => 摸，都可以摸
+	m: /^(\[CQ:image,file=(.+)term=3\]){0,1}\s{0,2}(\S{1,2}了$|……\S{1,3}了$|\S{1,3}了.(jpg|png|gif)$)/,
+	re:(str,uid,ctx)=>{
+
+		if(str.match(/睡|困|起来|走|累|死|来|去|回/)) return 'next';
+
+		let mask
+		str = str.replace("都","")
+
+		if(str.match(/\[CQ:image,file=(.+)term=3\]/)){
+			mask = str.match(/[^A-Z][^0-9](\S{1,2})了/)
+		}else{
+			mask = str.match(/(\S{1,2})了/)
+		}
+		str = mask[1]
+		return f.maybe([
+			['next',30],
+			[`${str[0]}，都可以${str}`,40],
+			])
+	}
+}
 ]
 
 export function Respond(str,uid,ctx){
@@ -288,10 +317,10 @@ export function whileSleeping(mode, session?){
 		])
 	}
 	else{
-		if(session.content.match(Res[7].m) && f.random(100) > (100-25) ){
+		if(session.content.match(Restype['晚安语']) && f.random(100) > (100-25) ){
 			return `${f.faceicon("睡眠")}\n（也在睡了）`
 		}
-		if(session.content.match(Res[15].m)){
+		if(session.content.match(Restype['召唤语'])){
 			return `${f.faceicon("睡眠")}\n（已经睡着了，叫不动的样子……）`
 		}
 		if(f.random(1000) > (1000-25) && session.content.length > 4){
@@ -391,5 +420,5 @@ export function setYunWork(session){
 }
 
 export function wakeYunUp(txt){
-	return(txt.match(Res[2].m) || txt.match(Res[6].m))
+	return(txt.match(Restype['叫醒语']) || txt.match(Restype['早安语']))
 }

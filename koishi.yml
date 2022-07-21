@@ -17,11 +17,10 @@ plugins:
   status: null
   sandbox: null
   adapter-onebot:
-    bots:
-      - selfId: '185632406'
-        endpoint: ws://127.0.0.1:8080
-        protocol: ws
-        disabled: false
+    protocol: ws
+    selfId: '185632406'
+    endpoint: ws://127.0.0.1:8080
+    secret: my-secret
   database-mongo: null
   locales: null
   dataview: null
@@ -30,14 +29,14 @@ plugins:
   echo: null
   schedule: null
   rate-limit: null
-  repeater: 
-      onRepeat:
-        minTimes: 2
-        probability: 0.80
-  verifier: 
-      onFriendRequest: true
-  baidu: null
+  repeater:
+    onRepeat:
+      minTimes: 2
+      probability: 0.8
+  verifier:
+    onFriendRequest: true
   teach: null
   dice: null
   hitokoto: null
   ./YunCore/index: null
+  ~puppeteer: {}

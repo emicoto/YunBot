@@ -3,6 +3,7 @@ import { Context, RuntimeError, segment, Time } from "koishi";
 import * as f from "./Function"
 import * as s from "./Setting"
 import { LingGenUtils } from "./lib/LingGen";
+import { CountStats } from "./lib/CountStats";
 
 export default function UserCom(ctx: Context) {
 
@@ -173,10 +174,15 @@ export default function UserCom(ctx: Context) {
 	.userFields(['name'])
 	.action(async ({ session }) => {
 		let uid = session.userId
-		let txt = ''
+		let data = await CountStats(ctx,uid)
+
+		if( !data.flag?.signed ) return '……这位道友，你还没有本宗门的小灵通。麻烦先通过.入门申请吧……' ;
+
+		let today = s.getToday(uid)	
+
 		let user = await ctx.database.getUser(session.platform, uid)
-		let data = await s.getUser(ctx, uid)
-		let today = s.getToday(uid)
+		let rate = await f.getBreakRate(ctx,uid)
+		let txt = ''		
 
 		if( !today.usage['小灵通'] ) today.usage['小灵通'] = 0;
 
@@ -187,7 +193,7 @@ export default function UserCom(ctx: Context) {
 		let needexp = f.expLevel(data.level)
 		let soul = f.printSoul(data.soul)
 
-		txt = `· ${user.name}的个人面板：\n${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }———————————————\nHP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\nAP：${data.AP}/${data.maxAP}\nATK：${data.ATK} DEF：${data.DEF}\n———————————————\n· 持有灵石：${data.money}\n`
+		txt = `· ${user.name}的个人面板：\n${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }· 突破概率：${rate}%\n———————————————\nHP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\nAP：${data.AP}/${data.maxAP}\nATK：${data.ATK}  DEF：${data.DEF}  SPD：${data.SPD}\n———————————————\n· 持有灵石：${data.money}\n`
 		return txt
 	})
 

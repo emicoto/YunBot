@@ -9,61 +9,78 @@
   "id": "00000001",
   "lastCall": {
     "$date": {
-      "$numberLong": "1658298189747"
+      "$numberLong": "1658397995649"
     }
   },
-  "name": "时棂月",
+  "name": "时月",
   "usage": {},
-  "timers": {},
+  "timers": {
+    "_date": {
+      "$numberLong": "1658483699655"
+    },
+    "修炼": {
+      "$numberLong": "1658397899655"
+    },
+    "境界突破": {
+      "$numberLong": "1658397902280"
+    }
+  },
   "YunData": {
-    "money": 10048,
+    "money": 10071,
     "favo": 10,
     "trust": 100,
-    "luck": 60,
+    "luck": 51,
     "lastluck": 60,
     "lastroll": "",
     "level": 75,
-    "exp": 11456,
+    "exp": 12616,
     "soul": "天金",
     "title": "掌门",
-    "HP": 2000,
-    "maxHP": 2000,
+    "HP": 20010,
+    "maxHP": 20010,
     "AP": 10,
     "maxAP": 10,
-    "SP": 800,
-    "maxSP": 800,
-    "BP": 4250,
-    "ATK": 450,
-    "DEF": 250,
+    "SP": 17880,
+    "maxSP": 17880,
+    "BP": 4828,
+    "ATK": 4318,
+    "DEF": 2913,
+    "SPD": 8148,
     "skill": [
       {
         "id": 1,
-        "name": "泠月心法",
+        "name": "虚灵身法",
         "type": "被动",
-        "ATKbuff": 1.5,
-        "DEFbuff": 2,
-        "BPbuff": 2.5
+        "ATKbuff": 0.2,
+        "DEFbuff": 0.3,
+        "SPDbuff": 1
       },
       {
         "id": 2,
-        "name": "虚月真剑",
-        "type": "被动",
-        "ATKbuff": 2,
-        "DEFbuff": 0,
-        "BPbuff": 2
+        "name": "虚梦之境",
+        "type": "特殊",
+        "action": "stun",
+        "BP": 250
       },
       {
         "id": 3,
-        "name": "幻梦之境",
-        "type": "特殊",
-        "action": "stun"
+        "name": "真虚剑法",
+        "type": "主动",
+        "ATK": 100,
+        "SP": 0,
+        "ATKRoll": [
+          150,
+          500
+        ]
       },
       {
         "id": 4,
-        "name": "通天一击",
+        "name": "天雷诀",
         "type": "主动",
-        "ATK": 100,
-        "ATKRoll": 500
+        "ATK": 2500,
+        "SP": 500,
+        "ATKRoll": 0,
+        "BP": 500
       }
     ],
     "equip": {
@@ -72,26 +89,46 @@
       "middle": {},
       "skin": {},
       "weapon": {
-        "id": 1,
+        "id": 0,
         "name": "冷烟管剑",
-        "ATK": 250,
-        "BP": 1250,
-        "skill": "幻梦之境"
+        "ATK": 300,
+        "skill": "虚梦之境"
       }
     },
     "items": {},
     "storage": [],
     "titles": [],
     "flag": {
+      "upgrade": {
+        "长生果": 5,
+        "女娲花": 5,
+        "伏羲丹": 5
+      },
       "signed": true,
-      "长生果": 5,
-      "女娲果": 5
+      "breakbuff": 5
     },
     "accesory": {
       "face": {},
       "ear": {},
       "hand": {},
       "leg": {}
+    },
+    "core": {
+        "id": 1,  "name": "虚月心法",
+        "des": "灵虚派创始人 时月为了适配自身的灵根与灵脉，特意设计的独门心法。主修速度与精神。",
+        "grade":10, "level":1, "exp": 0, "maxlevel":10,
+        "lvstats":[
+            {"ATKbuff":0.15, "DEFbuff":0.12, "SPDbuff":0.70, "HPbuff":0.15, "SPbuff":1.00, "Expbuff": 3.4},
+            {"ATKbuff":0.20, "DEFbuff":0.14, "SPDbuff":0.75, "HPbuff":0.20, "SPbuff":1.10, "Expbuff": 3.6},
+            {"ATKbuff":0.25, "DEFbuff":0.16, "SPDbuff":0.80, "HPbuff":0.25, "SPbuff":1.15, "Expbuff": 3.7},
+            {"ATKbuff":0.30, "DEFbuff":0.18, "SPDbuff":0.85, "HPbuff":0.30, "SPbuff":1.20, "Expbuff": 3.8},
+            {"ATKbuff":0.35, "DEFbuff":0.20, "SPDbuff":0.90, "HPbuff":0.35, "SPbuff":1.25, "Expbuff": 4.0},
+            {"ATKbuff":0.40, "DEFbuff":0.22, "SPDbuff":0.95, "HPbuff":0.40, "SPbuff":1.30, "Expbuff": 4.2},
+            {"ATKbuff":0.45, "DEFbuff":0.24, "SPDbuff":1.00, "HPbuff":0.45, "SPbuff":1.35, "Expbuff": 4.4},
+            {"ATKbuff":0.50, "DEFbuff":0.26, "SPDbuff":1.10, "HPbuff":0.50, "SPbuff":1.40, "Expbuff": 4.6},
+            {"ATKbuff":0.55, "DEFbuff":0.28, "SPDbuff":1.15, "HPbuff":0.55, "SPbuff":1.45, "Expbuff": 4.8},
+            {"ATKbuff":0.60, "DEFbuff":0.30, "SPDbuff":1.20, "HPbuff":0.60, "SPbuff":1.50, "Expbuff": 5.0}
+        ]
     }
   },
   "nick": "师父"
