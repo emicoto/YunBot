@@ -1,13 +1,6 @@
 import { Context} from "koishi"
 import { getUser, setUser } from "../Setting"
-import { getSoulBuff } from "../Function"
-
-function LevelBuff(level){
-	if( level/10 > 1){
-		return Math.pow(Math.floor(level/10),1.25)
-	}
-	return 1
-}
+import { getSoulBuff, LevelBuff } from "../Function"
 
 export async function CountStats(ctx: Context, uid: string) {
     let data = await getUser(ctx, uid)

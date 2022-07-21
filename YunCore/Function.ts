@@ -146,8 +146,8 @@ export function getLevelChar(lv){
 }
 
 export function expLevel(level){
-	let a = Math.max(Math.floor(75/20+0.5),1.5)
-	let result = (level+1)*10 + Math.pow(level,2.5) + (Math.pow(level,a))
+	let a = Math.max(Math.floor(level/20+0.5),1.5)
+	let result = (level+1)*10 + Math.pow(level+1,2.5) + (Math.pow(level+1,a))
 	result = Math.floor(result/20)*20
 	return result
 }
@@ -192,7 +192,10 @@ export function getExpBuff(data,mode?){
 
 	let buff = list[chara.length-1]
 	if(type) buff += 0.5
-	if( !mode && data.core?.ExpBuff) buff *= 1+data.core.ExpBuff
+	if( !mode && data.core?.id){
+		let core = data.core.lvstats[data.core.level-1]
+		if(core?.Expbuff) buff += core.Expbuff;
+	}
 
 	return buff
 }
@@ -249,8 +252,16 @@ export function printSoul(str){
 	return text
 }
 
+
+export function LevelBuff(level){
+	if( level/10 > 1){
+		return Math.pow(Math.floor(level/10),1.25)
+	}
+	return 1
+}
+
 export function expCount(getexp,data){
-	getexp *= Math.max((data.level/5),1)
+	getexp *= Math.max((data.level/5),1)*Math.max(LevelBuff(data.level)*0.5,1)
 	getexp *= getExpBuff(data)
 	getexp = Math.floor(getexp+0.5)
 

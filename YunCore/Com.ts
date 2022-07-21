@@ -3,7 +3,7 @@ import { Lunar, Tao } from "lunar-javascript";
 import { CountStats } from "./lib/CountStats";
 import { CoreLib } from "./lib/Skill"
 import * as f from "./Function"
-import  * as s from "./Setting"
+import  YunBot, * as s from "./Setting"
 
 export default function Com(ctx: Context){
 
@@ -50,16 +50,16 @@ export default function Com(ctx: Context){
     ctx.command('poke','teach事件专用版戳一戳。')
 		.action(({ session }) => {
 
-				ctx.bots.get(`onebot:185632406`).sendMessage(session.channelId,'o(-。- o)===3 ) σ- . -)σ')
+				session.send('o(-。- o)===3 ) σ- . -)σ')
 				return segment('poke', {qq: session.userId})
 
 		})
     
     ctx.command('test [message]', '测试')
 		.action( async({ session }, message)=>{
-				//s.setFavo(ctx, s.master, 10)
-				console.log(s.yunstate, s.usertoday)
-				return '测试结果详细请看Log。'
+			s.usertoday.user[session.userId].usage={}
+			console.log(s.usertoday.user[session.userId])
+			return '测试结果详细请看Log。'
 		})
     
     ctx.command('At [target]','让路昀bot艾特任意人。')
@@ -103,7 +103,7 @@ export default function Com(ctx: Context){
 			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
 
 			if(!data.core?.id){
-				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n说的话有点多，累了……\n基础心法学哪套都差不多，那么就随便挑一本好了……`;
+				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n至于修哪套……（看了看基本基础心法秘诀的封面，居然都没有写名字）\n没办法了，只好随便抽一本了。抽到什么是什么了……`;
 				
 				let pool = ['灵犀心法','灵空心法','灵虚心法']
 				let id = f.random(2)
@@ -124,7 +124,7 @@ export default function Com(ctx: Context){
 			else{
 				let core = data.core
 				let exp = 1 + f.random(2)
-				let getexp = 3 + f.random(10) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
+				let getexp = 3 + f.random(20) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
 				getexp = f.expCount(getexp,data)
 
 				let nexexp = Math.floor(core.level*10*Math.pow(core.grade+0.5,2)+0.5)

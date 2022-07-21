@@ -57,9 +57,9 @@ export default function Daily(ctx: Context){
             let text = ""
             let data = await s.getUser(ctx, uid)
             let name = await s.getUserName(ctx, session)
-
+          
             if(!message || ["帮助",'help'].includes(message)){
-
+                return '本功能还没做完。'
             }
 
         })
@@ -88,8 +88,11 @@ export default function Daily(ctx: Context){
             }
             luck = today.luck
 
-            let getexp = Math.max(Math.floor(luck/10+0.5),1) + f.random(3,30)
+            let rate = f.random(3,45)
+            let getexp = Math.max(Math.floor(luck/10+0.5),1) + rate
+            console.log(name,'修炼结果',getexp, rate,f.expCount(getexp,data))
             getexp = f.expCount(getexp,data)
+            
 
             let txt = `@${name} 你${f.maybe([
                 ['静心打坐',30],
@@ -98,7 +101,7 @@ export default function Daily(ctx: Context){
                 ['参阅经书',30 + ( uid==s.senior ? 30 : 0)],
                 ['吞纳吸气',30],
                 ['奋笔疾书',20 + ( uid==s.brother ? 50 : 0)]]
-                )}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}`
+                )}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}/${f.expLevel(data.level)}`
             
             if(s.usertoday.userwork >= 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
 
