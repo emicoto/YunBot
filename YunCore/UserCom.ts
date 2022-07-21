@@ -4,6 +4,7 @@ import * as f from "./Function"
 import * as s from "./Setting"
 import { LingGenUtils } from "./lib/LingGen";
 import { CountStats } from "./lib/CountStats";
+import { getJrrp } from "./getluck";
 
 export default function UserCom(ctx: Context) {
 
@@ -195,6 +196,42 @@ export default function UserCom(ctx: Context) {
 
 		txt = `· ${user.name}的个人面板：\n${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }· 突破概率：${rate}%\n———————————————\nHP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\nAP：${data.AP}/${data.maxAP}\nATK：${data.ATK}  DEF：${data.DEF}  SPD：${data.SPD}\n———————————————\n· 持有灵石：${data.money}\n`
 		return txt
+	})
+
+	ctx.command('查看路昀','路昀的个人面板')
+	.action(async ({ session }) => {
+		let time = f.getChinaTime()
+		let zone = f.getTimeZone(time.getHours())
+
+		let data = s.yunstate
+		let luck = getJrrp(s.yunbot)
+		let rate = f.getYunBreakRate(data.level)
+		let level = f.getLevelChar(data.level)
+		let soul = f.printSoul(data.soul)
+		let mood = ''
+		if(s.yunstate.mood >= 70) mood = '愉快';
+		else if(s.yunstate.mood > 50 && s.yunstate.mood < 70) mood = '普通';
+		else mood = '不爽';
+
+		let dress = 'normal'
+
+		if (['凌晨','黎明','晚上','深夜'].includes(zone)) dress = 'sleep';
+		if(['凌晨','黎明'].includes(zone) && f.random(100) > 90 ) dress = 'sp';
+
+		let txt = [
+			'路昀的状态 --- | Yunbot v0.83',
+			f.images(`Yunstand_${dress}_${mood}.png`),
+			`· 心情：${'♥'.repeat(Math.floor(data.mood/20+0.5))}`,
+			`· 特征：${data.talent.join('、')}`,
+			`· 灵根：天 · 水灵根`,
+			`· 境界：${level}`,
+			`· 悟道值：${data.exp}/${f.expLevel(data.level)}`,
+			`· 幸运值：${luck}`,
+			`· 突破概率： ${rate}`,
+			`——————————————`,
+			`持有灵石：${data.money}`,
+			]
+		return txt.join("\n")
 	})
 
 }

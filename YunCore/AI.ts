@@ -29,11 +29,15 @@ export default async function YunAI(ctx: Context) {
 			text = r.whileWorking('session', session)
 		}
 
-		if( session.content.match(/(小昀|路昀).+(修行|修炼)\S{0,2}(怎样|如何|什么样|吗)\S{0,3}$/)){
+		if( s.yunstate.stats == "working" && session.content.match(/(小昀|路昀).+(修行|修炼)\S{0,5}(怎样|如何|什么样|哪里|进度|吗)\S{0,3}$/)){
 			return r.whileWorking('询问修炼进度', session)
 		}
 
-		if( session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) ){
+		if( s.yunstate.flag.levelup === true && session.content.match(/突破/) && f.random(100) < 66 && s.usertoday.yunbreak < 5){
+			return r.setYunBreak(ctx, session)
+		}
+
+		if( s.yunstate.stats != "working" && session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) && s.usertoday.yunwork < 10){
 			if(f.random(100) > 80 && s.usertoday.yunwork < 10 ){
 				r.setYunWork(session)
 				return f.either([

@@ -57,9 +57,12 @@ export default function Com(ctx: Context){
     
     ctx.command('test [message]', '测试')
 		.action( async({ session }, message)=>{
-			s.usertoday.user[session.userId].usage={}
-			console.log(s.usertoday.user[session.userId])
-			return '测试结果详细请看Log。'
+			//s.usertoday.user = {}
+			//console.log(s.usertoday.user[session.userId])
+			s.usertoday = YunBot.getUsertoday()
+			s.yunstate.flag['breakbuff'] = 40
+			console.log(s.usertoday)
+			return `本地档案已更新。`
 		})
     
     ctx.command('At [target]','让路昀bot艾特任意人。')
@@ -122,8 +125,10 @@ export default function Com(ctx: Context){
 				return '……欲速则不达，心法的修习一天最多3次而已……'
 			}
 			else{
+				today.usage['修习心法']++
+
 				let core = data.core
-				let exp = 1 + f.random(2)
+				let exp = 1 + f.random(data.core.grade+1)
 				let getexp = 3 + f.random(20) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
 				getexp = f.expCount(getexp,data)
 
@@ -135,6 +140,7 @@ export default function Com(ctx: Context){
 				data.core.exp += exp
 
 				await s.setUser(ctx, uid, data)
+				s.saveToday()
 
 				return txt
 			}

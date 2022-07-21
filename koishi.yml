@@ -17,6 +17,7 @@ plugins:
   status: null
   sandbox: null
   adapter-onebot:
+    path: /yun
     protocol: ws
     selfId: '185632406'
     endpoint: ws://127.0.0.1:8080

@@ -46,6 +46,7 @@ export default class YunBot {
 	public static NewToday(){
 		let timetick = new Date()
 		usertoday = new TodayData(timetick)
+		yunstate.mood = getMood()
 	}
 
 	constructor(){
@@ -61,7 +62,7 @@ export class TodayData{
 		this.day = day.getDate();
 		this.genTime = day.toLocaleString();
 
-		this.yunwork = 0; this.userwork = 0;
+		this.yunwork = 0; this.userwork = 0; this.yunbreak = false
 		this.rank = []; this.luckrank = [];
 
 		this.user = {};
@@ -77,9 +78,11 @@ export const cleaner: string = '541084126'
 export const brother: string = '1632519382'
 
 if(!yunstate){
-	new YunBot()
+	yunstate = YunBot.getYunData()
+	usertoday = YunBot.getUsertoday()
 	console.log('数据同步中……')
 	setTimeout(() => {
+		yunstate.mood = getMood()
 		yunsave()
 	}, 2000);
 }
@@ -88,7 +91,7 @@ export interface TodayData{
 	month: number; day: number;
 	genTime: string;
 
-	yunwork: number;
+	yunwork: number; yunbreak:number;
 	userwork: number;
 	rank: Array<any>;
 	luckrank: Array<any>;
@@ -189,7 +192,7 @@ export interface YunState {
 	maxsan: number;	
 	BP: number;
 
-	ATK:number; DEF:number; core:any
+	ATK:number; DEF:number; SPD:number; core:any
 	equip:any; accesory:any; skill:Array<any>;
 	items:any;
 
@@ -215,6 +218,8 @@ export function getMood(){
 	hash.update('6688')
 
 	let val = Math.max(parseInt(hash.digest('hex'),16) % 101,1)
+	yunstate.mood = val
+	yunsave()
 	return val
 }
 

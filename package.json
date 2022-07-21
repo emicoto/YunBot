@@ -18,7 +18,7 @@
     "pub": "yakumo publish",
     "dev": "cross-env NODE_ENV=development koishi start -r esbuild-register -r yml-register --watch",
     "start": "koishi start",
-    "mirai": "cd mirai && go-cqhttp"
+    "mirai": "cd yun && go-cqhttp"
   },
   "devDependencies": {
     "@koishijs/client": "^3.4.1",

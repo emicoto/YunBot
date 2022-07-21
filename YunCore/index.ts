@@ -54,10 +54,6 @@ export default async function YunCore(ctx: Context){
 
 	})
 
-    ctx.on('adapter', ()=>{
-        console.log('连接器事件？')
-    })
-
     ctx.on('bot-status-updated', async (session) =>{
 
         if(s.yunstate){
@@ -118,7 +114,7 @@ export default async function YunCore(ctx: Context){
             if(zone == '中午') text +='“师父……还有各位……中午好……”'
             if(['下午','傍晚'].includes(zone)) text += '“师父……还有各位……下午好……”\n“……？我是不是起太晚了……？”'
 
-            ctx.broadcast(text)
+            //ctx.broadcast(text)
             console.log('路昀bot已启动完毕。')
             botstatus = 'botrunning'
         }            

@@ -1,5 +1,6 @@
 import { Context, segment, Session } from "koishi"
-import { getToday, getUser, UserData } from "./Setting";
+import { getJrrp } from "./getluck";
+import { getMood, getToday, getUser, UserData, yunbot, yunstate } from "./Setting";
 
 export function between(int:number,a:number,b:number){
 	return int >= a && int <= b;
@@ -171,6 +172,22 @@ export async function getBreakRate(ctx:Context, uid:string){
 	return Math.max(Math.floor(goal+0.5),2)
 }
 
+export function getYunBreakRate(level){
+	let goal = 90
+	let luck = getMood()
+
+	goal -= Math.max((level/10),1)*3
+	goal -= level/2
+	
+	goal /= 1+level/20
+	if(level%10==0) goal /= 2
+
+	if(yunstate.flag?.breakbuff) goal += yunstate.flag.breakbuff
+	goal += luck/15
+
+	return Math.max(Math.floor(goal+0.5),2)
+}
+
 export function getTimeZone(hour){
 	if(between(hour,2,4)) return '凌晨'
 	if(between(hour,5,7)) return '黎明'
@@ -266,6 +283,14 @@ export function expCount(getexp,data){
 	getexp = Math.floor(getexp+0.5)
 
 	return getexp
+}
+
+export function YunGetExp(get,level){
+	get *= Math.max((level/5),1)*Math.max(LevelBuff(level)*0.5,1)
+	get *= 2+3
+	get = Math.floor(get+0.5)
+
+	return get
 }
 
 export function getSoulInfo(str){
