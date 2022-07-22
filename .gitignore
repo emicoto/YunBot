@@ -4,6 +4,7 @@ logs
 mirai
 yun
 locales
+oldfile
 
 node_modules
 npm-debug.log
@@ -28,3 +29,9 @@ leveldb-v3
 *.cache
 *.bak
 *.ldb
+*.png
+*.jpg
+
+koishi.yml
+Yunstate.json
+usertoday.json
