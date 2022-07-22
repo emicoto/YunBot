@@ -383,7 +383,7 @@ export async function setYunBreak(ctx:Context, session, mode?){
 	let txt = '历时多日的修行，路昀总算也迎来了突破的时机……\n路昀选择了一个吉日佳时，仔细地沐浴过后，\n再换上白净的衣服浸泡在灵泉中感受自身天地灵脉的转动……\n'
 	let name = await s.getUserName(ctx, session.userId)
 
-	let goal = f.getYunBreakRate(level)
+	let goal = await f.getBreakRate(ctx, s.yunbot, 1)
 	let rate = f.random(100)
 	console.log("小昀的突破概率:",goal,rate)
 	s.usertoday.yunbreak ++
@@ -455,7 +455,7 @@ export function setYunWork(session){
 		if( s.yunstate.work <= 0 ){
 			let getexp = f.random(5,60)
 			getexp += Math.max(Math.floor(s.yunstate.mood/10+0.5),1)
-			getexp = f.YunGetExp(getexp,s.yunstate.level)
+			getexp = f.expCount(getexp, s.yunstate)
 			s.yunstate.exp += getexp
 
 			s.yunstate.stats = 'free'

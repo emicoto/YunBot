@@ -44,6 +44,13 @@ export default async function YunCore(ctx: Context){
         }
     })
 
+    ctx.before('command/execute', async ({ session })=>{
+        if(session.channelId.match('private') && [s.master,s.senior,s.brother,s.elder,s.pigeon].includes(session.userId) === false) {
+            
+            return " 暂时停用好友服务 "
+        }
+    })
+
     //启动事件
 	ctx.on('bot-connect', async(session)=>{
 

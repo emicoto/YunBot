@@ -1,6 +1,6 @@
 import { Context, segment, Session } from "koishi"
 import { getJrrp } from "./getluck";
-import { getToday, getUser, yunbot, yunstate } from "./Setting";
+import { getToday, getUser, saveToday, yunbot, yunstate } from "./Setting";
 
 export function between(int:number,a:number,b:number){
 	return int >= a && int <= b;
@@ -122,6 +122,13 @@ export function ComUsage(utoday, str:string, limit:number){
 	return true
 }
 
+export function CountUsage(uid, str){
+	let today = getToday(uid)
+	if(!today.usage[str]) today.usage[str] = 0;
+	today.usage[str] ++
+	saveToday()
+}
+
 
 export function getLevelChar(lv){
 	let level = [
@@ -153,12 +160,21 @@ export function expLevel(level){
 	return result
 }
 
-export async function getBreakRate(ctx:Context, uid:string){
+export async function getBreakRate(ctx:Context, uid:string, mode?){
 	let goal = 90
-	let data = await getUser(ctx, uid)
-	let today = getToday(uid)
+	let data, today, luck, level
 
-	let level = data.level
+	if(!mode){
+		data = await getUser(ctx, uid)
+		today = getToday(uid)
+		luck = today.luck
+		level = data.level
+	}
+	else{
+		data = yunstate
+		luck = getJrrp(yunbot)
+		level = yunstate.level
+	}
 
 	goal -= Math.max((level/10),1)*(5-getExpBuff(data,1))
 	goal -= level/2
@@ -167,26 +183,11 @@ export async function getBreakRate(ctx:Context, uid:string){
 	if(level%10==0) goal /= 2
 
 	if(data.flag?.breakbuff) goal += data.flag.breakbuff
-	if(today.luck > 0) goal += today.luck/15
+	if(luck > 0) goal += luck/15
 
 	return Math.max(Math.floor(goal+0.5),2)
 }
 
-export function getYunBreakRate(level){
-	let goal = 90
-	let luck = getJrrp(yunbot)
-
-	goal -= Math.max((level/10),1)*3
-	goal -= level/2
-	
-	goal /= 1+level/20
-	if(level%10==0) goal /= 2
-
-	if(yunstate.flag?.breakbuff) goal += yunstate.flag.breakbuff
-	goal += luck/15
-
-	return Math.max(Math.floor(goal+0.5),2)
-}
 
 export function getTimeZone(hour){
 	if(between(hour,2,4)) return '凌晨'
@@ -283,14 +284,6 @@ export function expCount(getexp,data){
 	getexp = Math.floor(getexp+0.5)
 
 	return getexp
-}
-
-export function YunGetExp(get,level){
-	get *= Math.max((level/5),1)*Math.max(LevelBuff(level)*0.5,1)
-	get *= 2+3
-	get = Math.floor(get+0.5)
-
-	return get
 }
 
 export function getSoulInfo(str){

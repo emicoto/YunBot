@@ -1,14 +1,22 @@
 import { Context} from "koishi"
-import { getUser, setUser } from "../Setting"
+import { getUser, setUser, yunsave, yunstate } from "../Setting"
 import { getSoulBuff, LevelBuff } from "../Function"
 
-export async function CountStats(ctx: Context, uid: string) {
-    let data = await getUser(ctx, uid)
-	let level = data.level
+export async function CountStats(ctx: Context, uid: string, mode?) {
+	let data,level
+
+	if(!mode){
+		data = await getUser(ctx, uid)
+		level = data.level		
+	}else{
+		data = yunstate
+		level = yunstate.level
+	}
+
 	//console.log(data)
 
 	//先从等级获得各数值的基础值，战斗力最后算
-	let BP = (6 - data.soul.length) * Math.max(Math.floor(level/10),1)
+	let BP = (7 - data.soul.length) * Math.max(Math.floor(level/10),1)
 
 	let HP = (10 + level * 4.75) * LevelBuff(level)
 	let SP = (5 + level * 1.5) * LevelBuff(level)
@@ -127,6 +135,12 @@ export async function CountStats(ctx: Context, uid: string) {
 	data.SPD = Math.max(Math.floor(SPD+0.5),5)
 	data.BP = Math.max(Math.floor(BP+0.5),5)
 
-	await setUser(ctx,uid,data)
+	if(!mode){
+		await setUser(ctx,uid,data)	
+	}else{
+		console.log(yunstate)
+		yunsave()
+	}
+	
 	return data
 }

@@ -203,9 +203,9 @@ export default function UserCom(ctx: Context) {
 		let time = f.getChinaTime()
 		let zone = f.getTimeZone(time.getHours())
 
-		let data = s.yunstate
+		let data = await CountStats(ctx,s.yunbot,1)
 		let luck = getJrrp(s.yunbot)
-		let rate = f.getYunBreakRate(data.level)
+		let rate = await f.getBreakRate(ctx,s.yunbot, 1)
 		let level = f.getLevelChar(data.level)
 		let soul = f.printSoul(data.soul)
 		let mood = ''
@@ -225,10 +225,17 @@ export default function UserCom(ctx: Context) {
 			`· 特征：${data.talent.join('、')}`,
 			`· 灵根：天 · 水灵根`,
 			`· 境界：${level}`,
+			`· 战斗力：${data.BP}`,
 			`· 悟道值：${data.exp}/${f.expLevel(data.level)}`,
 			`· 幸运值：${luck}`,
 			`· 突破概率： ${rate}`,
 			`——————————————`,
+			`HP：${data.HP}/${data.maxHP}  SP:${data.SP}/${data.maxSP}`,
+			`SAN：${data.san}/${data.maxsan}`,
+			`ATK：${data.ATK}  DEF:${data.DEF}  SPD:${data.SPD}`,
+			`——————————————`,
+			`主修心法：${data.core.name}`,
+			`装备：${data.equip.weapon.name}`,
 			`持有灵石：${data.money}`,
 			]
 		return txt.join("\n")

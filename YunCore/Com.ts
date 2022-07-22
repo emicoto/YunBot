@@ -8,7 +8,7 @@ import  YunBot, * as s from "./Setting"
 export default function Com(ctx: Context){
 
     ctx.command("黄历", "查看黄历时间以及宜忌信息等。")
-        .action(()=>{
+        .action(({ session })=>{
 			let ly = Lunar.fromDate(f.getChinaTime())
             let year = `${ly.getYearInChinese()}年，`
             year += `天运${ly.getGan()+ly.getZhi()}，`
@@ -31,6 +31,8 @@ export default function Com(ctx: Context){
 				}
 			}
 
+			f.CountUsage(session.userId,'黄历')
+
 			return text
         })
     
@@ -38,6 +40,8 @@ export default function Com(ctx: Context){
 		.shortcut('戳我')
 		.action(({ session }, target) => {
 			const parsedTarget = target ? segment.parse(target)[0] : null
+
+			f.CountUsage(session.userId,'戳一戳')
 		
 			if(!parsedTarget){
 				return segment('poke', { qq: session.userId })
@@ -59,7 +63,8 @@ export default function Com(ctx: Context){
 		.action( async({ session }, message)=>{
 			//s.usertoday.user = {}
 			//console.log(s.usertoday.user[session.userId])
-			console.log(s.usertoday)
+			//s.usertoday.yunbreak = 0
+			console.log()
 			return `本地档案已更新。`
 		})
     
@@ -87,11 +92,32 @@ export default function Com(ctx: Context){
 				return '……我已经累了……'
 			}
 			else{
-				//today.usage['陪同修炼'] ++
+				//f.CountUsage(uid,'陪同修炼')
 				return '本功能还没做完。'
 			}
 			
         })
+	
+	ctx.command('指令记录','显示指令的次数记录',{ minInterval: Time.minute*2 })
+		.alias('mylogs')
+		.action(async( { session }) =>{
+			let uid = session.userId
+			let today = s.getToday(uid)
+			let name = await s.getUserName(ctx, session)
+			let usage = today.usage
+			let txt = []
+
+			if( Object.keys(usage).length > 0 ){
+				for(let i in usage){
+					let t = `· ${i}： ${usage[i]}`
+					txt.push(t)
+				}
+				return `${name}的指令记录：\n`+txt.join("\n")
+			}
+			else{
+				return '没有对应记录。'
+			}
+		})
 	
 	ctx.command('修习心法','修习主心法', { minInterval: Time.hour/3})
 		.action(async ({ session })=>{
@@ -104,7 +130,7 @@ export default function Com(ctx: Context){
 			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
 
 			if(!data.core?.id){
-				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n至于修哪套……（看了看基本基础心法秘诀的封面，居然都没有写名字）\n没办法了，只好随便抽一本了。抽到什么是什么了……`;
+				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n至于修哪套……\n（看了看几本基础心法秘诀的封面，居然都没有写名字）\n没办法了，只好随便抽一本了。抽到什么是什么了……`;
 				
 				let pool = ['灵犀心法','灵空心法','灵虚心法']
 				let id = f.random(2)

@@ -35,6 +35,13 @@ export default async function YunAI(ctx: Context) {
 
 		if( s.yunstate.flag.levelup === true && session.content.match(/突破/) && f.random(100) < 66 && s.usertoday.yunbreak < 5){
 			return r.setYunBreak(ctx, session)
+		}else if( s.yunstate.flag.levelup === true && session.content.match(/突破/) && s.usertoday.yunbreak < 5 ){
+			return f.either([
+				`……呜，今天气运不顺，摸了……`,
+				'……卦象说，今天不宜突破……',
+				'……呜，'+(uid== s.master ? '师父……' : uid== s.senior ? '师叔……' : '')
+				+ '卦象说，今天突破会失败……所以，今天就休息了好不好？',
+			])
 		}
 
 		if( s.yunstate.stats != "working" && session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) && s.usertoday.yunwork < 10){

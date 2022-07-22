@@ -34,9 +34,11 @@ plugins:
     onRepeat:
       minTimes: 2
       probability: 0.8
-  verifier:
-    onFriendRequest: true
-  teach: null
+  teach:
+    authority:
+      admin: 5
+      frozen: 5
+      context: 4
   dice: null
   hitokoto: null
   ./YunCore/index: null

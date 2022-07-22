@@ -134,8 +134,12 @@ export default function getluck(ctx: Context){
 	ctx.command("每日一卦","jrrp。小昀帮你算今天一卦。")
 		.alias("jrrp")
 		.shortcut('卜卦')
-		.action(async({ session }, target)=>{
+		.action(async({ session })=>{
 			let uid = session.userId
+			let today = s.getToday(uid)
+			if( f.ComUsage(today, '每日一卦', 3)) today.usage['每日一卦'] ++;
+			else return '今天测过了哦。';	
+
 			let data = await s.getUser(ctx, uid)
 			let name = await s.getUserName(ctx, session)
 
@@ -160,6 +164,7 @@ export default function getluck(ctx: Context){
 			let text1 = res1.join('\n')
 			let text2 = res2.join('\n')
 
+
 			session.send(text1)
 			setTimeout(()=>{session.send(text2)},2500)
 			return
@@ -171,6 +176,10 @@ export default function getluck(ctx: Context){
 			let no = f.random(99)
 			let kuji = hdxlq[no]
 			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/huangdaxian/${kuji.no}.html\n${f.images(`hdxlq/${kuji.no}.png`)}`
+
+			let uid = session.userId
+			f.CountUsage(uid, '黄大仙灵签')
+			
 			
 			return f.At(session.userId)+txt
 		})
@@ -181,6 +190,9 @@ export default function getluck(ctx: Context){
 			let no = f.random(99)
 			let kuji = zglq[no]
 			let txt = `第${kuji.no}签  ${kuji.luck}签 ${kuji.title}\n${kuji.text}\n 解签链接：https://www.zgjm.org/chouqian/zhougong/${kuji.no}.html\n${f.images(`zglq/${kuji.no}.png`)}`
+
+			let uid = session.userId
+			f.CountUsage(uid, '周公灵签')
 			
 			return f.At(session.userId)+txt
 		})

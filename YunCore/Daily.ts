@@ -44,6 +44,8 @@ export default function Daily(ctx: Context){
             today.sign = true
             data['money'] += num
 
+            today.usage['每日签到'] = 1
+
             await s.setUser(ctx, uid, data)
             s.saveToday()
 
@@ -80,7 +82,7 @@ export default function Daily(ctx: Context){
             if(f.ComUsage(today, '修炼', 5) === false){
                 return "一天最多只能修炼五次而已……"
             }else{
-                today.usage['修炼']++
+                f.CountUsage(uid,'修炼')
             }
 
             if(today.luck <= 0){
@@ -90,9 +92,9 @@ export default function Daily(ctx: Context){
 
             let rate = f.random(3,45)
             let getexp = Math.max(Math.floor(luck/10+0.5),1) + rate
-            console.log(name,'修炼结果',getexp, rate,f.expCount(getexp,data))
+             console.log(name,'修炼结果:','base',getexp, 'roll',rate,'result',f.expCount(getexp,data))            
             getexp = f.expCount(getexp,data)
-            
+           
 
             let txt = `@${name} 你${f.maybe([
                 ['静心打坐',30],
@@ -133,8 +135,7 @@ export default function Daily(ctx: Context){
                 return '一天只能尝试突破两次哦。'
             }
             else{
-                today.usage['突破'] ++
-                s.saveToday()
+                f.CountUsage(uid,'突破')
             }
 
             if(!data.flag?.signed){
