@@ -1,6 +1,8 @@
+//功能函数
+
 import { Context, segment, Session } from "koishi"
 import { getJrrp } from "./getluck";
-import { getToday, getUser, saveToday, yunbot, yunstate } from "./Setting";
+import * as s from "./Setting";
 
 export function between(int:number,a:number,b:number){
 	return int >= a && int <= b;
@@ -14,11 +16,17 @@ export function random(min:number,max?:number){
 	return Math.floor(Math.random()*(max-min+1)+min)
 }
 
+export function fixed(int, a?){
+	if(!a) a=2
+	return parseFloat(int.toFixed(a))
+}
+
 export function either(arr:Array<any>){
 	let max = arr.length
 	let i = random(1,max)-1
 	return arr[i]
 }
+
 
 export function At(uid:string){
 	return segment('at', { id: uid } )
@@ -71,6 +79,22 @@ export function compare(key){
 	}
 }
 
+export function Roll(times,max){
+	let re = {
+		roll:[],
+		result:0,
+		bonus:0,
+	}
+	for(let i=0; i < times; i++){
+		let r = random(1,max)
+		re.roll[i] = r
+		re.result += r
+		if(r==max) re.bonus ++;
+	}
+
+	return re
+}
+
 export function intoChar(str: string){
 	const N = [
 		'〇','一','二','三','四','五','六','七','八','九'
@@ -90,7 +114,7 @@ export function getShichen(){
 		'一','二','三','四','五','六','七','八'
 	]
 
-	let now = getChinaTime()
+	let now = cnTime()
 
 	let h = Math.floor(now.getHours()/2)
 	let m = Math.floor(now.getMinutes()/15)
@@ -108,25 +132,26 @@ export function getShichen(){
 }
 
 
-export function getChinaTime(){
+export function cnTime(){
   var cn = new Date().toLocaleString('jpn',{ timeZone:"Hongkong" })
   var cntime = new Date(cn)
   return cntime
 }
 
 
-export function ComUsage(utoday, str:string, limit:number){
+export function ComUsage(utoday:s.UserToday, str:string, limit:number){
 	if ( !utoday.usage[str] ) utoday.usage[str] = 0;
 	if ( utoday.usage[str] >= limit ) return false
 	//console.log(utoday.usage)
 	return true
 }
 
-export function CountUsage(uid, str){
-	let today = getToday(uid)
+export function CountUsage(uid:string, str:string){
+	let today = s.getToday(uid)
 	if(!today.usage[str]) today.usage[str] = 0;
 	today.usage[str] ++
-	saveToday()
+	//console.log(today.usage)
+	s.saveToday()
 }
 
 
@@ -165,15 +190,15 @@ export async function getBreakRate(ctx:Context, uid:string, mode?){
 	let data, today, luck, level
 
 	if(!mode){
-		data = await getUser(ctx, uid)
-		today = getToday(uid)
+		data = await s.getUser(ctx, uid)
+		today = s.getToday(uid)
 		luck = today.luck
 		level = data.level
 	}
 	else{
-		data = yunstate
-		luck = getJrrp(yunbot)
-		level = yunstate.level
+		data = s.yunstate
+		luck = getJrrp(s.yunbot)
+		level = s.yunstate.level
 	}
 
 	goal -= Math.max((level/10),1)*(5-getExpBuff(data,1))

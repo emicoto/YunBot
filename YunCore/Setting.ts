@@ -3,58 +3,6 @@ import fs from 'fs'
 import { createHash } from 'crypto';
 import { compare } from "./Function";
 
-
-export default class YunBot {
-	public static yunstate: YunState;
-	public static usertoday: TodayData;
-
-	public static getYunData() {
-		if ( !yunstate ){
-			fs.readFile('Yunstate.json','utf-8',(err,data)=>{
-				if(!data) return;
-				if(err) throw new Error("error occured while reading file:Yunstate.json");
-					yunstate = JSON.parse(data.toString());
-					console.log("getYunState:",yunstate)
-			})
-		}
-		if(yunstate) {
-			yunstate.mood = getMood()
-			return yunstate
-		}
-	}
-	public static getUsertoday(){
-		let timetick = new Date()
-		if( !usertoday ){
-			fs.readFile('usertoday.json','utf-8',(err,data)=>{
-				if(!data) return;
-				if(err) throw new Error("error occured while reading file:usertoday.json");
-					usertoday = JSON.parse(data.toString());
-
-				if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
-					YunBot.NewToday()
-				}
-				
-				if( usertoday && !usertoday?.user[master]){
-					usertoday.user[master] = new UserToday()
-				}
-				console.log("getUsertoday:",usertoday)
-			})
-		}
-		if(usertoday) return usertoday
-	}
-
-	public static NewToday(){
-		let timetick = new Date()
-		usertoday = new TodayData(timetick)
-		yunstate.mood = getMood()
-	}
-
-	constructor(){
-		YunBot.yunstate = YunBot.getYunData()
-		YunBot.usertoday = YunBot.getUsertoday()
-	}
-}
-
 export class TodayData{
 	constructor( day: Date){
 
@@ -62,15 +10,15 @@ export class TodayData{
 		this.day = day.getDate();
 		this.genTime = day.toLocaleString();
 
-		this.yunwork = 0; this.userwork = 0; this.yunbreak = false
+		this.yunwork = 0; this.userwork = 0; this.yunbreak = 0;
 		this.rank = []; this.luckrank = [];
 
 		this.user = {};
 	}
 }
 
-export var yunstate : YunState = YunBot.yunstate
-export var usertoday : TodayData = YunBot.usertoday
+export var yunstate : YunState ;
+export var usertoday : TodayData ;
 export const master: string = '1794362968' //师父我
 export const yunbot: string = '185632406'  //小昀
 export const senior: string = '1742029094' // 周天
@@ -80,8 +28,9 @@ export const elder: string = '598139265' //兰兰
 export const pigeon: string = '1034826119' //鸽子
 
 if(!yunstate){
-	yunstate = YunBot.getYunData()
-	usertoday = YunBot.getUsertoday()
+	yunstate = getYunData()
+	usertoday = getUsertoday()
+
 	console.log('数据同步中……')
 	setTimeout(() => {
 		yunstate.mood = getMood()
@@ -102,6 +51,7 @@ export interface TodayData{
 }
 
 export interface UserData{
+	name: string;
 	money: number; 
 	favo: number; trust: number;
 
@@ -119,7 +69,7 @@ export interface UserData{
 	ATK:number; DEF:number; SPD:number;
 
 	equip: any;  accesory: any; items: any;
-	skill: Array<any>; core:any;
+	skill: any; core:any;
 	storage: Array<any>;
 	titles: string[];
 	flag: any;
@@ -151,7 +101,7 @@ export class UserData{
 	}
 }
 
-interface UserToday{
+export interface UserToday{
 	luck: number;  //jrrp
 	sign: boolean; //签到
 	roll: number; //骰点次数
@@ -161,7 +111,7 @@ interface UserToday{
 	usage:any; //指令使用次数
 }
 
-class UserToday{
+export class UserToday{
 	constructor(){
 		this.sign = false;
 		this.roll = 0;
@@ -170,6 +120,7 @@ class UserToday{
 		this.usage = {};
 		this.kuji = {};
 		this.luck = -1;
+		this.usage = [];
 	}
 }
 
@@ -213,6 +164,48 @@ export function __extend(ctx){
 	})
 }
 
+export function getYunData() {
+	if ( !yunstate ){
+		fs.readFile('Yunstate.json','utf-8',(err,data)=>{
+			if(!data) return;
+			if(err) throw new Error("error occured while reading file:Yunstate.json");
+				yunstate = JSON.parse(data.toString());
+				console.log("getYunState:",yunstate)
+		})
+	}
+	if(yunstate) {
+		yunstate.mood = getMood()
+		return yunstate
+	}
+}
+
+export function getUsertoday(){
+	let timetick = new Date()
+	if( !usertoday ){
+		fs.readFile('usertoday.json','utf-8',(err,data)=>{
+			if(!data) return;
+			if(err) throw new Error("error occured while reading file:usertoday.json");
+				usertoday = JSON.parse(data.toString());
+
+			if(usertoday.day != timetick.getDate() || usertoday.month != timetick.getMonth()+1){
+				NewToday()
+			}
+			
+			if( usertoday && !usertoday?.user[master]){
+				usertoday.user[master] = new UserToday()
+			}
+			console.log("getUsertoday:",usertoday)
+		})
+	}
+	if(usertoday) return usertoday
+}
+
+export function NewToday(){
+	let timetick = new Date()
+	usertoday = new TodayData(timetick)
+	yunstate.mood = getMood()
+}
+
 export function getMood(){
 	const hash = createHash('sha256')
 	hash.update('185632406')
@@ -253,36 +246,40 @@ export async function makeRank( ctx:Context ){
 	rank.sort(compare("level"))
 	luck.sort(compare("luck"))
 
-	YunBot.usertoday['rank'] = rank
-	YunBot.usertoday['luckrank'] = luck
+	usertoday['rank'] = rank
+	usertoday['luckrank'] = luck
 }
 
 export async function getUser(ctx:Context, uid:string) : Promise<UserData> {
 	let data, user
 
 	data = await ctx.database.getUser('onebot', uid)
-
-	if( data.YunData?.flag?.signed === true && !data.YunData?.accesory ){
-		data.YunData['accesory'] = { face:{}, ear:{}, hand:{}, leg:{} }	
-	}
-
-	if( data.YunData?.flag?.signed === true && !data.YunData?.core ){
-		data.YunData['core'] = {}
-	}
-
-	if( data.YunData?.flag?.signed === true && !data.YunData?.SPD ){
-		data.YunData['SPD'] = 5
-	}
 		
 	if(!data.YunData?.flag?.signed){
 		user = new UserData()
 		data.YunData = user
 	}	
 
+	//将名字信息更新到修仙档案中。
+	if(!data.YunData?.name || data.YunData.name !== data.name || data.YunData.nick !== data.nick){
+		data.YunData.name = data.name
+		data.YunData.nick = data.nick
+	}
+
 	user = data.YunData;
 	await setUser(ctx, uid, user)
 
 	return user
+}
+
+export async function newUser(ctx:Context, uid: string) : Promise<UserData> {
+	let data
+
+	data = await ctx.database.getUser('onebot', uid)
+	data.YunData = new UserData()
+
+	await setUser(ctx, uid, data.YunData)
+	return data.YunData
 }
 
 export async function setUser(ctx:Context, uid: string, data) {
@@ -307,6 +304,10 @@ export async function getUserName(ctx:Context, session:Session ) {
 	return name
 }
 
+export function getName(data){
+	if(data.nick && data.nick.length >= 1) return data.nick;
+	return data.name;
+}
 
 export async function setFavo(ctx:Context, uid:string, val:number) {
 	let data = await getUser(ctx, uid)

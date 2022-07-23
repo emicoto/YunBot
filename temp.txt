@@ -27,6 +27,19 @@ SPD ：5 + 等级加成（每级+0.5，每10级*1.25） + 装备加成 + 金灵�
 天灵根效果： 灵根加成*1.5
 弱加成效果 = 灵根加成*0.3
 
+//主动技，action是 SkillFun[n]里代入的function名。
+//被动会计入平时的属性中。 主动不会计入平时属性，只有使用技能时才计入。所有主动技能都会消耗SP。 主动技能中，分 攻击、防御、特殊、治疗 四种技能。
+//治疗技能平时也可以用。
+//每日可以使用指令：.休养生息 来进行恢复HP、SP、AP。一天只能使用一次。 用了休养生息后，当天再也无法出门历练以及进行PK。
+
+data.flag = {
+	upgrade: object {}  属性提升记录
+	breakbuff: boolean  突破提升，突破成功时清零。
+	stats : str 当前状态。可叠加，在debuff中进行管理。
+	debuff : object {}  各debuff的状态记录，包括处理方式。 回合结束时进行统一计算。
+	canAct : boolean  能否做出反应。 战斗时统一判定。 石化，冰冻，迷幻，紧固状态都无法动弹。
+
+}
 
     ctx.command('my-command')
 		.option('writer', '-w <id>')
@@ -119,3 +132,54 @@ SPD ：5 + 等级加成（每级+0.5，每10级*1.25） + 装备加成 + 金灵�
 		return 'all data is cleared, please check in the log.'
     })
 */
+
+//普通攻击
+export function NormalAtk(player, target){
+    let dmg = player.ATK
+    let def = target.DEF
+    let spd = player.SPD
+    let goal = target.SPD
+
+    //先看命中，主动方具备命中优势。
+    //双方骰点。 攻击方 1+等级/10 D 速度/2，  防守方 1+等级/10 D 速度/2
+    //优势方 追加 一个 1d 速度/10（保底10）
+    let a, b, aroll, broll, croll, crit, at,bt
+
+    at = Math.max(Math.floor(1+player.level/10+0.5),2)
+    bt = Math.max(Math.floor(1+target.level/10+0.5),2)
+
+    aroll = Roll(Math.floor(spd/5),6)
+    broll = Roll(Math.floor(goal/5),5)
+    croll = Roll(at,Math.max(spd/at,6));
+
+    console.log('攻击方速度：',spd, '防守方速度：',goal)
+    console.log('攻击方命中骰点：',aroll.result, '大成功次数',aroll.bonus, '优势骰点',croll.result)  
+    console.log('防守方闪避骰点：',broll.result, '大成功次数',broll.bonus,)
+
+    a = aroll.result + croll.result + spd + ( aroll.bonus > spd/25 ? aroll.bonus*6 : 0)
+    b = aroll.result + goal*0.8 + ( aroll.bonus > spd/25 ? aroll.bonus*5 : 0)
+
+    console.log('最终结果： 攻：', a,'守：', b, ( a >= b ? '命中' : '攻击失败' ))
+
+    if( a >= b ){
+        at = Math.max(Math.floor(dmg/5+0.5),2)
+        bt = Math.max(Math.floor(def/5+0.5),2)
+
+        aroll = Roll(at, 6)
+        broll = Roll(bt, 5)
+        if(aroll.bonus >= at/5 ) crit = 10*aroll.bonus + dmg/2
+
+        console.log('攻击方攻击力：',dmg, '防守方防御力：',def)
+        console.log('攻击方伤害骰点：',aroll.result, '大成功次数',aroll.bonus, ( crit ? '会心伤害'+crit : '' ))  
+        console.log('防守方防御骰点：',broll.result, '大成功次数',broll.bonus, '防御效率', def/dmg)
+        a = aroll.result + dmg
+        b = aroll.result + def/2
+        console.log('最终结果造成伤害：', Math.max(a-b,Math.max(def/20,1)) + ( crit ? Math.max(crit-b/5,5) : 0))        
+    }
+    //返回伤害值与会心伤害。
+    let result = {
+        dmg: Math.max(a-b,1),
+        crit: ( crit ? Math.max(crit-b/2,5) : 0),
+    }
+    return result
+}

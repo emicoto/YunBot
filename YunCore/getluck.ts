@@ -136,9 +136,8 @@ export default function getluck(ctx: Context){
 		.shortcut('卜卦')
 		.action(async({ session })=>{
 			let uid = session.userId
-			let today = s.getToday(uid)
-			if( f.ComUsage(today, '每日一卦', 3)) today.usage['每日一卦'] ++;
-			else return '今天测过了哦。';	
+
+			f.CountUsage(uid,'每日一卦')
 
 			let data = await s.getUser(ctx, uid)
 			let name = await s.getUserName(ctx, session)
@@ -165,8 +164,8 @@ export default function getluck(ctx: Context){
 			let text2 = res2.join('\n')
 
 
-			session.send(text1)
-			setTimeout(()=>{session.send(text2)},2500)
+			session.sendQueued(text1)
+			setTimeout(()=>{session.sendQueued(text2)},2500)
 			return
 		})
 	
@@ -180,8 +179,8 @@ export default function getluck(ctx: Context){
 			let uid = session.userId
 			f.CountUsage(uid, '黄大仙灵签')
 			
-			
-			return f.At(session.userId)+txt
+			session.sendQueued(f.At(session.userId)+txt)
+			return
 		})
 	
 	ctx.command("周公灵签","周公灵签",{minInterval: Time.hour})
@@ -194,6 +193,7 @@ export default function getluck(ctx: Context){
 			let uid = session.userId
 			f.CountUsage(uid, '周公灵签')
 			
-			return f.At(session.userId)+txt
+			session.sendQueued(f.At(session.userId)+txt)
+			return 
 		})
 }

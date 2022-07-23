@@ -2,7 +2,7 @@ import { Context, segment } from "koishi";
 import * as f from "./Function"
 import * as s from "./Setting"
 import * as r from "./Reply"
-import YunBot from "./Setting";
+import { setYunBreak, setYunWork } from "./Event";
 
 
 export default async function YunAI(ctx: Context) {
@@ -11,7 +11,7 @@ export default async function YunAI(ctx: Context) {
 
 		let timetick = new Date()
 		if( s.usertoday.day != timetick.getDate()) {
-			YunBot.NewToday()
+			s.NewToday()
 			s.yunstate.mood = s.getMood()
 			s.yunsave()
 		}
@@ -34,7 +34,7 @@ export default async function YunAI(ctx: Context) {
 		}
 
 		if( s.yunstate.flag.levelup === true && session.content.match(/突破/) && f.random(100) < 66 && s.usertoday.yunbreak < 5){
-			return r.setYunBreak(ctx, session)
+			return setYunBreak(ctx, session)
 		}else if( s.yunstate.flag.levelup === true && session.content.match(/突破/) && s.usertoday.yunbreak < 5 ){
 			return f.either([
 				`……呜，今天气运不顺，摸了……`,
@@ -46,7 +46,7 @@ export default async function YunAI(ctx: Context) {
 
 		if( s.yunstate.stats != "working" && session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) && s.usertoday.yunwork < 10){
 			if(f.random(100) > 80 && s.usertoday.yunwork < 10 ){
-				r.setYunWork(session)
+				setYunWork(session)
 				return f.either([
 					"……静心，打坐……",
 					"……摒除杂念……入定……",
@@ -82,7 +82,7 @@ export default async function YunAI(ctx: Context) {
 
 		if (text){
 			if (text == "next") return next();
-			if (text.length >= 1) return text;
+			if (text.length >= 1)  session.sendQueued(text); return next();
 		}else{
 			return next()
 		}

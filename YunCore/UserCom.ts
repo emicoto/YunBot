@@ -90,9 +90,13 @@ export default function UserCom(ctx: Context) {
 	.alias('sign')
 	.action(async ({ session }) => {
 		let uid = session.userId
-		let data = await s.getUser(ctx, uid)
+		let data
+
+		data = await s.getUser(ctx, uid)
 
 		if (data.flag?.signed) return '已经注册过了哦。';
+
+		data = await s.newUser(ctx, uid)
 
 		await session.send('好的，麻烦先在这里填个名字……\n……嗯，要注意的是，不可以有特殊字符或图片、表情哦')
 
@@ -183,24 +187,44 @@ export default function UserCom(ctx: Context) {
 
 		let user = await ctx.database.getUser(session.platform, uid)
 		let rate = await f.getBreakRate(ctx,uid)
-		let txt = ''		
+		let txt = []		
 
 		if( !today.usage['小灵通'] ) today.usage['小灵通'] = 0;
 
-		today.usage['小灵通'] ++
-		s.saveToday()
+		f.CountUsage(uid,'小灵通')
 
 		let level = f.getLevelChar(data.level)
 		let needexp = f.expLevel(data.level)
 		let soul = f.printSoul(data.soul)
 
-		txt = `· ${user.name}的个人面板：\n${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}· 灵根：${soul}\n· 境界：${level}\n· 悟道值：${data.exp}/${needexp}\n· 战斗力：${data.BP}\n· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `0` }\n${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }· 突破概率：${rate}%\n———————————————\nHP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\nAP：${data.AP}/${data.maxAP}\nATK：${data.ATK}  DEF：${data.DEF}  SPD：${data.SPD}\n———————————————\n· 持有灵石：${data.money}\n`
-		return txt
+		txt = [
+			`· ${user.name}的个人面板：\n`,
+			`${ (user.nick.length > 1 ? `· 昵称 ${user.nick}\n` : '') }`,
+			`${ data.title.length >1 ? `· 头衔：${data.title}\n` : ''}`,
+			`· 灵根：${soul}\n`,
+			`· 境界：${level}\n`,
+			`· 悟道值：${data.exp}/${needexp}\n`,
+			`· 战斗力：${data.BP}\n`,
+			`· 幸运：${ today['luck'] > 0 ? `${today['luck']}` : `未检测` }\n`,
+			`${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }`,
+			`· 突破概率：${rate}%\n`,
+			`———————————————\n`,
+			`HP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\n`,
+			`ATK：${data.ATK}  DEF：${data.DEF}  SPD：${data.SPD}\n`,
+			`———————————————\n`,
+			`${ data.core.id > 0 ? `· 主修心法：${data.core.name}\n` : ''}`,
+			`${ data.equip.weapon.id > 0 ? `· 装备法器：${data.equip.weapon.name}\n` : ""}`,
+			`· 持有灵石：${data.money}\n`,
+			]
+			
+		let msg = txt.join("")
+		
+		session.sendQueued(msg,1000)
 	})
 
 	ctx.command('查看路昀','路昀的个人面板',{ minInterval: Time.minute*5})
 	.action(async ({ session }) => {
-		let time = f.getChinaTime()
+		let time = f.cnTime()
 		let zone = f.getTimeZone(time.getHours())
 
 		let data = await CountStats(ctx,s.yunbot,1)
@@ -235,10 +259,12 @@ export default function UserCom(ctx: Context) {
 			`ATK：${data.ATK}  DEF:${data.DEF}  SPD:${data.SPD}`,
 			`——————————————`,
 			`主修心法：${data.core.name}`,
-			`装备：${data.equip.weapon.name}`,
+			`装备法器：${data.equip.weapon.name}`,
 			`持有灵石：${data.money}`,
 			]
-		return txt.join("\n")
+		
+		session.sendQueued(txt.join("\n"))
+		return 
 	})
 
 }

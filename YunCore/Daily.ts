@@ -1,9 +1,13 @@
+//每日的修行
+
 import { Context, segment, Time} from "koishi";
 import { getJrrp, getJrrpComment } from "./getluck";
 
 import * as f from "./Function"
 import * as s from "./Setting"
-import { setYunWork } from "./Reply";
+import { setYunWork } from "./Event";
+import { CoreLib } from "./lib/Library";
+import { CountStats } from "./lib/CountStats";
 
 export default function Daily(ctx: Context){
 
@@ -13,7 +17,7 @@ export default function Daily(ctx: Context){
         .action( async ({ session }) =>{
             let uid = session.userId
             let data = await s.getUser(ctx, uid)
-            let name = await s.getUserName(ctx, session)
+            let name = s.getName(data)
 
             let today = s.getToday(uid)
 
@@ -49,8 +53,8 @@ export default function Daily(ctx: Context){
             await s.setUser(ctx, uid, data)
             s.saveToday()
 
-            return text
-
+            session.sendQueued(text,1000)
+            return 
         })
     
     ctx.command("每日任务 [message]","每日可以做的任务。")
@@ -61,7 +65,8 @@ export default function Daily(ctx: Context){
             let name = await s.getUserName(ctx, session)
           
             if(!message || ["帮助",'help'].includes(message)){
-                return '本功能还没做完。'
+                session.sendQueued('本功能还没做完。')
+                return
             }
 
         })
@@ -70,7 +75,7 @@ export default function Daily(ctx: Context){
         .action( async({ session }) =>{
             let uid = session.userId
             let data = await s.getUser(ctx, uid)
-            let name = await s.getUserName(ctx,session)
+            let name = s.getName(data)
             let luck
             
             let today = s.getToday(uid)
@@ -105,7 +110,7 @@ export default function Daily(ctx: Context){
                 ['奋笔疾书',20 + ( uid==s.brother ? 50 : 0)]]
                 )}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${getexp}=>${data.exp+getexp}/${f.expLevel(data.level)}`
             
-            if(s.usertoday.userwork >= 5 && (s.yunstate.stats == 'wake' || s.yunstate.stats == ' free') && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
+            if(s.usertoday.userwork >= 5 && (['free','wake'].includes(s.yunstate.stats)) && s.usertoday.yunwork < 5 && f.random(100) > 70 ){
 
                 let txt1 = `不知是否被同门师兄弟的修炼热情感染，路昀也稍微打气精神，跟着${name}一起开始修炼了。`
 
@@ -120,7 +125,8 @@ export default function Daily(ctx: Context){
             s.usertoday.userwork ++
             s.saveToday()
 
-            return txt
+            session.sendQueued(txt,100)
+            return
         })
     
     ctx.command('境界突破',"境界突破", { minInterval: Time.minute*10})
@@ -128,18 +134,20 @@ export default function Daily(ctx: Context){
         .action( async({ session })=>{
             let uid = session.userId
             let data = await s.getUser(ctx,uid)
-            let name = await s.getUserName(ctx, session)
+            let name = s.getName(data)
             let today = s.getToday(uid)
 
             if ( f.ComUsage(today, '突破', 2) === false ){
-                return '一天只能尝试突破两次哦。'
+                session.sendQueued('一天只能尝试突破两次哦。')
+                return
             }
             else{
                 f.CountUsage(uid,'突破')
             }
 
             if(!data.flag?.signed){
-                return "……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……"
+                session.sendQueued("……嗯？这位道友，是我们灵虚派的门生弟子吗？麻烦先填个表吧……")
+                return
             }
 
             let getexp
@@ -164,7 +172,7 @@ export default function Daily(ctx: Context){
                 data.exp = Math.max(Math.floor(data.exp/3+0.5),0)
                 data.level += 1
 
-                if(data.flag?.breakbuff > 0) data.flag.breakbuff = 0;
+                if(data.flag?.breakbuff) data.flag.breakbuff = 0;
 
             }
             else{
@@ -175,7 +183,75 @@ export default function Daily(ctx: Context){
                 data.exp += getexp
             }
             await s.setUser(ctx, uid, data)
-            return text
+            session.sendQueued(text)
+            return 
         })
+
+	
+	ctx.command('修习心法','修习主心法', { minInterval: Time.hour/3})
+		.action(async ({ session })=>{
+			let uid = session.userId
+			let data = await CountStats(ctx, uid)
+			let name = s.getName(data)
+			let today = s.getToday(uid)
+			let txt = ''
+
+			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
+
+			if(!data.core?.id){
+				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n至于修哪套……\n（看了看几本基础心法秘诀的封面，居然都没有写名字）\n没办法了，只好随便抽一本了。抽到什么是什么了……`;
+				
+				let pool = ['灵犀心法','灵空心法','灵虚心法']
+				let id = f.random(2)
+				let n = pool[id]
+				let newcore = {}
+
+				newcore = JSON.parse(JSON.stringify(CoreLib[n]));
+				data.core = newcore;
+				await s.setUser(ctx, uid, data)
+
+				txt += `\n嗯，就这本吧。\n(${name}获得了心法：${n}）`
+				
+				session.sendQueued(txt,1000)
+				return
+			}
+
+			if(f.ComUsage(today,'修习心法',3) === false){
+				
+				session.sendQueued('……欲速则不达，心法的修习一天最多3次而已……',500)
+				return
+			}
+			else{
+				today.usage['修习心法']++
+
+				let core = data.core
+				let exp = 1 + f.random(data.core.grade+1)
+				let getexp = 3 + f.random(20) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
+				getexp = f.expCount(getexp,data)
+
+				let nexexp = Math.floor(core.level*10*Math.pow(core.grade+0.5,2)+0.5)
+
+				txt = `灵气流转，通过自身天地八脉灵脉，气息沉淀过后，多少获得了一些心得。\n悟道经验变化：${data.exp}+${getexp}=${data.exp+getexp}\n心法修炼进度：${exp+core.exp}/${nexexp}`
+
+				data.exp += getexp
+				data.core.exp += exp
+
+                let rate = f.random(100)
+
+                if(data.core.exp > nexexp && core.level < core.maxlevel && rate < 50 ){
+                    txt += `\n日积月累，滴水成河。你对心法的研修达到了一个圆满阶段！你的心法获得了升华，从${core.level}升级为${core.level+1}了。`
+                    data.core.level ++
+                    data.core.exp -= nexexp
+                    data.core.exp = Math.max(Math.floor(data.core.exp/2),0)
+                }
+
+				await s.setUser(ctx, uid, data)
+				s.saveToday()
+
+				session.sendQueued(txt, 1000)
+				return
+			}
+			
+		})
 
 }

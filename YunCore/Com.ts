@@ -1,15 +1,16 @@
-import { Context, RuntimeError, segment, Time } from "koishi";
+//一些便利功能指令
+import { Context,  segment, Time } from "koishi";
 import { Lunar, Tao } from "lunar-javascript";
-import { CountStats } from "./lib/CountStats";
-import { CoreLib } from "./lib/Skill"
 import * as f from "./Function"
-import  YunBot, * as s from "./Setting"
+import { CoreDes, CoreLib, SkillDes, SkillLib, WeaponDes, WeaponLib } from "./lib/Library";
+import * as s from "./Setting"
+
 
 export default function Com(ctx: Context){
 
     ctx.command("黄历", "查看黄历时间以及宜忌信息等。")
         .action(({ session })=>{
-			let ly = Lunar.fromDate(f.getChinaTime())
+			let ly = Lunar.fromDate(f.cnTime())
             let year = `${ly.getYearInChinese()}年，`
             year += `天运${ly.getGan()+ly.getZhi()}，`
             year += `生肖 ${ly.getYearShengXiao()}\n`
@@ -33,8 +34,17 @@ export default function Com(ctx: Context){
 
 			f.CountUsage(session.userId,'黄历')
 
-			return text
+			session.sendQueued(text)
         })
+	
+	ctx.command("时间","查看服务器时间")
+		.alias('servertime')
+		.action( ( { session }) => {
+			let time = new Date()
+			let str = time.toLocaleString('cn-ZH')
+			session.sendQueued(`本机服务器时间为：`+str)
+			return
+		})
     
     ctx.command('戳戳 <target>','戳一戳')
 		.shortcut('戳我')
@@ -59,13 +69,12 @@ export default function Com(ctx: Context){
 
 		})
     
-    ctx.command('test [message]', '测试')
+    ctx.command('test [message]', '后台测试专用。')
 		.action( async({ session }, message)=>{
 			//s.usertoday.user = {}
 			//console.log(s.usertoday.user[session.userId])
 			//s.usertoday.yunbreak = 0
-			console.log()
-			return `本地档案已更新。`
+			return `测试结果请看LOG`
 		})
     
     ctx.command('At [target]','让路昀bot艾特任意人。')
@@ -89,16 +98,18 @@ export default function Com(ctx: Context){
 			let today = s.getToday(uid)
             
 			if(f.ComUsage(today,'陪同修炼',2) === false ){
-				return '……我已经累了……'
+				session.sendQueued('……我已经累了……')
+				return
 			}
 			else{
 				//f.CountUsage(uid,'陪同修炼')
-				return '本功能还没做完。'
+				session.sendQueued('本功能还没做完。')
+				return
 			}
 			
         })
 	
-	ctx.command('指令记录','显示指令的次数记录',{ minInterval: Time.minute*2 })
+	ctx.command('指令记录','显示指令的次数记录')
 		.alias('mylogs')
 		.action(async( { session }) =>{
 			let uid = session.userId
@@ -106,67 +117,84 @@ export default function Com(ctx: Context){
 			let name = await s.getUserName(ctx, session)
 			let usage = today.usage
 			let txt = []
-
+			let msg
+			console.log(today.usage)
 			if( Object.keys(usage).length > 0 ){
+
 				for(let i in usage){
 					let t = `· ${i}： ${usage[i]}`
 					txt.push(t)
 				}
-				return `${name}的指令记录：\n`+txt.join("\n")
+
+				msg = `${name}的指令记录：\n`+txt.join("\n")
+				
 			}
 			else{
-				return '没有对应记录。'
+				msg = '没有对应记录。'
 			}
+			session.sendQueued(msg, 1000)
+			return
 		})
 	
-	ctx.command('修习心法','修习主心法', { minInterval: Time.hour/3})
-		.action(async ({ session })=>{
-			let uid = session.userId
-			let data = await CountStats(ctx, uid)
-			let name = await s.getUserName(ctx, session)
-			let today = s.getToday(uid)
-			let txt = ''
-
-			if(data.level < 5) return '……等级不够，起码要入门五阶才能修习心法吧。' ;
-
-			if(!data.core?.id){
-				txt = `……嗯？${name}似乎还没有主修的心法的样子……\n本门派有三种基础心法，灵犀、灵空、灵虚。\n灵犀心法主修攻击，灵空心法主修防御，灵虚心法主修敏捷。\n至于修哪套……\n（看了看几本基础心法秘诀的封面，居然都没有写名字）\n没办法了，只好随便抽一本了。抽到什么是什么了……`;
-				
-				let pool = ['灵犀心法','灵空心法','灵虚心法']
-				let id = f.random(2)
-				let n = pool[id]
-				let newcore = {}
-
-				newcore = JSON.parse(JSON.stringify(CoreLib[n]));
-				data.core = newcore;
-				await s.setUser(ctx, uid, data)
-
-				txt += `\n嗯，就这本吧。\n(${name}获得了心法：${n}）`
-				return txt
+	ctx.command('查询 <type> [msg]','查询功法、心法、技能等效果')
+		.alias('library')
+		.option('name','-n')
+		.action(({ session }, type, msg, option) =>{
+			let txt
+			if(!type && !msg){
+				txt = [ 
+					`……？是需要什么帮助吗？`,
+					`.library [类型] [名字]`,
+					` 目前可查询的类型：心法，技能，法器`,
+					` 不输入对应的名字的话，可以看到目前已记载的心法、技能、法器一览。`
+				]
+				session.sendQueued(txt)
+				return
 			}
 
-			if(f.ComUsage(today,'修习心法',3) === false){
-				return '……欲速则不达，心法的修习一天最多3次而已……'
+			if(!msg && ['心法','技能','法器'].includes(type)){
+				txt = `目前有的${type}：\n`
+				if(type=='心法'){
+					for(let k in CoreLib){
+						txt += `${k}、 `
+					}
+				}
+				if(type=='技能'){
+					for(let k in SkillLib){
+						txt += `${k}、 `
+					}
+				}
+				if(type=="法器"){
+					for(let k in WeaponLib){
+						txt += `${k}、 `
+					}
+				}
+				session.sendQueued(txt)
+				return
 			}
-			else{
-				today.usage['修习心法']++
-
-				let core = data.core
-				let exp = 1 + f.random(data.core.grade+1)
-				let getexp = 3 + f.random(20) + (today.luck > 0 ? Math.floor(today.luck/20+0.5) : 0)
-				getexp = f.expCount(getexp,data)
-
-				let nexexp = Math.floor(core.level*10*Math.pow(core.grade+0.5,2)+0.5)
-
-				txt = `灵气流转，通过自身天地八脉灵脉，气息沉淀过后，多少获得了一些心得。\n悟道经验变化：${data.exp}+${getexp}=${data.exp+getexp}\n心法修炼进度：${exp+core.exp}/${nexexp}`
-
-				data.exp += getexp
-				data.core.exp += exp
-
-				await s.setUser(ctx, uid, data)
-				s.saveToday()
-
-				return txt
+			
+			if(!msg){
+				return '……嗯，好像没有你要找的东西。'
 			}
+
+			let list
+
+			if(type == '心法') list = Object.keys(CoreLib);
+			if(type == '技能') list = Object.keys(SkillLib);
+			if(type == '法器') list = Object.keys(WeaponLib);
+
+			if(list.includes(msg) === false) return '……嗯，好像没有你要找的东西。'
+
+			if(type == '心法'){
+				return CoreDes(CoreLib[msg])
+			}
+			if(type == '技能'){
+				return SkillDes(SkillLib[msg])
+			}
+			if(type == '法器'){
+				return WeaponDes(SkillLib[msg])
+			}
+			
 		})
+
 }

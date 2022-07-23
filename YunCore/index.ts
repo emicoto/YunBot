@@ -1,6 +1,6 @@
-import { Context, segment } from "koishi"
-import * as f from "./Function"
+import { Context } from "koishi"
 import * as s from "./Setting"
+import * as f from "./Function"
 import * as r from "./Reply"
 
 import getluck from "./getluck"
@@ -9,7 +9,8 @@ import Daily from "./Daily"
 import Com from "./Com"
 import UserCom from "./UserCom"
 
-const notignore = ['channel','help','schedule','test','timer','usage','user','小灵通']
+//const notignore = ['channel','help','schedule','test','timer','usage','user','小灵通','指令记录','时间','黄历','查看路昀']
+const ignore = ['每日签到','每日任务','修炼','境界突破','修习心法','戳戳','At','陪同修炼','setnick','username','入门申请']
  
 
 export default async function YunCore(ctx: Context){
@@ -34,25 +35,27 @@ export default async function YunCore(ctx: Context){
     //指令触发前的事件
     ctx.before('command/execute', async ({session, command})=>{
         if(!session.user) return;
-        let d = await ctx.database.getUser(session.platform,session.userId)
-        if(s.yunstate.stats == 'sleep' && !notignore.includes(command.name)){
+
+        let user = await ctx.database.getUser(session.platform, session.userId)       
+        if(user.authority < 1){
+            return '……（已被拉黑）'
+        }
+
+        if(session.channelId.match('private') && [s.master,s.senior,s.brother,s.elder,s.pigeon].includes(session.userId) === false) {
+            return "不可以哦，私聊暂时不可以哦"
+        }        
+
+        if(s.yunstate.stats == 'sleep' && ignore.includes(command.name)){
             return r.whileSleeping('command')
         }
-        if(s.yunstate.stats == 'working' && !notignore.includes(command.name)){
+        if(s.yunstate.stats == 'working' && ignore.includes(command.name)){
             let text = r.whileWorking('command')
             if(text) return text
         }
     })
 
-    ctx.before('command/execute', async ({ session })=>{
-        if(session.channelId.match('private') && [s.master,s.senior,s.brother,s.elder,s.pigeon].includes(session.userId) === false) {
-            
-            return " 暂时停用好友服务 "
-        }
-    })
-
     //启动事件
-	ctx.on('bot-connect', async(session)=>{
+	ctx.on('bot-connect', (session)=>{
 
         if (!botstatus){
             botstatus = 'boton'
@@ -112,7 +115,7 @@ export default async function YunCore(ctx: Context){
         if (botstatus == 'botonloading'){
             let text = `${f.images('yunneoki.png')}\n路昀从睡眠中苏醒，懒洋洋地打了个哈欠：`
 
-            let now = f.getChinaTime().getHours()
+            let now = f.cnTime().getHours()
             let zone = f.getTimeZone(now)
 
             if(['晚上','深夜','凌晨'].includes(zone)) text += '“师父……还有同门的各位晚上好……”\n“……啊，这午觉好像睡过头了……”';
@@ -121,7 +124,7 @@ export default async function YunCore(ctx: Context){
             if(zone == '中午') text +='“师父……还有各位……中午好……”'
             if(['下午','傍晚'].includes(zone)) text += '“师父……还有各位……下午好……”\n“……？我是不是起太晚了……？”'
 
-            //ctx.broadcast(text)
+            ctx.broadcast(text)
             console.log('路昀bot已启动完毕。')
             botstatus = 'botrunning'
         }            
