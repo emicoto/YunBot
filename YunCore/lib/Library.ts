@@ -134,123 +134,6 @@ export const CoreLib = {
     }
 }
 
-//主动技，action是 SkillFun[n]里代入的function名。
-//被动会计入平时的属性中。 主动不会计入平时属性，只有使用技能时才计入。所有主动技能都会消耗SP。 主动技能中，分 攻击、防御、特殊、治疗 四种技能。
-
-export function SkillDes(skill){
-    
-    let txt = [
-        `【${skill.name}】  品级：${GradeName[skill.grade]}品\n`,
-        `技能种类：${ skill.type }\n`,
-        `说明：${ skill.des }\n`,
-        `${ skill?.action ? `技能效果：${ SkillAct[skill.action](skill) }\n` : '' }`,  
-
-        `${ skill?.rate ? `成功概率：${skill.rate}　` : '' }`,
-        `${ skill?.reHP ? `HP回复：${skill.HP}% 　` : ''}`,
-        `${ skill?.reSP ? `SP回复：${skill.SP}%　` : ''}`,
-        `${ skill?.HP ? `生命增强：${skill.HP} 　` : ''}`,
-        `${ skill?.SP ? `法力增强：${skill.SP}　` : ''}`,
-        `${ skill?.HPbuff ? `生命增强：${skill.HP*100}% 　` : ''}`,
-        `${ skill?.SPbuu ? `法力增强：${skill.SP*100}%　` : ''}`,
-        `${ skill?.ATK ? `攻击：${skill.ATK}　` : ''}`,
-        `${ skill?.DEF ? `防御：${skill.DEF}　` : ''}`,
-        `${ skill?.SPD ? `速度：${skill.SPD}　` : ''}`,
-        `${ skill?.ATKRoll ? `追加攻击骰：${skill.ATKRoll[0]}D${skill.ATKRoll[1]}　` : ''}`,
-        `${ skill?.ATKbuff ? `攻击加成：${skill.ATKbuff*100}%　` : ''}`,
-        `${ skill?.DEFbuff ? `防御加成：${skill.DEFbuff*100}%　` : ''}`,
-        `${ skill?.SPDbuff ? `速度加成：${skill.SPDbuff*100}%　` : ''}`,
-
-        `${ skill?.cost ? `技能消耗：${skill.cost*100}% SP　` : ''}`,
-        `${ skill?.costSP ? `技能消耗：${skill.costSP} SP　` : '' }`,
-        `${ skill?.HPcost ? `技能消耗：${skill.HPcost}% HP　` : ''}`,
-        `${ skill?.costHP ? `技能消耗：${skill.costHP} HP　` : '' }`,
-        `${ skill?.costAP ? `技能消耗：${skill.costAP} AP　` : ''} `,
-    ]
-
-    return txt.join('')
-}
-
-export function CoreDes(core){
-    let txt = [
-        `【${ core.name }】  品级：${GradeName[core.grade]}品\n`,
-        `初始等级：${core.level}  最大等级：${core.maxlevel}\n`,
-        `说明：${ core.des }\n`,
-        `${ core.lvstats[core.maxlevel-1]?.HPbuff ?  `生命加成：${core.lvstats[core.maxlevel-1].HPbuff*100}%　` : ''}`,
-        `${ core.lvstats[core.maxlevel-1]?.SPbuff ?  `法力加成：${core.lvstats[core.maxlevel-1].SPbuff*100}%　` : ''}`,
-        `${ core.lvstats[core.maxlevel-1]?.ATKbuff ? `攻击加成：${core.lvstats[core.maxlevel-1].ATKbuff*100}%　` : ''}`,
-        `${ core.lvstats[core.maxlevel-1]?.DEFbuff ? `防御加成：${core.lvstats[core.maxlevel-1].DEFbuff*100}%　` : ''}`,
-        `${ core.lvstats[core.maxlevel-1]?.SPDbuff ? `速度加成：${core.lvstats[core.maxlevel-1].SPDbuff*100}%　` : ''}`,
-        `${ core.lvstats[core.maxlevel-1]?.Expbuff ? `经验加成：${core.lvstats[core.maxlevel-1].Expbuff*100}%　` : ''}`,
-    ]
-    return txt.join('')
-}
-
-export function WeaponDes(weapon){
-    let txt = [
-        `【${ weapon.name }】\n`,
-        `类型：${ weapon.type } 　品阶：${GradeName[weapon.grade]}品\n`,
-        `${ weapon.des }\n`,
-        `${ weapon?.HP ? `生命：　${weapon.HP}` : ''}`,
-        `${ weapon?.SP ? `法力：　${weapon.SP}` : ''}`,
-        `${ weapon?.ATK ? `攻击：${weapon.ATK}　` : ''}`,
-        `${ weapon?.DEF ? `防御：${weapon.DEF}　` : ''}`,
-        `${ weapon?.SPD ? `速度：${weapon.SPD}　` : ''}`,
-        `${ weapon?.HP ? `生命加成：${weapon.HPbuff}　` : ''}`,
-        `${ weapon?.SP ? `法力加成：${weapon.SPbuff}　` : ''}`,
-        `${ weapon?.ATKbuff ? `攻击加成：${weapon.ATKbuff*100}%　` : ''}`,
-        `${ weapon?.DEFbuff ? `防御加成：${weapon.DEFbuff*100}%　` : ''}`,
-        `${ weapon?.SPDbuff ? `速度加成：${weapon.SPDbuff*100}%　` : ''}`,
-        `${ weapon?.skill ? `装备技能：${weapon.skill}　` : ''}`
-    ]
-
-    return txt.join('\n')
-}
-
-export const SkillAct = {
-    dream : (skill, target?)=>{
-        if(!target){
-            return `使对象陷入迷幻状态，持续${skill.debuff}回合。`
-        }
-
-        if(target.flag.stats.includes('迷幻') == false){
-            target.flag.stats += '【迷幻】'
-            target.flag.debuff['迷幻'] = {
-                turn: skill.debuff
-            }
-        }
-        else{
-            target.flag.debuff['迷幻'].turn += skill.debuff
-        }
-        return `${target.name}已陷入迷幻状态！将持续${skill.debuff}回合。`
-
-    },
-    tiandu : (skill, target?)=>{
-        if(!target){
-            return `使对象陷入天毒状态，每回合失去10%的HP与SP，持续${skill.debuff}回合。`
-        }
-        if(target.flag.stats.includes('天毒') == false){
-            target.flag.stats += '【天毒】'
-            target.flag.debuff['天毒'] = {
-                turn: skill.debuff,
-                dwHP: target.maxHP/10,
-                dwSP: target.maxSP/10,
-            }
-        }
-        else{
-            target.flag.debuff['天毒'].turn += skill.debuff
-        }
-    }
-}
-
-export function useSkill(player, skill, target?){
-    let txt
-    if(skill.type.includes('被动')) return; //被动技能作为常态常驻。不会执行。
-
-    if(skill.type.includes('特殊')) return;
-    if(skill.type.includes('攻击')) return;
-    if(skill.tyle.includes('防御')) return;
-    if(skill.type.includes('回复')) return;
-}
 
 
 //cost = maxSP*cost, cost是 n%
@@ -393,4 +276,122 @@ export const WeaponLib = {
         skill:"烛龙邪火·残",
     }
 
+}
+
+//主动技，action是 SkillFun[n]里代入的function名。
+//被动会计入平时的属性中。 主动不会计入平时属性，只有使用技能时才计入。所有主动技能都会消耗SP。 主动技能中，分 攻击、防御、特殊、治疗 四种技能。
+
+export function SkillDes(skill){
+    
+    let txt = [
+        `【${skill.name}】  品级：${GradeName[skill.grade]}品\n`,
+        `技能种类：${ skill.type }\n`,
+        `说明：${ skill.des }\n`,
+        `${ skill?.action ? `技能效果：${ SkillAct[skill.action](skill) }\n` : '' }`,  
+
+        `${ skill?.rate ? `成功概率：${skill.rate}　` : '' }`,
+        `${ skill?.reHP ? `HP回复：${skill.HP}% 　` : ''}`,
+        `${ skill?.reSP ? `SP回复：${skill.SP}%　` : ''}`,
+        `${ skill?.HP ? `生命增强：${skill.HP} 　` : ''}`,
+        `${ skill?.SP ? `法力增强：${skill.SP}　` : ''}`,
+        `${ skill?.HPbuff ? `生命增强：${skill.HP*100}% 　` : ''}`,
+        `${ skill?.SPbuu ? `法力增强：${skill.SP*100}%　` : ''}`,
+        `${ skill?.ATK ? `攻击：${skill.ATK}　` : ''}`,
+        `${ skill?.DEF ? `防御：${skill.DEF}　` : ''}`,
+        `${ skill?.SPD ? `速度：${skill.SPD}　` : ''}`,
+        `${ skill?.ATKRoll ? `追加攻击骰：${skill.ATKRoll[0]}D${skill.ATKRoll[1]}　` : ''}`,
+        `${ skill?.ATKbuff ? `攻击加成：${skill.ATKbuff*100}%　` : ''}`,
+        `${ skill?.DEFbuff ? `防御加成：${skill.DEFbuff*100}%　` : ''}`,
+        `${ skill?.SPDbuff ? `速度加成：${skill.SPDbuff*100}%　` : ''}`,
+
+        `${ skill?.cost ? `技能消耗：${skill.cost*100}% SP　` : ''}`,
+        `${ skill?.costSP ? `技能消耗：${skill.costSP} SP　` : '' }`,
+        `${ skill?.HPcost ? `技能消耗：${skill.HPcost}% HP　` : ''}`,
+        `${ skill?.costHP ? `技能消耗：${skill.costHP} HP　` : '' }`,
+        `${ skill?.costAP ? `技能消耗：${skill.costAP} AP　` : ''} `,
+    ]
+
+    return txt.join('')
+}
+
+export function CoreDes(core){
+    let txt = [
+        `【${ core.name }】  品级：${GradeName[core.grade]}品\n`,
+        `初始等级：${core.level}  最大等级：${core.maxlevel}\n`,
+        `说明：${ core.des }\n`,
+        `${ core.lvstats[core.maxlevel-1]?.HPbuff ?  `生命加成：${core.lvstats[core.maxlevel-1].HPbuff*100}%　` : ''}`,
+        `${ core.lvstats[core.maxlevel-1]?.SPbuff ?  `法力加成：${core.lvstats[core.maxlevel-1].SPbuff*100}%　` : ''}`,
+        `${ core.lvstats[core.maxlevel-1]?.ATKbuff ? `攻击加成：${core.lvstats[core.maxlevel-1].ATKbuff*100}%　` : ''}`,
+        `${ core.lvstats[core.maxlevel-1]?.DEFbuff ? `防御加成：${core.lvstats[core.maxlevel-1].DEFbuff*100}%　` : ''}`,
+        `${ core.lvstats[core.maxlevel-1]?.SPDbuff ? `速度加成：${core.lvstats[core.maxlevel-1].SPDbuff*100}%　` : ''}`,
+        `${ core.lvstats[core.maxlevel-1]?.Expbuff ? `经验加成：${core.lvstats[core.maxlevel-1].Expbuff*100}%　` : ''}`,
+    ]
+    return txt.join('')
+}
+
+export function WeaponDes(weapon){
+    let txt = [
+        `【${ weapon.name }】\n`,
+        `类型：${ weapon.type } 　品阶：${GradeName[weapon.grade]}品\n`,
+        `${ weapon.des }\n`,
+        `${ weapon?.HP ? `生命：　${weapon.HP}` : ''}`,
+        `${ weapon?.SP ? `法力：　${weapon.SP}` : ''}`,
+        `${ weapon?.ATK ? `攻击：${weapon.ATK}　` : ''}`,
+        `${ weapon?.DEF ? `防御：${weapon.DEF}　` : ''}`,
+        `${ weapon?.SPD ? `速度：${weapon.SPD}　` : ''}`,
+        `${ weapon?.HP ? `生命加成：${weapon.HPbuff}　` : ''}`,
+        `${ weapon?.SP ? `法力加成：${weapon.SPbuff}　` : ''}`,
+        `${ weapon?.ATKbuff ? `攻击加成：${weapon.ATKbuff*100}%　` : ''}`,
+        `${ weapon?.DEFbuff ? `防御加成：${weapon.DEFbuff*100}%　` : ''}`,
+        `${ weapon?.SPDbuff ? `速度加成：${weapon.SPDbuff*100}%　` : ''}`,
+        `${ weapon?.skill ? `装备技能：${weapon.skill}　` : ''}`
+    ]
+
+    return txt.join('')
+}
+
+export const SkillAct = {
+    dream : (skill, target?)=>{
+        if(!target){
+            return `使对象陷入迷幻状态，持续${skill.debuff}回合。`
+        }
+
+        if(target.flag.stats.includes('迷幻') == false){
+            target.flag.stats += '【迷幻】'
+            target.flag.debuff['迷幻'] = {
+                turn: skill.debuff
+            }
+        }
+        else{
+            target.flag.debuff['迷幻'].turn += skill.debuff
+        }
+        return `${target.name}已陷入迷幻状态！将持续${skill.debuff}回合。`
+
+    },
+    tiandu : (skill, target?)=>{
+        if(!target){
+            return `使对象陷入天毒状态，每回合失去10%的HP与SP，持续${skill.debuff}回合。`
+        }
+        if(target.flag.stats.includes('天毒') == false){
+            target.flag.stats += '【天毒】'
+            target.flag.debuff['天毒'] = {
+                turn: skill.debuff,
+                dwHP: target.maxHP/10,
+                dwSP: target.maxSP/10,
+            }
+        }
+        else{
+            target.flag.debuff['天毒'].turn += skill.debuff
+        }
+    }
+}
+
+export function useSkill(player, skill, target?){
+    let txt
+    if(skill.type.includes('被动')) return; //被动技能作为常态常驻。不会执行。
+
+    if(skill.type.includes('特殊')) return;
+    if(skill.type.includes('攻击')) return;
+    if(skill.tyle.includes('防御')) return;
+    if(skill.type.includes('回复')) return;
 }

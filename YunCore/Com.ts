@@ -148,7 +148,7 @@ export default function Com(ctx: Context){
 					` 目前可查询的类型：心法，技能，法器`,
 					` 不输入对应的名字的话，可以看到目前已记载的心法、技能、法器一览。`
 				]
-				session.sendQueued(txt)
+				session.sendQueued(txt.join("\n"))
 				return
 			}
 
@@ -192,7 +192,7 @@ export default function Com(ctx: Context){
 				return SkillDes(SkillLib[msg])
 			}
 			if(type == '法器'){
-				return WeaponDes(SkillLib[msg])
+				return WeaponDes(WeaponLib[msg])
 			}
 			
 		})
