@@ -421,7 +421,7 @@ export default function UserCom(ctx: Context) {
 		if(['凌晨','黎明'].includes(zone) && f.random(100) > 90 ) dress = 'sp';
 
 		let txt = [
-			'路昀的状态 --- | Yunbot ver0.8.5',
+			'路昀的状态 --- | Yunbot ver0.9.0',
 			f.images(`Yunstand_${dress}_${mood}.png`),
 			`· 心情：${'♥'.repeat(Math.floor(data.mood/20+0.5))}`,
 			`· 特征：${data.talent.join('、')}`,
