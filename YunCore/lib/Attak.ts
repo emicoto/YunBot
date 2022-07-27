@@ -1,196 +1,317 @@
-import * as f from "../Function"
+import {Roll, random, between} from "../Function";
 
 //普通攻击
-export function NormalAtk(player, target){
+export function Checkhit(player,target){
+	let pl = player.level, lk = player.luck, spd = player.SPD;
+	let tl = target.level, tlk = target.luck, goal = target.SPD;
 
-    let pl = player.level, lk = player.luck , dmg = player.ATK, spd = player.SPD
-    let tl = target.level, shd = target.DEF, goal = target.SPD, tlk = target.luck
+	if(!lk) lk = 1;
+	if(!tlk) tlk = 0;
 
-    let al = dmg.toString().length
-    let bl = dmg.toString().length
+	let al = spd.toString().length
+	let bl = goal.toString().length
 
-    //先算命中。 双方的差异比。
-    let result = {
-        hit: false,  //命中结果
-        txt: "",    //返回文字
-        damage: 0,  //攻击伤害
-        lastdmg:0,
-        crit: false, //会心伤害
-    }
+	let rdv = Math.abs(al-bl) //数位差
+	let p = ( al > bl ? bl : al)-1  //数字小的一方有多少个零
+	let abl = al+bl
+		
+	//去掉多余的位数后所得的数字
+	let ar = Math.floor(spd/Math.pow(10,p) * ( rdv<=1 && abl > 3 ? 10 : 1 ) + 0.5)
+	let br = Math.floor(goal/Math.pow(10,p) * ( rdv<=1 && abl > 3 ? 10 : 1 ) + 0.5)
 
-    let a,b, ar, br,cr, ef, re, ad, adf, buff, af,bf,ldmg
-    re = CheckHit(player,target)
+	console.log(player.name,'速度',spd,target.name,'速度',goal)
+	//console.log('双方位数差：',rdv)
+	//console.log('去多余位数:',ar,br)
 
-    if(!re.hit){
-        console.log('攻击失败',re.txt)
-        result.txt = re.txt
-        return result
-    }
+	let result = {
+		txt:'普通',
+		hit:false,
+		fightback:false,
+		critical:0, //1=普通暴击， 2=会心一击， 3=要害攻击
+		roll:'', //骰点记录。
+	}
 
-    //进入伤害计算环节。先从命中情况看实际伤害
-    dmg = dmg * re.per
-    
-    //看等级差，以及数值差，伤害比
-    //先看等级差。如果差异在10以内，则攻击/防御效果 * 1+(10-等级差)/20
-    if(Math.abs(pl-tl) <= 10)buff = (1+(10-Math.abs(pl-tl))/20);
-    //等级差大于10的话，则会造成境界压制。 攻击/防御效果 * 1+(等级差)/10
-    if(Math.abs(pl-tl) > 10) buff = (1+(Math.abs(pl-tl))/10);
+	//先看看境界。境界差两个同时数值差比较大的话，就直接压制成功
+	if ( pl-tl >= 20 && spd/goal >= 1.2 ){
+		console.log(player.name,'境界压制同时数值大于',target.name,'强制成功。')
+		let roll = Roll(6,6)
+		result = {
+			txt:'境界压制，攻击成功',
+			hit:true,
+			fightback:false,
+			critical: Math.floor(roll.bonus/2),
+			roll: `暴击检测6D6:${roll.roll}`,
+		}
 
-    //如果有等级buff，则追加到数值计算中。
-    if(pl>tl) dmg = Math.floor(dmg*buff+0.5);
-    if(tl>pl) shd = Math.floor(shd*buff+0.5);
+		return result
+	}
+	else if ( tl-pl >= 20 && goal/spd >= 1.2 ){
+		console.log(player.name,'境界被压制同时数值小于',target.name,'强制失败。')
+		let roll = Roll(6,6)
+		result = {
+			txt:'境界被压制，攻击失败',
+			hit:false,
+			fightback: (random(1,100) < 75) ,
+			critical: Math.floor(roll.bonus/2),
+			roll: `暴击检测6D6:${roll.roll}`,
+		}
+		return result
+	}
+		
+	//明显压制的情况
+	if( (rdv >= 2 && spd > goal ) || (between(abl,5,6) && ar - br > 50  ||  ( abl >= 7 && ar - br > 33 ))){
+		console.log(player.name,'数值压制',target.name,'强制成功。')
+		let roll = Roll(6,6)
+		result = {
+			txt:'数值压制，攻击成功',
+			hit:true,
+			fightback:false,
+			critical: Math.floor(roll.bonus/2),
+			roll: `暴击检测6D6:${roll.roll}`
+		}
+		return result
+	}
 
-    //接着获得攻防伤害比。 攻防伤害比 >= 1，则攻击方获得优势骰。 如果 < 1，则防守方获得优势骰。
-    ef = dmg/shd
-    cr = f.Roll(3,6).bonus //先扔个会心判定。
+	else if( (rdv >= 2 && goal > spd ) || (between(abl,5,6) && br - ar > 50) || ( abl >= 7 && br - ar > 33 )){
+		console.log(player.name,'数值被压制',target.name,'强制失败。')
+		let roll = Roll(6,6)
+		result = {
+			txt:'数值被压制，攻击失败',
+			hit:false,
+			fightback: (random(1,100) < 75) ,
+			critical: Math.floor(roll.bonus/2),
+			roll: `暴击检测6D6:${roll.roll}`
+		}
+		return result
+	}
 
-    //双方等级差不大时，或者计算了等级差后依然没达成压制时，看数值差比。
-    ad = Math.floor(Math.abs(dmg-shd))
-    adf = Math.abs(al-bl)+1
+	//接着看两数字互相差值，以及互相占比。
+	let dv, dp, aroll, broll
 
-    console.log('数值差：',dmg,'-',shd,'=',ad,'数级比：', adf,':1')       
+	dv = Math.abs(spd-goal)
+	dp = spd/goal
+		
+	//差异小的情况
+	if( abl <= 4 && dv <= 15  || between(abl,5,6) && Math.abs(ar-br) <= 10 || abl > 6 && Math.abs(ar-br) <= 6){
 
-    //接着看数值之间差异，获取压制骰。
-    af = Math.max(Math.floor(dmg/Math.pow(10,adf+1)+0.5),1)
-    bf = Math.max(Math.floor(shd/Math.pow(10,adf+1)+0.5),1)
+		console.log('双方差异较小，互相骰点。',player.name,'为主动方，具备先发优势。额外追加一个d6骰子。')
+		aroll = Roll(4,6)
+		broll = Roll(3,6)
 
-    console.log('双方可用骰子数：',af,bf)
+		let ard = Math.floor(
+			aroll.result + ( dv <= 15 ? Math.max(spd/2,1) : Math.max(ar/2,1) ) + ( tlk? lk/12 : lk/10)
+		+0.5)
 
-    //攻击方压制的情况，骰点会心后直接结算。
-    if( adf-1 > 2 && dmg > shd || af-bf >= 48 ){
-        ldmg = dmg*f.fixed(buff)*( ar >=2 ? 2 : 1 )
+		let brd = Math.floor(
+			broll.result + ( dv <= 15 ? Math.max(goal/2,1) : Math.max(br/2,1) ) 
+			+ ( tlk ? lk/20 : 0 )
+		+0.5)
 
-        result = {
-            hit: true,
-            txt: re.txt + `\n……数值压制，攻击效果 ：${f.fixed(buff)*100}%，`,
-            damage: dmg,
-            lastdmg: ldmg,
-            crit: (cr >= 2 ? true : false),
-        }
-        console.log(result.txt,'最终造成伤害：',ldmg,'/',shd)
-        return result
-    }
+		let cr = Roll(6,6)
 
-    //防守方压制的情况，骰点会心后直接结算最低输出值。
-    if( adf-1 > 2 && dmg < shd || bf-af > 48 ){
-        ldmg = Math.max(dmg*f.fixed(af/bf),1) * ( ar >= 2 ? 2 : 1)
-        result = {
-            hit: true,
-            txt: re.txt + `\n……数值被压制，攻击效果：${f.fixed(af/bf)}%，`,
-            damage: dmg,
-            lastdmg: ldmg,
-            crit: (cr >= 2 ? true : false),
-        }
-        console.log(result.txt,'最终造成伤害：',ldmg,'/',shd)
-        return result
-    }
+		console.log(player.name,'骰点：',aroll.roll, ard)
+		console.log(target.name,'骰点：',broll.roll, brd)
 
-    //双方数值上没达成压制的情况。攻守扔最终结果骰。
-    ar = f.Roll(af + (ef >= 1? 1 : 0),6).result + Math.floor((lk/10)+0.5)
-    br = f.Roll(bf + (ef < 1? 1 :0 ),6).result + ( tlk ? Math.floor((tlk/10)+0.5): 0 )
-    console.log('双方骰点结果：',ar,br,'防守比：',ar/br)
+		if(ard >= brd){ 
+		//A比B大的话，A就攻击成功。 根据骰点结果，判定命中效果。666为命中弱点，66则会心一击，6则暴击。
+			console.log(ard,'>=',brd,'攻击成功。',(cr.bonus >= 4 && cr.result >= 30 ? '命中要害！' : cr.bonus >= 3 ? '会心一击！' :  aroll.bonus >= 2 && aroll.result >= 15 ? "暴击！" : ""))
 
-    //计算最后伤害值。
-    ldmg = Math.max(Math.floor(dmg * (ar/br)+0.5),1) * (cr >= 2 ? 2 : 1)
+			result = {
+				txt:'攻击成功',
+				hit:true,
+				fightback:false,
+				critical:
+				(cr.bonus >= 4 && cr.result >= 30 ? 3 
+				: cr.bonus >= 3 ? 2 
+				: aroll.bonus >= 2 && aroll.result >= 15 ? 1 
+				: 0),
+				roll: `互相骰点3D6+数值/2+幸运补正，${ard}>=${brd}`
+			}
+		}
+		else{
+		//失败就是对方闪避。看闪避结果是否遭遇反击。对面扔出666或665就遭遇反击。
+			console.log(ard,'<',brd,'攻击失败！',(broll.result >= 17 ? '遭遇反击！！' : "攻击被躲闪成功！"))
+			result = {
+				txt:'攻击失败',
+				hit:false,
+				fightback: (broll.result >= 17),
+				critical:0,
+				roll: `互相骰点3D6+数值/2+幸运补正，${ard}<${brd}`
+			}
+		}
+		return result
+	}
+	else{
+		//差异有点大的情况，给点机会。守方只能逃无法反击。
+		let chance
 
-    result = {
-        hit:true,
-        txt: re.txt + `\n双方骰点3d6+幸运补正：${ar}/${br}，攻击效果：${f.fixed(ar/br)*100}%，`,
-        damage : dmg,
-        lastdmg : ldmg,
-        crit: (cr >= 2 ? true : false)
-    }
-    console.log(result.txt,'最终造成伤害：',ldmg,'/',shd)
-    return result 
+		if(dp >= 1 ){
+			//B骰点
+			dp = goal/spd
+			chance = Math.floor(dp*100 ) - Roll(3,6).result - ( !tlk ? Math.floor(lk/20) : 0)
+			broll = Roll(1,100) 
+
+			let re = broll.result + ( tlk ? Math.floor(tlk/20) : 0 )
+
+			console.log('双方差异较大。攻方>守方，由',target.name,'骰点：', re ,'/',chance)
+
+			if( re < chance) {
+				console.log('守方闪避成功！',player.name,'的攻击失败！')
+				result = {
+					txt:'攻击失败',
+					hit:false,
+					fightback:false,
+					critical:0,
+					roll:`数值差较大，${target.name}骰点：D100=${re}/${chance}`
+				}
+
+			}
+			else{
+				console.log('守方闪避失败！',player.name,'的攻击成功！')
+				let cr = Roll(6,6)
+				result = {
+					txt:'攻击成功',
+					hit:true,
+					fightback:false,
+					critical: Math.floor(cr.bonus/2),
+					roll:`数值差较大，${target.name}骰点：D100=${re}/${chance}`
+				}
+			}
+
+		}
+		else{
+			//A骰点
+			chance = Math.floor(dp*100) + Roll(2,6).result + ( !tlk ? Math.floor(lk/10) : 0)
+			aroll = Roll(1,100)
+
+			let re = aroll.result - Math.floor(lk/10)
+
+			console.log('AB差异较大。A<B。由A骰点：',aroll.result,'/',chance)
+
+			if(re <= chance){
+				console.log('攻击成功！',( aroll.result <= 2 ? "骰点大成功，打出会心一击！" : aroll.result <= chance/3 ? "骰点困难成功！打出暴击伤害！" : ""))
+
+				result = {
+					txt:'攻击成功',
+					hit:true,
+					fightback:false,
+					critical: ( aroll.result <= 2 ? 2 : aroll.result <= chance/3 ? 1 : 0),
+					roll:`数值差较大，${player.name}骰点：D100+幸运补正=${re}/${chance}`,
+				}
+			}
+			else{
+				console.log('攻击失败！', ( aroll.result >= 90 ? "骰点大失败！遭遇反击！" : ""))
+				let roll = Roll(3,6)
+				result = {
+					txt:'攻击失败',
+					hit:false,
+					fightback:( aroll.result >= 90 ),
+					critical: ( roll.result >= 15 && roll.bonus >= 2 ? 1 : 0),
+					roll:`数值差较大，${player.name}骰点：D100+幸运补正=${re}/${chance}`,
+				}
+			}
+		}
+
+		return result
+	}
 }
 
-export function CheckHit(player, target){
+export function NormalAtk(player, target){
+	let pl = player.level, dmg = player.ATK;
+	let tl = target.level, shd = target.DEF;
 
-    let pl = player.level, lk = player.luck ,  spd = player.SPD
-    let tl = target.level, goal = target.SPD, tlk = target.luck
+	let lvbuff
+
+	//等级补正。 10以内,攻击效率 = 1.025~1.25, 境界压制，攻击效率 = 1.25~
+	if(Math.abs(pl-tl) <= 10) lvbuff = 1 + Math.abs(pl-tl)/40;
+	if(Math.abs(pl-tl) > 10) lvbuff = 0.75 + Math.abs(pl-tl)/20;
+
+	if(pl > tl) dmg = Math.floor(dmg * lvbuff +0.5);
+	if(tl > pl) shd = Math.floor(shd * lvbuff +0.5);
 
 
-    let a,b, ar, br, ef, adf, ad, af,bf
+	const getDamage = function(dmg, shd, critical){
+		let a,b,re
 
-    let al = spd.toString().length
-    let bl = goal.toString().length
+		let ld = Math.floor(dmg*0.4)
+		let ls = Math.floor(shd*0.4)
 
-    //先算命中。 双方的差异比。
-    ef = spd/goal
-    //console.log('双方速度：攻', spd, '守', goal)
-    //console.log('攻守速度比：',ef)
-    let re = {
-        hit: false,
-        txt : '',
-        per: 0,
-    }
+		//稳定发挥数值的40%，剩余的双方扔骰子后进行计算。
+		a = Math.max(
+				Math.floor(ld/3 + 0.5)
+			,1);
+		
+		b = Math.max( 
+				Math.floor(ls/3 + 0.5)
+			,1);
 
-    //接着看数值差。 如果在20内，则互相骰点对决。其余情况看压制程度。
-    ad = Math.abs(spd-goal)
-    adf = Math.abs(al-bl)+1
+		a = Roll(a,3).result + (dmg - ld)
+		b = Roll(b,3).result + (shd - ls)
 
-    console.log('双方速度差值：',spd,'-',goal,'=',ad, '数级比：',adf,':1')
+		re = {
+			dmg: a,
+			shd: b,
+			lsdm: 0,
+		}
+		//console.log(a,b,re)
 
-    //接着看数值之间差异，获取压制值。
-    af = spd/Math.pow(10,adf+1)
-    bf = goal/Math.pow(10,adf+1)
+		const atk = (a, b)=>{
+			if(a >= b){
+				let buff = Math.min(1 + a/b/50, 2)
+				let re = (a-b) * buff
+				return re
+			}
+			return (2*Math.pow(a,2))/(5*b)
+		}
 
-    if ( ad <= 18  || (al > 3 && Math.abs(af-bf) <= 12) || (f.between(al,2,3) && Math.abs(af-bf) <= 18 ) ) { //两者数值差在18内，或位数一致且比值不大时，互相骰点3d6对决。
-        a = Math.floor(f.Roll(3,6).result + lk/12 + ( ad <= 18 ? spd : af ) + 0.5)
-        b = Math.floor(f.Roll(3,6).result + (tlk ? tlk/12 : 0) + ( ad <= 18 ? goal : bf )  + 0.5)
+		re.lsdm = atk(a,b)
+		if(critical == 3) re.lsdm *= 4;
+		if(critical == 2) re.lsdm *= 2.5;
+		if(critical == 1) re.lsdm *= 1.5;
 
-        if( a >= b) ef = (a-b+1)/b;
-        else ef = (b-a+1)/a;
+		re.lsdm = Math.max(  Math.floor(re.lsdm+0.5) ,1)
 
-        if(ef < 0.67 && a < b ){
-            re.hit = false;
-            re.txt = `……双方骰点3d6，${a} < ${b}，攻击失败。`
-        }
-        else{
-            re.hit = true;
-            re.txt = `……双方骰点3d6，${ a > b ? `${a} > ${b}，攻击成功。` : `${a}，${b}，容差范围内勉强成功，但攻击遭到削弱。`}`
-            re.per = f.fixed(( a > b ?  1+(a-b)/b : 1-(b-a)/b ))
-        }
-        console.log(re)
-        return re
-    }   
+		//console.log(a,b,re)
 
-    if( adf-1 > 2 && spd > goal || (al > 3 && af-bf > 32) || (f.between(al,2,3) && af-bf > 48 )){ //对方十倍，或比值差处于压制时
-        re.hit = true;
-        re.txt = '……速度压制，强制命中。';
-        re.per = 1;
-    }
-    else if( adf-1 > 2 && goal > spd || (bl > 3 && bf-af > 32) || (f.between(bl,2,3) && bf-af > 48 ) ){ //反过来，被压制、    
-       re.hit = false;
-       re.txt = '……速度被压制，强制失败。';
-    }    
-    else if (ef >= 1){
-        ef = Math.floor((goal/spd)*100)
-        //console.log('攻击方速度大于敌方，由对方骰点！对方的闪避概率：',ef+'%', (tl > pl ? `+等级差加成：${tl-pl*3}` : ''),  `幸运加成：${lk/10}`)
-        br = Math.max(f.Roll(1,100).result - ( tl > pl ? (tl-pl)*3 : 0) - ( tlk ? tlk/10 : 0),1)
-        //console.log('对方骰点：D100',br, ( br <= ef ? '攻击失败！' : '攻击成功！'))
-        if(br<=ef){
-            re.hit = false;
-            re.txt = `……速度大于敌方，敌方骰点。\n骰点D100${ tlk ? '+幸运补正' : ''}${br}/${ef}，攻击失败。`;
-        }else{
-            re.hit = true;
-            re.txt = `……速度大于敌方，敌方骰点。\n骰点D100${ tlk ? '+幸运补正' : ''}${br}/${ef}，攻击成功。`
-            re.per = Math.max(ef/2/br,1)
-        }
-    }
-    else {
-        ef = Math.floor(ef*100)
-        ar = Math.max(f.Roll(1,100).result - ( pl > tl ? (pl-tl)*3 : 0) - (lk/10),1)       
-        //console.log('攻击方速度低于敌方！命中概率：', ef + '%', (pl > tl ? `+ 等级差加成:${(pl-tl)*3}` :  '') ,`+ 幸运加成：${lk/10}`)        
-        //console.log('攻击方骰点D100：',ar,"/",ef, (ar <= ef ? '攻击成功！': '攻击失败！')) 
-        if(ar > ef) {
-            re.hit = false;
-            re.txt = `……速度小于敌方，骰点D100+幸运补正：${ar}/${ef}，攻击失败！`;
-        }else{
-            re.hit = true;
-            re.txt = `……速度小于敌方，骰点D100+幸运补正：${ar}/${ef}，攻击成功。`;
-            re.per = f.fixed(1-(ar/ef/2))
-        }
-    }
-    return re
+		return re
+	}
+
+	let re = Checkhit(player, target);
+
+	let result = {
+		hit: re.hit, //是否打中。
+		fb: re.fightback, //是否遭遇了反击。 反击的情况，crit,dmg,shd,lstdmg则反过来，为对方攻击的结果。
+		txt: re.txt, // 攻击状况，具体描写在战斗事件内处理。
+		critcal: ( re.critical==3 ? '致命一击' : re.critical==2 ? '会心一击' : re.critical==1 ? '暴击' : null ), //暴击判定结果
+		dmg: 0, //有效攻击力
+		shd: 0, //有效防御力
+		lstdmg: 0, //扣除防御格挡后，最终的伤害值。
+		roll: re.roll, //命中骰点结果。
+	}
+
+	if( !re.hit ){ //攻击失败
+
+		if(re.fightback){
+			let fbre = getDamage(target.DEF, player.ATK, re.critical)
+			console.log('遭遇反击。',target.name,'攻击：',fbre.dmg, player.name, '防御：',fbre.shd)
+			console.log('最终承受伤害：',fbre.lsdm)
+
+			result.dmg = fbre.dmg
+			result.shd = fbre.shd
+			result.lstdmg = fbre.lsdm
+		}
+
+		return result
+	}
+
+	let atkre = getDamage(dmg, shd, re.critical)
+	console.log('攻击结果：')
+	console.log(player.name,'最终攻击：',atkre.dmg, target.name, '最终防御：',atkre.shd)
+	console.log('最终造成伤害：',atkre.lsdm)
+
+	result.dmg = atkre.dmg
+	result.shd = atkre.shd
+	result.lstdmg = atkre.lsdm
+
+	return result
 }

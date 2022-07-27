@@ -10,7 +10,7 @@ import Com from "./Com"
 import UserCom from "./UserCom"
 
 //const notignore = ['channel','help','schedule','test','timer','usage','user','小灵通','指令记录','时间','黄历','查看路昀']
-const ignore = ['每日签到','每日任务','修炼','境界突破','修习心法','戳戳','At','陪同修炼','setnick','username','入门申请']
+const ignore = ['每日签到','每日任务','修炼','境界突破','修习心法','戳戳','At','陪同修炼','setnick','username','入门申请','每日一卦']
  
 
 export default async function YunCore(ctx: Context){

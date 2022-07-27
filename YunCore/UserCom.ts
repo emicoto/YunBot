@@ -5,8 +5,186 @@ import * as s from "./Setting"
 import { LingGenUtils } from "./lib/LingGen";
 import { CountStats } from "./lib/CountStats";
 import { getJrrp } from "./getluck";
+import { NormalAtk } from "./lib/Attak";
 
 export default function UserCom(ctx: Context) {
+
+  function clearflag(pid, tid){
+	let ptoday = s.getToday(pid);
+	let ttoday = s.getToday(tid);
+
+	ptoday.flag['切磋'] = null;
+	ptoday.flag['切磋对象'] = null;
+	ttoday.flag['切磋'] = null;
+	ttoday.flag['切磋对象'] = null;
+	s.saveToday();
+  }
+
+  ctx.command("切磋邀请 <target>", '与同门弟子切磋')
+	.action(async ({ session }, target) => {
+		const parsedTarget = target ? segment.parse(target)[0] : null;
+
+		if (!parsedTarget || !parsedTarget.data.id) {
+		return "没有切磋对象哦。";
+		}
+
+		let pid = session.userId;
+		let tid = parsedTarget.data.id;
+
+		f.CountUsage(pid, "切磋邀请");
+
+		let ply = await s.getUser(ctx, pid);
+		let tar = await s.getUser(ctx, tid);
+
+		let ptoday = s.getToday(pid);
+		let ttoday = s.getToday(tid);
+
+		//邀请方的flag计入,先清理残留的旧flag。
+		clearflag(pid,tid)
+
+		if (!tar) return `没有切磋对象哦。`;
+		if ( ply.AP == 0) return 'AP不足。';
+		if ( tar.AP == 0) return '对方AP不足。';
+
+		ptoday.flag['切磋'] = true;
+		ptoday.flag['切磋对象'] = tid;
+		s.saveToday();
+
+		await session.send(`${ply.name}对${tar.name}发出切磋邀请。\n被邀请方请输入 .回应切磋 @挑战方 则作为应答。应答后开始切磋。`)
+
+		return '已邀请，请等待对方应答。'
+		
+	})
+
+  ctx.command("回应切磋 <target>", "与同门弟子切磋")
+	.action(async ({ session }, target) => {
+		const parsedTarget = target ? segment.parse(target)[0] : null;
+
+		if (!parsedTarget || !parsedTarget.data.id) {
+		return "没有切磋对象哦。";
+		}
+
+		let pid = session.userId;
+		let tid = parsedTarget.data.id;
+
+		f.CountUsage(pid, "回应切磋");
+
+		let tar = await s.getUser(ctx, pid);
+		let ply = await s.getUser(ctx, tid);
+
+		if (!tar) return `没有切磋对象哦。`;
+
+		let ptoday = s.getToday(pid)
+		let ttoday = s.getToday(tid)
+
+		// 被挑战方的应答流程。
+		if( ttoday.flag['切磋对象'] == pid ){
+			ply.AP --
+			tar.AP --
+			await s.setUser(ctx, tid, ply)
+			await s.setUser(ctx, pid, tar)
+		}
+		else{
+			clearflag(pid,tid)
+			return '不在对方的邀请对象中。'
+		}
+
+		//三局两胜。
+		const fight = function(A, B){
+			let result = NormalAtk(A,B)
+			let msg
+
+			let re = {
+				msg : '',
+				win : true,
+				dmg : (result.lstdmg ? result.lstdmg : 0),
+			}
+
+			msg = `${A.name}对${B.name}试图攻击。`
+			//console.log('re.dmg',re.dmg)
+
+			if(!result.hit){
+				if(result.critcal) msg += `\n${result.txt}并遭遇反击，并且${B.name}对${A.name}造成${result.critcal}。`;
+				else msg += `\n可惜，${result.txt}。被${B.name}敏捷地躲开了。`
+				
+				if(result.fb){
+					msg += `\n${B.name}敏捷地闪开后，`
+					msg += f.either(['一个巴掌呼过来，','一拳挥过来，','一个飞踢过来，','一个转身踹过来，'])
+					msg += `在对${A.name}造成${result.lstdmg}点伤害之前，停了下来。`
+				}
+				re.win = false
+				re.msg = msg
+
+				return re
+			}
+			else{
+				msg += `${result.txt}。`
+
+				if(result.critcal) msg += `并且对${B.name}打出了${result.critcal}。`
+				msg += `\n在对${B.name}准备造成${result.lstdmg}点伤害之前，${A.name}停了下来。`
+				re.win = true
+				re.msg = msg
+
+				return re
+			}
+		}
+
+		let txt, pwin=0, twin=0, round=1
+
+		const setRound = function(ply, tar){
+			let round_p = fight(ply, tar)
+			let round_t = fight(tar, ply)
+			let pdmg = 0, tdmg = 0
+			let txt = []
+
+			if( round_p.win === true ) pdmg += round_p.dmg;
+			else tdmg += round_p.dmg;
+
+			if(round_t.win === true ) tdmg += round_t.dmg;
+			else pdmg += round_t.dmg
+
+			txt[0] = round_p.msg
+			txt[1] = round_t.msg
+
+			//console.log(pdmg, tdmg)
+
+			//P胜出。
+			txt[2] = `第${f.intoChar(round.toString())}回合最终结果：`
+			if( pdmg > tdmg ){
+				txt[2] += `${ply.name}胜出。`
+				pwin ++
+			}
+			else if ( tdmg > pdmg ){
+				txt[2] += `${tar.name}胜出。`
+				twin ++
+			}
+			else {
+				txt[2] += `双方平手。`
+				pwin ++
+				twin ++
+			}
+			round ++
+			return txt.join('\n')
+		}
+
+		txt = setRound(ply, tar) //第一回合
+		await session.send(txt)
+
+		txt = setRound(ply, tar) //第二回合
+		await session.send(txt)
+
+		txt = setRound(ply, tar) //第三回合
+		txt += `\n最终结果：`
+		if(pwin > twin) txt += `${ply.name}胜出。`
+		else if( twin > pwin ) txt += `${tar.name}胜出。`
+		else txt += '平手。'
+
+		clearflag(pid,tid)
+
+		session.send(txt)
+		return
+
+	});
 
   ctx.command('setnick <nick:text>', '设置路昀对你的昵称。优先于用户名。')
 	.alias('callme')
@@ -209,7 +387,7 @@ export default function UserCom(ctx: Context) {
 			`${ data.lastluck > 0 ? `· 昨日幸运：${data.lastluck}\n` : '' }`,
 			`· 突破概率：${rate}%\n`,
 			`———————————————\n`,
-			`HP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}\n`,
+			`HP：${data.HP}/${data.maxHP}  SP：${data.SP}/${data.maxSP}　AP：${data.AP}/${data.maxAP}\n`,
 			`ATK：${data.ATK}  DEF：${data.DEF}  SPD：${data.SPD}\n`,
 			`———————————————\n`,
 			`${ data.core.id > 0 ? `· 主修心法：${data.core.name}\n` : ''}`,
