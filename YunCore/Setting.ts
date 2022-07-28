@@ -52,81 +52,74 @@ export interface TodayData {
   rank: Array<any>;
   luckrank: Array<any>;
   lvrank: Array<any>
-
+  
   user: any;
 }
 
 export interface UserData {
-  name: string;
-  money: number;
-  favo: number;
-  trust: number;
-
-  luck: number;
-  lastluck: number;
-  lastroll: string;
-
+  name: string;  nick:string;
   title: string;
 
-  level: number;
-  exp: number;
+  money: number;
+  favo: number;   trust: number;
+
+  luck: number;   lastluck: number;
+  lastroll: string;
+
+
+  level: number;   exp: number;
   soul: string;
 
-  HP: number;
-  maxHP: number;
-  AP: number;
-  maxAP: number;
-  SP: number;
-  maxSP: number;
+  HP: number;   maxHP: number;
+  SP: number;   maxSP: number; 
+  AP: number;   maxAP: number;
   BP: number;
 
-  ATK: number;
-  DEF: number;
-  SPD: number;
+  ATK: number;   DEF: number;   SPD: number;
 
-  equip: any;
-  accesory: any;
-  items: any;
-  skill: any;
-  core: any;
+  mine: number;  medicine: number;
+  plant:number;  search:number;
+  smith:number;
+
+  equip: any;   items: any;
+  skill: any;  core: any;
+
   storage: Array<any>;
   titles: string[];
+  farm: any;
   flag: any;
 }
 
 export class UserData {
   constructor() {
+    this.name = "",    this.nick = "",
+    this.title = "";
+
     this.money = 100;
-    this.favo = 0;
-    this.trust = 0;
-    this.luck = 0;
-    this.lastluck = 0;
+    this.favo = 0;    this.trust = 0;
+    this.luck = 0;    this.lastluck = 0;
     this.lastroll = "";
 
-    this.title = "";
-    this.level = 1;
-    this.exp = 0;
+    this.level = 1;    this.exp = 0;
     this.soul = "金木水火土";
 
-    this.HP = 30;
-    this.maxHP = 30;
-    this.AP = 5;
-    this.maxAP = 5;
-    this.SP = 10;
-    this.maxSP = 10;
-
+    this.HP = 30;    this.maxHP = 30;
+    this.SP = 10;    this.maxSP = 10;    
+    this.AP = 8;     this.maxAP = 8;
     this.BP = 5;
-    this.ATK = 5;
-    this.DEF = 5;
 
-    this.skill = [];
-    this.core = {};
-    this.equip = { head: {}, coat: {}, middle: {}, skin: {}, weapon: {} };
-    this.accesory = { face: {}, ear: {}, hand: {}, leg: {} };
-    this.items = {};
-    this.storage = [];
-    this.titles = [];
-    this.flag = {};
+    this.ATK = 5;  this.DEF = 5;  this.SPD = 5;
+
+    this.mine = 5;    this.medicine = 5;
+    this.plant = 5;    this.search = 5;
+    this.smith = 5;
+
+    this.skill = [];    this.core = {};
+
+    this.equip = { weapon: {}, head:{}, dress:{}, shoes:{}, neck:{}, hands:{}, waist:{} };
+
+    this.items = {};    this.storage = [];
+    this.titles = [];    this.farm = {};    this.flag = {};
   }
 }
 
@@ -162,30 +155,24 @@ interface UserDaily {
 }
 
 export interface YunState {
-  level: number;
-  exp: number;
+  level: number;  exp: number;
+
   soul: string;
   talent: string[];
+
   mood: number;
   title: string;
-
   money: number;
-  HP: number;
-  maxHP: number;
-  AP: number;
-  maxAP: number;
-  SP: number;
-  maxSP: number;
-  san: number;
-  maxsan: number;
+
+  HP: number;  maxHP: number;
+  SP: number; maxSP: number;  
+  AP: number; maxAP: number;
+  san: number; maxsan: number;
   BP: number;
 
-  ATK: number;
-  DEF: number;
-  SPD: number;
+  ATK: number; DEF: number; SPD: number;
   core: any;
   equip: any;
-  accesory: any;
   skill: Array<any>;
   items: any;
 
@@ -201,6 +188,7 @@ export function __extend(ctx) {
     YunData: "json",
     nick: "string",
   });
+
 }
 
 export function getYunData() {
@@ -341,11 +329,7 @@ export async function getUser(ctx: Context, uid: string): Promise<UserData> {
   }
 
   //将名字信息更新到修仙档案中。
-  if (
-    !data.YunData?.name ||
-    data.YunData.name !== data.name ||
-    data.YunData.nick !== data.nick
-  ) {
+  if ( data.YunData.name !== data.name || data.YunData.nick !== data.nick ) {
     data.YunData.name = data.name;
     data.YunData.nick = data.nick;
   }

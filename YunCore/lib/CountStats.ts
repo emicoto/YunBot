@@ -4,7 +4,7 @@ import * as f from "../Function";
 import { SkillLib } from "./Library";
 
 export async function CountStats(ctx: Context, uid: string, mode?) {
-  let data, level;
+  let data, level
 
   if (!mode) {
     data = await s.getUser(ctx, uid);
@@ -15,12 +15,14 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
   }
 
   let levelStats = (lv)=> {
-    return 5 + Math.floor(lv/10) + Math.floor(lv/2)
+    return 5 + Math.floor(lv/10)*1.2 + Math.floor(lv/2)
   }
+
+  let soul = f.getSoulInfo(data.soul)
 
   //先从等级获得各数值的基础值，战斗力最后算
   let base = {
-    BP: (7 - data.soul.length) * Math.max(Math.floor(level / 10), 1),
+    BP: (6 - soul.count) * Math.max(Math.floor(level / 10), 1),
 
     HP: (10 + level * 5) * f.LevelBuff(level),
     SP: (5 + level * 2) * f.LevelBuff(level),
@@ -81,7 +83,7 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
   //console.log('addskill',add)
 
   //计算装备加成，一般只对ATK,DEF,SPD有加值和加成。装备追加的属性值，不算入基础值中。
-  let list = ["head", "coat", "middle", "skin", "weapon"];
+  let list = Object.keys(data.equip);
   for (let i = 0; i < list.length; i++) {
     let equip = data.equip[list[i]];
     for (let k in add) {
@@ -94,20 +96,6 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
     }
   }
   //console.log('addequip',add)
-
-  //计算装饰加成，装饰一般只对SP有加值，稀有装备或许可以有一些额外加成。
-  list = ["face", "ear", "hand", "leg"];
-  for (let i = 0; i < list.length; i++) {
-    let acces = data.accesory[list[i]];
-    for (let k in add) {
-      if (acces[k]) add[k] += acces[k];
-    }
-    if (acces?.skill) {
-      let skill = SkillLib[acces.skill];
-      countSkill(skill, add);
-    }
-  }
-  //console.log('addacess',add)
 
   //最后计算升级物品所带来的加值
   if (data.flag?.upgrade && Object.keys(data.flag?.upgrade).length > 0) {
@@ -137,7 +125,7 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
     }
   }
   //最后做战力计算
-  base.BP += base.HP / 20 + base.SP / 40 + base.ATK / 2 + base.DEF / 5 + base.SPD / 2 + add.BP;
+  base.BP += base.HP / 20 + base.SP / 40 + base.ATK / 2 + base.DEF / 5 + base.SPD / 2 + add.BP + Math.floor((data.level-1)/10)*10 ;
   base.BP *= 1 + add.BPbuff;
 
   //将计算反馈到档案中

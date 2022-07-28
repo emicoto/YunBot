@@ -267,7 +267,7 @@ export function getExpBuff(data, mode?) {
 
 //获取灵根加值
 export function getSoulBuff(str) {
-  let type, chara, count, buff;
+  let type, chara, count, buff, sbuff;
   type = str.includes("天");
   chara = str.match(/金|木|水|火|土/g);
   count = chara.length;
@@ -275,18 +275,23 @@ export function getSoulBuff(str) {
   switch (count) {
     case 1:
       buff = 1.05;
+      sbuff = 0.8;
       break;
     case 2:
       buff = 0.5;
+      sbuff = 1.2;
       break;
     case 3:
       buff = 0.3;
+      sbuff = 1;
       break;
     case 4:
       buff = 0.2;
+      sbuff = 0.6;
       break;
     case 5:
       buff = 0.1;
+      sbuff = 0.5;
       break;
   }
   if (type) buff *= 1.5;
@@ -364,7 +369,7 @@ export function getSoulInfo(str) {
   let type, chara, count;
   type = str.match(/天/);
   chara = str.match(/金|木|水|火|土/g);
-  count = str.replace("天", "").length();
+  count = chara.length;
 
   let info = {
     t: false,

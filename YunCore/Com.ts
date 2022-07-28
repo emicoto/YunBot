@@ -9,10 +9,6 @@ export default function Com(ctx: Context) {
 
   ctx.command("test [message]", "后台测试专用。")
 	.action(async ({ session }, message) => {
-		s.yunstate.work = 0
-		s.yunstate.stats = 'free'
-		s.usertoday.user[session.userId].usage = {}		
-		s.yunsave()
 		return `测试结果请看LOG`;
 	});
 
