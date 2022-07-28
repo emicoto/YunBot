@@ -1,250 +1,223 @@
 {
-  "_id": {
-    "$oid": "62ccd7b71344fc736b917a13"
-  },
-  "flag": 0,
-  "authority": 5,
-  "locale": "",
-  "onebot": "1794362968",
-  "id": "00000001",
-  "lastCall": {
-    "$date": {
-      "$numberLong": "1658871364562"
-    }
-  },
   "name": "时月",
-  "usage": {},
-  "timers": {
-    "_date": 1658900660472,
-    "小灵通": 1658819152127,
-    "查看路昀": 1658817800109,
-    "修炼": 1658829388351,
-    "修习心法": 1658821524581,
-    "境界突破": 1658820929324,
-    "切磋": 1658871424562
-  },
-  "YunData": {
-    "name": "时月",
-    "nick": "师父",
-    "money": 10197,
-    "favo": 10,
-    "trust": 100,
-    "luck": 15,
-    "lastluck": 15,
-    "lastroll": "",
-    "level": 75,
-    "exp": 536967,
-    "soul": "天金",
-    "title": "掌门",
-    "HP": 9000,
-    "maxHP": 9000,
-    "AP": 10,
-    "maxAP": 10,
-    "SP": 9120,
-    "maxSP": 9120,
-    "BP": 7211,
-    "ATK": 2007,
-    "DEF": 1585,
-    "SPD": 5155,
-    "skill": {
-      "灵霄身法": {
-        "id": 1,
-        "name": "灵霄身法",
-        "des": "灵虚派创始人所设计的顶级身法。凌霄一跃，便是千里。",
-        "type": "被动",
-        "ATKbuff": 0.2,
-        "DEFbuff": 0.3,
-        "SPDbuff": 1
-      },
-      "虚梦之境": {
-        "id": 2,
-        "name": "虚梦之境",
-        "des": "庄周梦蝶，蝶梦周公。亦真亦幻，谁知真假？",
-        "type": "特殊",
-        "action": "dream",
-        "BP": 300,
-        "costSP": 100
-      },
-      "太虚剑法": {
-        "id": 3,
-        "name": "太虚剑法",
-        "des": "灵虚派创世人所设计的顶级剑法。太虚一剑，破法万千。剑之所指，皆是虚空。",
-        "type": "主动",
-        "ATKbuff": 1.2,
-        "ATKRoll": [
-          25,
-          100
-        ],
-        "BP": 800,
-        "costSP": 25
-      },
-      "天雷诀": {
-        "id": 4,
-        "name": "天雷诀",
-        "type": "主动",
-        "des": "消耗灵力1000，召唤天雷一道。",
-        "ATK": 5000,
-        "BP": 1000,
-        "costSP": 1000
-      }
-    },
-    "equip": {
-      "head": {},
-      "coat": {},
-      "middle": {},
-      "skin": {},
-      "weapon": {
-        "id": 1,
-        "name": "冷烟管剑",
-        "des": "灵虚派掌门人时棂月的专属法器。 细剑藏匿于烟管之中，可攻可守。",
-        "type": "剑",
-        "ATK": 500,
-        "DEFbuff": 0.3,
-        "skill": "天毒虚雾"
-      }
-    },
-    "items": {},
-    "storage": [],
-    "titles": [],
-    "flag": {
-      "upgrade": {
-        "长生果": {
-          "type": "灵果",
-          "value": 250000,
-          "HP": 500,
-          "num": 5
-        },
-        "女娲花": {
-          "type": "灵果",
-          "value": 250000,
-          "SP": 500,
-          "num": 5
-        },
-        "伏羲丹": {
-          "type": "丹药",
-          "value": 150000,
-          "ATK": 100,
-          "DEF": 100,
-          "SPD": 100,
-          "num": 5
-        }
-      },
-      "signed": true,
-      "breakbuff": 5
-    },
-    "accesory": {
-      "face": {},
-      "ear": {},
-      "hand": {},
-      "leg": {}
-    },
-    "core": {
+  "nick": "师父",
+  "money": 10197,
+  "favo": 10,
+  "trust": 100,
+  "luck": 15,
+  "lastluck": 15,
+  "lastroll": "",
+  "level": 75,
+  "exp": 536967,
+  "soul": "天金",
+  "title": "掌门",
+  "HP": 9000,
+  "maxHP": 9000,
+  "AP": 10,
+  "maxAP": 10,
+  "SP": 9120,
+  "maxSP": 9120,
+  "BP": 7211,
+  "ATK": 2007,
+  "DEF": 1585,
+  "SPD": 5155,
+  "skill": {
+    "灵霄身法": {
       "id": 1,
-      "name": "虚月心法",
-      "des": "灵虚派创始人 时月为了适配自身的灵根与灵脉，特意设计的独门心法。主修速度与精神。",
-      "grade": 10,
-      "level": 11,
-      "exp": 85,
-      "maxlevel": 12,
-      "lvstats": [
-        {
-          "ATKbuff": 0.25,
-          "DEFbuff": 0.12,
-          "SPDbuff": 0.7,
-          "HPbuff": 0.2,
-          "SPbuff": 1.25,
-          "Expbuff": 3
-        },
-        {
-          "ATKbuff": 0.3,
-          "DEFbuff": 0.16,
-          "SPDbuff": 0.78,
-          "HPbuff": 0.24,
-          "SPbuff": 1.3,
-          "Expbuff": 3.2
-        },
-        {
-          "ATKbuff": 0.35,
-          "DEFbuff": 0.2,
-          "SPDbuff": 0.86,
-          "HPbuff": 0.28,
-          "SPbuff": 1.35,
-          "Expbuff": 3.4
-        },
-        {
-          "ATKbuff": 0.4,
-          "DEFbuff": 0.24,
-          "SPDbuff": 0.94,
-          "HPbuff": 0.32,
-          "SPbuff": 1.4,
-          "Expbuff": 3.6
-        },
-        {
-          "ATKbuff": 0.45,
-          "DEFbuff": 0.28,
-          "SPDbuff": 1.02,
-          "HPbuff": 0.36,
-          "SPbuff": 1.45,
-          "Expbuff": 3.8
-        },
-        {
-          "ATKbuff": 0.5,
-          "DEFbuff": 0.32,
-          "SPDbuff": 1.1,
-          "HPbuff": 0.4,
-          "SPbuff": 1.5,
-          "Expbuff": 4
-        },
-        {
-          "ATKbuff": 0.55,
-          "DEFbuff": 0.36,
-          "SPDbuff": 1.18,
-          "HPbuff": 0.44,
-          "SPbuff": 1.55,
-          "Expbuff": 4.2
-        },
-        {
-          "ATKbuff": 0.6,
-          "DEFbuff": 0.38,
-          "SPDbuff": 1.26,
-          "HPbuff": 0.48,
-          "SPbuff": 1.6,
-          "Expbuff": 4.4
-        },
-        {
-          "ATKbuff": 0.65,
-          "DEFbuff": 0.42,
-          "SPDbuff": 1.34,
-          "HPbuff": 0.52,
-          "SPbuff": 1.65,
-          "Expbuff": 4.4
-        },
-        {
-          "ATKbuff": 0.7,
-          "DEFbuff": 0.46,
-          "SPDbuff": 1.42,
-          "HPbuff": 0.56,
-          "SPbuff": 1.7,
-          "Expbuff": 4.6
-        },
-        {
-          "ATKbuff": 0.75,
-          "DEFbuff": 0.5,
-          "SPDbuff": 1.5,
-          "HPbuff": 0.6,
-          "SPbuff": 1.75,
-          "Expbuff": 4.8
-        },
-        {
-          "ATKbuff": 0.8,
-          "DEFbuff": 0.54,
-          "SPDbuff": 1.54,
-          "HPbuff": 0.64,
-          "SPbuff": 1.8,
-          "Expbuff": 5
-        }
-      ]
+      "name": "灵霄身法",
+      "des": "灵虚派创始人所设计的顶级身法。凌霄一跃，便是千里。",
+      "type": "被动",
+      "ATKbuff": 0.2,
+      "DEFbuff": 0.3,
+      "SPDbuff": 1
+    },
+    "虚梦之境": {
+      "id": 2,
+      "name": "虚梦之境",
+      "des": "庄周梦蝶，蝶梦周公。亦真亦幻，谁知真假？",
+      "type": "特殊",
+      "action": "dream",
+      "BP": 300,
+      "costSP": 100
+    },
+    "太虚剑法": {
+      "id": 3,
+      "name": "太虚剑法",
+      "des": "灵虚派创世人所设计的顶级剑法。太虚一剑，破法万千。剑之所指，皆是虚空。",
+      "type": "主动",
+      "ATKbuff": 1.2,
+      "ATKRoll": [
+        25,
+        100
+      ],
+      "BP": 800,
+      "costSP": 25
+    },
+    "天雷诀": {
+      "id": 4,
+      "name": "天雷诀",
+      "type": "主动",
+      "des": "消耗灵力1000，召唤天雷一道。",
+      "ATK": 5000,
+      "BP": 1000,
+      "costSP": 1000
     }
   },
-  "nick": "师父"
+  "equip": {
+    "head": {},
+    "coat": {},
+    "middle": {},
+    "skin": {},
+    "weapon": {
+      "id": 1,
+      "name": "冷烟管剑",
+      "des": "灵虚派掌门人时棂月的专属法器。 细剑藏匿于烟管之中，可攻可守。",
+      "type": "剑",
+      "ATK": 500,
+      "DEFbuff": 0.3,
+      "skill": "天毒虚雾"
+    }
+  },
+  "items": {},
+  "storage": [],
+  "titles": [],
+  "flag": {
+    "upgrade": {
+      "长生果": {
+        "type": "灵果",
+        "value": 250000,
+        "HP": 500,
+        "num": 5
+      },
+      "女娲花": {
+        "type": "灵果",
+        "value": 250000,
+        "SP": 500,
+        "num": 5
+      },
+      "伏羲丹": {
+        "type": "丹药",
+        "value": 150000,
+        "ATK": 100,
+        "DEF": 100,
+        "SPD": 100,
+        "num": 5
+      }
+    },
+    "signed": true,
+    "breakbuff": 5
+  },
+  "accesory": {
+    "face": {},
+    "ear": {},
+    "hand": {},
+    "leg": {}
+  },
+  "core": {
+    "id": 1,
+    "name": "虚月心法",
+    "des": "灵虚派创始人 时月为了适配自身的灵根与灵脉，特意设计的独门心法。主修速度与精神。",
+    "grade": 10,
+    "level": 11,
+    "exp": 85,
+    "maxlevel": 12,
+    "lvstats": [
+      {
+        "ATKbuff": 0.25,
+        "DEFbuff": 0.12,
+        "SPDbuff": 0.7,
+        "HPbuff": 0.2,
+        "SPbuff": 1.25,
+        "Expbuff": 3
+      },
+      {
+        "ATKbuff": 0.3,
+        "DEFbuff": 0.16,
+        "SPDbuff": 0.78,
+        "HPbuff": 0.24,
+        "SPbuff": 1.3,
+        "Expbuff": 3.2
+      },
+      {
+        "ATKbuff": 0.35,
+        "DEFbuff": 0.2,
+        "SPDbuff": 0.86,
+        "HPbuff": 0.28,
+        "SPbuff": 1.35,
+        "Expbuff": 3.4
+      },
+      {
+        "ATKbuff": 0.4,
+        "DEFbuff": 0.24,
+        "SPDbuff": 0.94,
+        "HPbuff": 0.32,
+        "SPbuff": 1.4,
+        "Expbuff": 3.6
+      },
+      {
+        "ATKbuff": 0.45,
+        "DEFbuff": 0.28,
+        "SPDbuff": 1.02,
+        "HPbuff": 0.36,
+        "SPbuff": 1.45,
+        "Expbuff": 3.8
+      },
+      {
+        "ATKbuff": 0.5,
+        "DEFbuff": 0.32,
+        "SPDbuff": 1.1,
+        "HPbuff": 0.4,
+        "SPbuff": 1.5,
+        "Expbuff": 4
+      },
+      {
+        "ATKbuff": 0.55,
+        "DEFbuff": 0.36,
+        "SPDbuff": 1.18,
+        "HPbuff": 0.44,
+        "SPbuff": 1.55,
+        "Expbuff": 4.2
+      },
+      {
+        "ATKbuff": 0.6,
+        "DEFbuff": 0.38,
+        "SPDbuff": 1.26,
+        "HPbuff": 0.48,
+        "SPbuff": 1.6,
+        "Expbuff": 4.4
+      },
+      {
+        "ATKbuff": 0.65,
+        "DEFbuff": 0.42,
+        "SPDbuff": 1.34,
+        "HPbuff": 0.52,
+        "SPbuff": 1.65,
+        "Expbuff": 4.4
+      },
+      {
+        "ATKbuff": 0.7,
+        "DEFbuff": 0.46,
+        "SPDbuff": 1.42,
+        "HPbuff": 0.56,
+        "SPbuff": 1.7,
+        "Expbuff": 4.6
+      },
+      {
+        "ATKbuff": 0.75,
+        "DEFbuff": 0.5,
+        "SPDbuff": 1.5,
+        "HPbuff": 0.6,
+        "SPbuff": 1.75,
+        "Expbuff": 4.8
+      },
+      {
+        "ATKbuff": 0.8,
+        "DEFbuff": 0.54,
+        "SPDbuff": 1.54,
+        "HPbuff": 0.64,
+        "SPbuff": 1.8,
+        "Expbuff": 5
+      }
+    ]
+  }
 }
