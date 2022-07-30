@@ -24,7 +24,7 @@ function Roll(times, max) {
     return re;
 }
 
-export function fixed(int) {
+function fixed(int) {
     return parseFloat(int.toFixed(2));
 }
 

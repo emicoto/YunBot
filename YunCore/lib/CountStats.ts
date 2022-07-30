@@ -15,7 +15,7 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
   }
 
   let levelStats = (lv)=> {
-    return 5 + Math.floor(lv/10)*1.2 + Math.floor(lv/2)
+    return 5 + Math.floor((lv-1)/10)*1.2 + Math.floor(lv/2)
   }
 
   let soul = f.getSoulInfo(data.soul)

@@ -168,10 +168,10 @@ export default function UserCom(ctx: Context) {
 		}
 
 		txt = setRound(ply, tar) //第一回合
-		await session.send(txt)
+		await session.sendQueued(txt)
 
 		txt = setRound(ply, tar) //第二回合
-		await session.send(txt)
+		await session.sendQueued(txt,500)
 
 		txt = setRound(ply, tar) //第三回合
 		txt += `\n最终结果：`
@@ -181,7 +181,7 @@ export default function UserCom(ctx: Context) {
 
 		clearflag(pid,tid)
 
-		session.send(txt)
+		session.sendQueued(txt,500)
 		return
 
 	});
@@ -409,7 +409,6 @@ export default function UserCom(ctx: Context) {
 		let luck = getJrrp(s.yunbot)
 		let rate = await f.getBreakRate(ctx,s.yunbot, 1)
 		let level = f.getLevelChar(data.level)
-		let soul = f.printSoul(data.soul)
 		let mood = ''
 		if(s.yunstate.mood >= 70) mood = '愉快';
 		else if(s.yunstate.mood > 50 && s.yunstate.mood < 70) mood = '普通';
@@ -419,6 +418,8 @@ export default function UserCom(ctx: Context) {
 
 		if (['凌晨','黎明','晚上','深夜'].includes(zone)) dress = 'sleep';
 		if(['凌晨','黎明'].includes(zone) && f.random(100) > 90 ) dress = 'sp';
+
+		let user = await s.getUser(ctx,session.userId)
 
 		let txt = [
 			'路昀的状态 --- | Yunbot ver0.9.0',
@@ -433,12 +434,15 @@ export default function UserCom(ctx: Context) {
 			`· 突破概率： ${rate}`,
 			`——————————————`,
 			`HP：${data.HP}/${data.maxHP}  SP:${data.SP}/${data.maxSP}`,
-			`SAN：${data.san}/${data.maxsan}`,
+			`AP：${data.AP}/${data.maxAP}　SAN：${data.san}/${data.maxsan}`,
 			`ATK：${data.ATK}  DEF:${data.DEF}  SPD:${data.SPD}`,
 			`——————————————`,
 			`主修心法：${data.core.name}`,
 			`装备法器：${data.equip.weapon.name}`,
 			`持有灵石：${data.money}`,
+			`——————————————`,
+			`对你的信赖：${user.trust/10}`,
+			`对你的好感：${user.favo/10}`,
 			]
 		
 		session.sendQueued(txt.join("\n"))

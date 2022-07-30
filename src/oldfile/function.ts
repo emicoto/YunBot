@@ -35,6 +35,7 @@ export function initData(){
 
     if(yunstate && usertoday.day != timetick.getDate()){
         yunstate.mood = getMood()
+        yunstate.AP = yunstate.maxAP
     }
 }
 

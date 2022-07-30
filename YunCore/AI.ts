@@ -11,8 +11,7 @@ export default async function YunAI(ctx: Context) {
 
 		let timetick = new Date()
 		if( s.usertoday.day != timetick.getDate()) {
-			s.NewToday()
-			s.yunstate.mood = s.getMood()
+			await s.NewToday()
 			s.yunsave()
 		}
 		
@@ -45,7 +44,8 @@ export default async function YunAI(ctx: Context) {
 		}
 
 		if( s.yunstate.stats != "working" && session.content.match(/\S{0,3}修炼|修行\S{0,5}$/) && s.usertoday.yunwork < 10){
-			if(f.random(100) > 80 && s.usertoday.yunwork < 10 ){
+			let rate = f.random(100) + (s.yunstate.mood >= 60 ? s.yunstate.mood/10 : 0-s.yunstate.mood/10)
+			if( rate > 80 && s.usertoday.yunwork < 10 ){
 				setYunWork(session)
 				return f.either([
 					"……静心，打坐……",

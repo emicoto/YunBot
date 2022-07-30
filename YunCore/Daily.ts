@@ -1,5 +1,4 @@
 //每日的修行
-
 import { Context, segment, Time } from "koishi";
 import { getJrrp, getJrrpComment } from "./getluck";
 
@@ -8,21 +7,6 @@ import * as s from "./Setting";
 import { setYunWork } from "./Event";
 import { CoreLib } from "./lib/Library";
 import { CountStats } from "./lib/CountStats";
-
-function getExp(level, luck, min, max){
-    let next = f.expLevel(level);
-    let len = next.toString().length
-    let pmax = 100 - level
-
-    let r = f.random(1, pmax)
-    let p = (len <= 3 ? 1000 : f.between(len,4,6) ? 10000 : 100000)
-
-    let per = (r+luck/2)/p * (level > 40 ? 0.2 : 1)
-
-    console.log('获取经验：百分比',per,next*per)
-
-    return Math.max(next*per, f.random(min,max))
-}
 
 export default function Daily(ctx: Context) {
 	ctx.command("每日签到", "每日签到。签到前最先找小昀算一卦。")
@@ -112,7 +96,7 @@ export default function Daily(ctx: Context) {
 			luck = today.luck;
 
 			//修炼的获取exp
-			let exp = getExp(data.level, luck, 3, 45)
+			let exp = f.getExp(data.level, luck, 3, 45)
 			console.log(`${name}的修炼结果：exp`,exp, 'result', f.expCount(exp, data))
 
 			exp = f.expCount(exp, data);
@@ -124,15 +108,11 @@ export default function Daily(ctx: Context) {
 				["参阅经书", 30 + (uid == s.senior ? 30 : 0)],
 				["吞纳吸气", 30],
 				["奋笔疾书", 20 + (uid == s.brother ? 50 : 0)],
-			])}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${exp}=>${
-				data.exp + exp
-			}/${f.expLevel(data.level)}`;
+			])}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${exp}=>${data.exp + exp}/${f.expLevel(data.level)}`;
 
-			if (
-				s.usertoday.userwork >= 5 &&
-				["free", "wake"].includes(s.yunstate.stats) &&
-				s.usertoday.yunwork < 5 &&
-				f.random(100) > 70
+			let rate = f.random(103) + (s.yunstate.mood > 60 ? s.yunstate.mood/10 : 0-s.yunstate.mood/5)
+			
+			if ( s.usertoday.userwork >= 5 && ["free", "wake"].includes(s.yunstate.stats) && s.usertoday.yunwork < 5 && rate > 80
 			) {
 				let txt1 = `不知是否被同门师兄弟的修炼热情感染，路昀也稍微打气精神，跟着${name}一起开始修炼了。`;
 
@@ -181,7 +161,7 @@ export default function Daily(ctx: Context) {
 						"收拾整顿，用抹布细心打扫道观的所有角落",
 						10 + (uid == s.cleaner ? 70 : 0),
 					],
-					["单脚独立，在瀑布下洗涤身心", 30],
+					["金鸡独立，在瀑布下洗涤身心", 30],
 					["点燃熏香，细细品读经文", 30 + (uid == s.senior ? 30 : 0)],
 					["吞纳吸气，感受体内灵气的运作", 30],
 					["奋笔疾书，将所思所想归纳总结", 20 + (uid == s.brother ? 50 : 0)],
@@ -192,13 +172,10 @@ export default function Daily(ctx: Context) {
 			let goal = await f.getBreakRate(ctx, uid);
 			console.log(name, "突破概率", goal);
 
-			if (data.exp >= f.expLevel(data.level) && f.random(100) < goal) {
+			if (data.exp >= f.expLevel(data.level) && f.random(100) <= goal) {
 				text += `你领悟了一丝天地之道！ 你突破了，从${f.getLevelChar( data.level )}变成${f.getLevelChar(data.level + 1)}了！`;
-				data.exp -= f.expLevel(data.level);
-				data.exp = Math.max(Math.floor(data.exp / 3 + 0.5), 0);
-				data.level += 1;
-
-				if (data.flag?.breakbuff) data.flag.breakbuff = 0;
+				
+				f.breakProces(data)
 
 			} else {
 				getexp = f.random(2, 25) + Math.max(today.luck / 5, 1);
@@ -250,7 +227,7 @@ export default function Daily(ctx: Context) {
 				let luck = (data.luck ? data.luck : getJrrp(uid))
 
 				let exp = 1 + f.random(data.core.grade+1);
-				let bexp = 3 + getExp(data.level, luck, 1, 20);
+				let bexp = 3 + f.getExp(data.level, luck, 1, 20);
 				bexp = f.expCount(bexp, data);
 
 				let nexexp = Math.floor( core.level * 10 * Math.pow(core.grade,2)+0.5);
@@ -279,4 +256,191 @@ export default function Daily(ctx: Context) {
 				return;
 			}
 		});
+
+
+  ctx.command("陪同修炼", "和路昀一起修炼", { minInterval: Time.hour / 2 })
+	.action(async ({ session }) => {
+		let uid = session.userId;
+		let data = await s.getUser(ctx, uid);
+		let name = await s.getUserName(ctx, session);
+		let today = s.getToday(uid);
+
+		if (f.ComUsage(today, "陪同修炼", 2) === false) {
+			session.send("……我已经累了……（一天只能两次）");
+			return;
+		}
+
+		if(s.yunstate.AP <= 0){
+			session.send("……今天已经够了吧。（路昀的AP不足了）");
+			return;
+		}
+
+		if(!data.flag?.signed){
+			return '……？我们认识吗？'
+		}
+
+		f.CountUsage(uid,'陪同修炼')
+
+		await session.sendQueued(`@${name}你向路昀提出了一起修炼的提议。`)
+
+		let txt
+		
+		txt = [
+			`${f.faceicon('困惑')}`,
+			`……修炼？（心感困惑，犹豫良久后）`,
+			`行吧……那就，一起修炼吧……`
+			]
+		
+		await session.sendQueued(txt.join("\n"))
+
+		let luck = today.luck
+		let exp = f.getExp(data.level,luck,5,60)
+		exp = f.expCount(exp,data)
+
+		let expl =f.random(5,60) + Math.floor(s.yunstate.mood/10+0.5)
+		expl = f.expCount(expl,s.yunstate)
+
+		txt = `${name}邀请路昀共同修炼，`
+			  + f.maybe([
+				["在练功房中一起静心打坐", 30],
+				["在弟子观中一起打扫整理", 10 + (uid == s.cleaner ? 70 : 0)],
+				["在冥想室中一起静坐冥思", 30],
+				["在藏经阁中一起参阅经书", 30 + (uid == s.senior ? 30 : 0)],
+				["在洞天中一起吞纳吸气", 30],
+				["在学堂中一起奋笔疾书", 20 + (uid == s.brother ? 50 : 0)],
+			  ]) + `。`
+			+`\n不知是否有人陪同修炼的关系，领悟比平时获得的更多。\n${name}的悟道经验变化：${data.exp}+${exp}=>${data.exp+exp}`
+			+`\n路昀的悟道经验变化：${s.yunstate.exp}+${expl}=>${s.yunstate.exp+expl}\n路昀的信赖稍微提高了一点。`;
+		
+		data.exp += exp
+		s.yunstate.exp += expl
+		s.yunstate.AP --
+		await s.yunsave()
+		await s.setUser(ctx,uid,data)
+		await s.setTrust(ctx,uid,f.random(1,3))
+
+		await setTimeout(() => {
+			session.sendQueued(txt)
+		}, 2000);
+		return
+
+	});
+
+	ctx.command("共同突破","和路昀一起突破", { minInterval: Time.hour / 2 })
+		.action(async ({ session }) => {
+			let uid = session.userId;
+			let data = await s.getUser(ctx,uid);
+			let name = s.getName(data);
+			let today = s.getToday(uid);
+
+			let breakflag = (data.exp >= f.expLevel(data.level))
+			let yunbreak = (s.yunstate.exp >= f.expLevel(s.yunstate.level))
+
+			if(f.ComUsage(today,'共同突破',2) === false){
+				return '……今天已经够了吧？(一天只能两次）';
+			}
+
+			if(s.yunstate.AP <= 0){
+				session.send("……今天我已经累了……（路昀的AP不足了）");
+				return;
+			}
+
+			if(!data.flag?.signed){
+				return '……？我们认识吗？'
+			}
+
+			if( !breakflag && !yunbreak){
+				return '……还没到突破的时机吧……？'
+			}
+
+			f.CountUsage(uid,'共同突破')
+
+
+			let txt = `@${name} 你对路昀提出了共同突破的提议。`
+
+			await session.sendQueued(txt,500)
+
+			txt = `${f.faceicon('困惑')}\n`
+				+ ( breakflag && yunbreak ? `……一起突破吗？`
+				: yunbreak ? `……${name}是要陪我突破吗？`
+				: `……${name}是希望我陪你突破吗？`)
+				+`\n……（犹豫了会），好吧。`
+			
+			await session.sendQueued(txt)
+
+			txt = `在一个黄道吉日里，${name} 你沐浴更衣后，邀请路昀一起到灵虚山的洞天峰进行突破。`
+				+ `\n你们`+f.maybe([
+					["盘腿而坐，闭目冥思感应天地", 30],
+					["点燃熏香，细细品读经文", 30 + (uid == s.senior ? 30 : 0)],
+					["吞纳吸气，感受体内灵气的运作", 30],
+					["奋笔疾书，将所思所想归纳总结", 20 + (uid == s.brother ? 50 : 0)],
+				])
+				+`，试图从中捕捉一丝道理……\n`;		
+
+			let goal = await f.getBreakRate(ctx,uid) + f.random(3,12)
+			let ygoal = await f.getBreakRate(ctx,'',true) + f.random(5,12)
+
+			let r = f.random(100)
+			let yr = f.random(100)
+
+			console.log(name,'突破',r,'/',goal)
+			console.log('路昀突破',yr,'/',ygoal)
+
+			if( breakflag && r <= goal && yunbreak && yr <= ygoal){
+				txt += `你们领悟了一丝天地之道！你和路昀都突破了！\n`
+					+ `你从${f.getLevelChar( data.level)}变成${f.getLevelChar(data.level + 1)}了！\n`
+					+ `路昀从从${f.getLevelChar(s.yunstate.level)}变成${f.getLevelChar(s.yunstate.level+1)}了！`
+				
+				txt += '\n同时突破的你们十分高兴，情不自禁地抱在了一块。但很快就分离了。\n（好感与信赖都增加了。）'
+				await s.setFavo(ctx,uid,f.random(5,15))
+				await s.setTrust(ctx,uid,f.random(5,10))
+			}
+			else if(breakflag && r <= goal){
+				txt += `你领悟了一丝天地之道！在路昀的见证下， 你突破了，从${f.getLevelChar( data.level)}变成${f.getLevelChar(data.level + 1)}了！`;
+			}
+
+			else if(yunbreak && yr <= ygoal){
+				txt += `路昀领悟了一丝天地之道！在你的见证下，路昀突破了，从${f.getLevelChar(s.yunstate.level)}变成${f.getLevelChar(s.yunstate.level+1)}了！`
+
+			}
+			else{
+
+				let exp = f.random(5,30) + Math.max(today.luck/5,1)
+				exp = Math.floor(exp*f.getExpBuff(data) + 0.5)
+
+				let yexp = f.random(5,40) + s.yunstate.mood/5
+				yexp = Math.floor(yexp*f.getExpBuff(s.yunstate,1)+0.5)
+
+				if(breakflag && yunbreak) txt += `可惜，你们都突破失败了。看来仙路漫漫长……\n`
+				else if(yunbreak) txt += `可惜，路昀突破失败了，只是获得了些许领悟。同时你也从中获得些许心得。\n`
+				else txt += `可惜，你突破失败了，只是从中获得些许心得。在一旁围观你的突破的路昀也从中受益良多。\n`
+
+				txt+=`你的悟道经验 +${exp} = ${data.exp+exp}\n`
+				txt+=`路昀的悟道经验 +${yexp} = ${s.yunstate.exp+yexp}`
+
+				data.exp += exp
+				s.yunstate.exp += yexp
+
+			}
+
+			if(breakflag && r<= goal) f.breakProces(data)
+
+			if(yunbreak && yr <= goal){
+				f.breakProces(s.yunstate)
+				s.yunstate.flag.levelup = false
+				s.yunstate.AP--
+			}
+
+			txt += `小昀对你的信赖度增加了一点。`
+			let trust = f.random(5,15)
+			data.trust += trust
+			await s.setUser(ctx,uid,data)
+			await s.yunsave()
+			
+			await setTimeout(() => {
+				session.sendQueued(txt)
+			}, 2000);
+
+			return
+		})
 }

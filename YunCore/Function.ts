@@ -265,6 +265,21 @@ export function getExpBuff(data, mode?) {
   return buff;
 }
 
+export function getExp(level, luck, min, max){
+    let next = expLevel(level);
+    let len = next.toString().length
+    let pmax = 100 - level
+
+    let r = random(1, pmax)
+    let p = (len <= 3 ? 1000 : between(len,4,6) ? 10000 : 100000)
+
+    let per = (r+luck/2)/p * (level > 40 ? 0.2 : 1)
+
+    console.log('获取经验：百分比',per,next*per)
+
+    return Math.max(next*per, random(min,max))
+}
+
 //获取灵根加值
 export function getSoulBuff(str) {
   let type, chara, count, buff, sbuff;
@@ -365,6 +380,14 @@ export function expCount(getexp, data) {
   return Math.floor(getexp+0.5);
 }
 
+export function EarnedExp(level){
+  let exp = 0
+  for(let i=0; i< level; i++){
+    exp += expLevel(i)
+  }
+  return exp
+}
+
 export function getSoulInfo(str) {
   let type, chara, count;
   type = str.match(/天/);
@@ -380,4 +403,11 @@ export function getSoulInfo(str) {
   if (type) info.t = true;
 
   return info;
+}
+
+export function breakProces(data){
+  data.exp -= expLevel(data.level);
+  data.exp = Math.max(Math.floor(data.exp/3+0.5),0);
+  data.level += 1;
+  if(data.flag?.breakbuff) data.flag.breakbuff = 0
 }

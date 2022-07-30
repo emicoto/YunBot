@@ -9,6 +9,13 @@ export default function Com(ctx: Context) {
 
   ctx.command("test [message]", "后台测试专用。")
 	.action(async ({ session }, message) => {
+
+		//let data = await ctx.database.get("YunSave", { qid: session.userId}, ["name","chara"])
+		//console.log(data)
+		s.yunstate.stats = 'free'
+		s.yunstate.work = 0
+		s.yunsave()
+		
 		return `测试结果请看LOG`;
 	});
 
@@ -18,6 +25,66 @@ export default function Com(ctx: Context) {
 	.action(async ({ session }, message) => {
 
 	});
+
+  ctx.command("保留存档","在版本更替前保存存档一部分数据。")
+	.action( async ({ session })=>{
+		let data = await ctx.database.getUser(session.platform, session.userId)
+		let database = await ctx.database.get("YunSave", null)
+
+		let exist = await ctx.database.get("YunSave", { qid: session.userId})
+		let core = {}, chara = {}
+			core = {
+				id: data.YunData['core'].id,
+				name: data.YunData['core'].name,
+				grade: data.YunData['core'].grade,
+				level: data.YunData['core'].level,
+				exp: data.YunData['core'].exp,
+				maxlevel: data.YunData['core'].maxlevel
+			}
+
+		chara = {
+				soul:data.YunData['soul'],
+				level:data.YunData['level'], exp:data.YunData['exp'],
+				HP:20, maxHP:20,
+				SP:10, maxSP:10,
+				AP:8, maxAP:8,
+				ATK:5, DEF:5, SPD:5,
+				core: core, skill:[],
+				equip:{
+					weapon: ( data.YunData['equip'].weapon),
+					head:{}, cloth:{}, shoes:{},
+					acces:{}, waist:{},
+				},}
+
+		if(exist.length){
+			await ctx.database.set("YunSave", { qid: session.userId}, {
+				nick: data.nick,
+				name:data.name,
+				money:data.YunData['money'],
+				chara:chara,
+				})
+			return '已更新存档'
+		}
+
+		let len = database.length+1
+		let id = ''
+		if( len < 10000000 ) id = '0'.repeat(8-len.toString().length)+len
+		else id = len.toString()
+
+		await ctx.database.create("YunSave", {
+			id: id,
+			qid: session.userId,
+			nick: data.nick,
+			name:data.name,
+			favo:0, trust:0,
+			money:data.YunData['money'],
+			chara:chara,
+			items:{}, storage:[], farm:{}, combat:{},
+			flag:{}, upgrade:(data.YunData['flag'].upgrade? data.YunData['flag'].upgrade : {})
+		})
+
+		return '已存档'
+	})
 
   ctx.command("欧皇排行",'今天的幸运排行')
 	.action(async ({ session }) =>{
@@ -131,23 +198,6 @@ export default function Com(ctx: Context) {
 		return f.At(session.userId);
 		} else {
 		return f.At(parsedTarget.data.id);
-		}
-	});
-
-  ctx.command("陪同修炼", "和路昀一起修炼", { minInterval: Time.hour / 2 })
-	.action(async ({ session }) => {
-		let uid = session.userId;
-		let data = await s.getUser(ctx, uid);
-		let name = await s.getUserName(ctx, session);
-		let today = s.getToday(uid);
-
-		if (f.ComUsage(today, "陪同修炼", 2) === false) {
-		session.sendQueued("……我已经累了……");
-		return;
-		} else {
-		//f.CountUsage(uid,'陪同修炼')
-		session.sendQueued("本功能还没做完。");
-		return;
 		}
 	});
 

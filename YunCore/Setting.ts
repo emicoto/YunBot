@@ -1,8 +1,9 @@
 import { Context, Session } from "koishi";
 import fs from "fs";
 import { createHash } from "crypto";
-import { compare, expLevel } from "./Function";
+import { compare, EarnedExp } from "./Function";
 import path from "path";
+export * from "@koishijs/plugin-rate-limit"
 
 export class TodayData {
   constructor(day: Date) {
@@ -17,6 +18,17 @@ export class TodayData {
     this.luckrank = [];
 
     this.user = {};
+  }
+}
+
+declare module 'koishi'{
+  interface User{
+    nick: string;
+    onebot: string;
+    YunData: UserData;
+  }
+  interface Tables{
+    YunSave: any
   }
 }
 
@@ -188,6 +200,23 @@ export function __extend(ctx) {
     YunData: "json",
     nick: "string",
   });
+  ctx.model.extend("YunSave",{
+    id:"unsigned",
+    qid:"string",
+    nick:"string",
+    name:"string",
+    favo:"number",
+    trust:"number",
+    money:"number",
+    chara:"json",
+    items:"json",
+    storage:"list",
+    upgrade:"json",
+    farm:"json",
+    flag:"json",
+    combat:"json",
+    signed:"boolean"
+  })
 
 }
 
@@ -198,7 +227,7 @@ export function getYunData() {
       if (err)
         throw new Error("error occured while reading file:Yunstate.json");
       yunstate = JSON.parse(data.toString());
-      console.log("getYunState:", yunstate);
+      //console.log("getYunState:", yunstate);
     });
   }
   if (yunstate) {
@@ -226,7 +255,7 @@ export function getUsertoday() {
       if (usertoday && !usertoday?.user[master]) {
         usertoday.user[master] = new UserToday();
       }
-      console.log("getUsertoday:", usertoday);
+      //console.log("getUsertoday:", usertoday);
     });
   }
   if (usertoday) return usertoday;
@@ -236,6 +265,7 @@ export function NewToday() {
   let timetick = new Date();
   usertoday = new TodayData(timetick);
   yunstate.mood = getMood();
+  yunstate.AP = yunstate.maxAP
 }
 
 export function getMood() {
@@ -292,7 +322,7 @@ export async function makeRank(ctx: Context) {
     if (data[i]["YunData"]?.level) {
       let chara = data[i]["YunData"]
       rank[i] = { bp: chara.BP, atk:chara.ATK , def:chara.DEF , spd: chara.SPD, user: data[i]["name"] };
-      level[i] = { level: chara.level, exp: expLevel(chara.level-1)+chara.exp ,user: data[i]['name']};
+      level[i] = { level: chara.level, exp: EarnedExp(chara.level-1)+chara.exp ,user: data[i]['name']};
     }
   }
 
@@ -308,6 +338,7 @@ export async function makeRank(ctx: Context) {
   rank.sort(compare("bp"));
   luck.sort(compare("luck"));
   level.sort(compare("exp"));
+  level.sort(compare("level"))
 
   rank = rank.slice(0,11)
   level = level.slice(0,11)

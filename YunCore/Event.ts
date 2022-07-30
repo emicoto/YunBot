@@ -11,14 +11,14 @@ export async function setYunBreak(ctx:Context, session, mode?){
 	let txt = '历时多日的修行，路昀总算也迎来了突破的时机……\n路昀选择了一个吉日佳时，仔细地沐浴过后，\n再换上白净的衣服浸泡在灵泉中感受自身天地灵脉的转动……\n'
 	let name = await s.getUserName(ctx, session.userId)
 
-	let goal = await f.getBreakRate(ctx, s.yunbot, 1)
+	let goal = await f.getBreakRate(ctx, s.yunbot, 1) + ( mode? f.random(5,10) : 0)
 	let rate = f.random(100)
 	console.log("小昀的突破概率:",goal,rate)
 	s.usertoday.yunbreak ++
 
 	let txt1 = ''
 
-	if( rate < goal){
+	if( rate <= goal){
 		if(mode){
 			txt += `在${name}的陪同下，`
 		}else{
@@ -26,9 +26,7 @@ export async function setYunBreak(ctx:Context, session, mode?){
 		}
 		txt += `小昀顺利突破了！从${f.getLevelChar(level)}变成${f.getLevelChar(level+1)}了！`
 
-		s.yunstate.exp -= f.expLevel(level)
-		s.yunstate.exp = Math.max(Math.floor(exp/3+0.5),0)
-		s.yunstate.level += 1
+		f.breakProces(s.yunstate)
 		s.yunstate.flag.levelup = false
 		s.yunsave()
 
@@ -43,7 +41,7 @@ export async function setYunBreak(ctx:Context, session, mode?){
 	}
 	else{
 		let get = f.random(5,40)+Math.max(s.yunstate.mood/5,1)
-		get = Math.floor(get*(2+3)+0.5)
+		get = Math.floor(get*f.getExpBuff(s.yunstate,1)+0.5)
 
 		txt += '可惜，突破失败了。看来仙路漫漫长……\n获得了一点心得。悟道经验+'+get
 		s.yunstate.exp += get
