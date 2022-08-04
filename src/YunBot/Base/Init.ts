@@ -149,3 +149,16 @@ export async function getUsername( ctx:Context, session:Session) {
 	return name;
 }
 
+export async function ctsetFavo(ctx:Context, uid:string, val:number) {
+	let data = await ctx.database.getUser('onebot', uid, ['game']);
+	data.game.favo += val
+	await setUser(ctx, 'onebot', uid, data.game)
+	console.log('好感变化：',val, await (await ctx.database.getUser('onebot',uid,['game'])).game.favo)
+}
+
+export async function ctsetTrust(ctx:Context, uid:string, val:number) {
+	let data = await ctx.database.getUser('onebot', uid, ['game']);
+	data.game.trust += val;
+	await setUser(ctx, 'onebot', uid, data.game)
+	console.log('信赖变化：',val, await (await ctx.database.getUser('onebot',uid,['game'])).game.favo)
+}

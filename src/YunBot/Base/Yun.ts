@@ -1,4 +1,4 @@
-import { CoreLib, Equip, getMood, printSoul, LevelExp, getBreakRate, copy, WeaponLib, SkillLib, writeFileSync, YunConfig} from "../index";
+import { CoreLib, Equip, getMood, printSoul, LevelExp, getBreakRate, copy, WeaponLib, SkillLib, writeFileSync, YunConfig, yundata} from "../index";
 import fs from "fs"
 
 export interface Yun{
@@ -6,7 +6,7 @@ export interface Yun{
 	talent:string[];	soul:string;
 
 	level:number;	exp:number;
-	mood: number;	stats:string;
+	mood: number;	stats:YunStats;
 	money:number;
 
 	HP:number;	maxHP:number;
@@ -32,10 +32,11 @@ export interface Yun{
 }
 
 export type botstats = 'onLoading' | 'failed' | 'botOn' | 'botOff' | 'Running' | ''
+export type YunStats = 'free' | 'work' | 'sleeping' | 'awake' | 'gaming' | ''
 
 export class Yun{
 	public static state:Yun;
-	public static botstats:botstats;
+	public static botstats:botstats = '';
 
 	public static selfId:string = '185632406';
 	public static masterId:string = '1794362968';
@@ -45,7 +46,7 @@ export class Yun{
 
 	public static Config: YunConfig;
 
-	public static load(){
+	public static load():Yun{
 		let data:Yun = Yun.state
 		if(!data){
 			fs.readFile("YunData.json","utf-8", (err, file)=>{
@@ -100,7 +101,7 @@ export class Yun{
 		return ['work','learn','sleep'].includes(this.stats)
 	}
 	get isSleeping(){
-		return (this.stats === 'sleep')
+		return (this.stats === 'sleeping')
 	}
 	get breakrate(){
 		return getBreakRate(Yun.state,'yun')
@@ -121,7 +122,7 @@ export class Yun{
 
 		this.level = 21; this.exp = 0;	
 
-		this.mood = getMood();	this.stats = 'sleep';
+		this.mood = getMood();	this.stats = 'sleeping';
 		this.money = 500;
 
 		this.HP = 1000; this.maxHP = 1000;

@@ -57,7 +57,7 @@ export class YunCore {
 	private onBotConnect(){
 		this.ctx.on("bot-connect", ()=>{
 			if(!Yun.botstats){
-				 Yun.botstats = "botOn";
+				Yun.botstats = "botOn";
 				console.log("路昀bot已链接。准备中……")
 			}
 		})
@@ -66,9 +66,6 @@ export class YunCore {
 	private async initYun(){
 		const that = this;
 		this.ctx.on("bot-status-updated", (session)=>{
-			if(!s.yundata){
-				s.yundata = Yun.load()
-			}
 			if(s.yundata){
 				console.log("本地数据已读取完毕！开始唤醒路昀bot。")
 

@@ -1,4 +1,4 @@
-import { Context, Dict, Session, User } from "koishi";
+import { Context, Dict } from "koishi";
 import { CountStats, CoreLib, printSoul, SkillLib, random, expCount } from "../index"
 
 export interface Game{
@@ -61,27 +61,26 @@ export class Game{
 	}
 
 	public static setSkill(data:Game, name:string){
-		let skill = SkillLib[name]
-		data.skill[name] = JSON.parse(JSON.stringify(skill))
+		let skill = SkillLib[name];
+		data.skill[name] = JSON.parse(JSON.stringify(skill));
 		return data
 	}
 
 	public static setFavo(data:Game, min, max?){
 		if(!max) max = min;
-		data.favo =+ random(min,max)
+		data.favo =+ random(min,max);
 	}
 
 	public static setTrust(data:Game, min, max?){
 		if(!max) max= min;
-		data.trust =+ random(min,max)
+		data.trust =+ random(min,max);
 	}
 
 	public static setExp(data:Game, min, max?){
 		if(!max) max=min;
-		
-		let exp = random(min,max) + (data.luck ? data.luck/10 : 0)
-		exp = expCount(exp, data)
-		data.exp =+ exp
+		let exp = random(min,max) + (data.luck ? data.luck/10 : 0);
+		exp = expCount(exp, data);
+		data.exp =+ exp;
 	}
 
 	public static Count(data:Game){
@@ -93,7 +92,7 @@ export class Game{
 	}
 
 	get charaname(){
-		if(this.nick) return this.nick
+		if(this.nick) return this.nick;
 		return this.name
 	}
 
@@ -136,8 +135,8 @@ export class Game{
 	}
 }
 
-export const setFavo = Game.setFavo
-export const setTrust = Game.setTrust
-export const setCore = Game.setCore
-export const setSkill = Game.setSkill
-export const setExp = Game.setExp
+export const setFavo = Game.setFavo;
+export const setTrust = Game.setTrust;
+export const setCore = Game.setCore;
+export const setSkill = Game.setSkill;
+export const setExp = Game.setExp;

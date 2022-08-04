@@ -38,12 +38,12 @@ export function At(uid: string) {
 	return segment("at", { id: uid });
 }
 
-export function faceicon(str) {
+export function faceicon(str:string) {
 	let path = `file:///H:/_Yunbot/data/images/Yun_${str}.png`;
 	return segment("image", { url: path });
 }
 
-export function images(str) {
+export function images(str:string) {
 	let path = `file:///H:/_Yunbot/data/images/${str}`;
 	return segment("image", { url: path });
 }
@@ -75,7 +75,7 @@ export function compare(key) {
 	};
 }
 
-export function Roll(times, max) {
+export function Roll(times:number, max:number) {
 	let re
 	
 	re = {
