@@ -107,6 +107,9 @@ export default function Daily(ctx: Context) {
 				["静坐冥思", 30],
 				["参阅经书", 30 + (uid == s.senior ? 30 : 0)],
 				["吞纳吸气", 30],
+				['弹奏音律',30],
+				['书情画意',30],
+				['钻研棋谱',30],
 				["奋笔疾书", 20 + (uid == s.brother ? 50 : 0)],
 			])}，对修心之道有了些许领悟。\n悟道经验变化：${data.exp}+${exp}=>${data.exp + exp}/${f.expLevel(data.level)}`;
 
@@ -141,8 +144,6 @@ export default function Daily(ctx: Context) {
 			if (f.ComUsage(today, "突破", 2) === false) {
 				session.sendQueued("一天只能尝试突破两次哦。");
 				return;
-			} else {
-				f.CountUsage(uid, "突破");
 			}
 
 			if (!data.flag?.signed) {
@@ -151,6 +152,8 @@ export default function Daily(ctx: Context) {
 				);
 				return;
 			}
+			
+			f.CountUsage(uid, "突破");
 
 			let getexp;
 			let text =
@@ -164,10 +167,13 @@ export default function Daily(ctx: Context) {
 					["金鸡独立，在瀑布下洗涤身心", 30],
 					["点燃熏香，细细品读经文", 30 + (uid == s.senior ? 30 : 0)],
 					["吞纳吸气，感受体内灵气的运作", 30],
+					['激昂奏乐，将自身彻底融入音律中',30],
+					['舞动画笔，将命运平铺在画卷中',30],
+					['操弄棋盘，以自身为子与天对棋',30],
 					["奋笔疾书，将所思所想归纳总结", 20 + (uid == s.brother ? 50 : 0)],
 				]);
 
-			text += `，试图从中捕捉一丝道理……\n`;
+			text += `，试图从中捕捉一丝宇宙大道……\n`;
 
 			let goal = await f.getBreakRate(ctx, uid);
 			console.log(name, "突破概率", goal);
@@ -220,7 +226,7 @@ export default function Daily(ctx: Context) {
 			if (f.ComUsage(today, "修习心法", 3) === false) {
 				session.sendQueued("……欲速则不达，心法的修习一天最多3次而已……", 500);
 				return;
-			} else {
+			}
 				today.usage["修习心法"]++;
 
 				let core = data.core;
@@ -241,9 +247,7 @@ export default function Daily(ctx: Context) {
 				let rate = f.random(100);
 
 				if (data.core.exp > nexexp && core.level < core.maxlevel && rate < 50) {
-					txt += `\n日积月累，滴水成河。你对心法的研修达到了一个圆满阶段！你的心法获得了升华，从${
-						core.level
-					}升级为${core.level + 1}了。`;
+					txt += `\n日积月累，滴水成河。你对心法的研修达到了一个圆满阶段！你对心法的理解更加深入了，从${ core.level }层升级为${core.level + 1}层了。`;
 					data.core.level++;
 					data.core.exp -= nexexp;
 					data.core.exp = Math.max(Math.floor(data.core.exp / 2), 0);
@@ -255,7 +259,7 @@ export default function Daily(ctx: Context) {
 				session.sendQueued(txt, 1000);
 				return;
 			}
-		});
+		);
 
 
   ctx.command("陪同修炼", "和路昀一起修炼", { minInterval: Time.hour / 2 })
@@ -392,8 +396,10 @@ export default function Daily(ctx: Context) {
 					+ `路昀从从${f.getLevelChar(s.yunstate.level)}变成${f.getLevelChar(s.yunstate.level+1)}了！`
 				
 				txt += '\n同时突破的你们十分高兴，情不自禁地抱在了一块。但很快就分离了。\n（好感与信赖都增加了。）'
-				await s.setFavo(ctx,uid,f.random(5,15))
-				await s.setTrust(ctx,uid,f.random(5,10))
+				let a = f.random(5,15), b = f.random(5,10)
+				
+				await s.setFavo(ctx,uid,b)
+				await s.setTrust(ctx,uid,a)
 			}
 			else if(breakflag && r <= goal){
 				txt += `你领悟了一丝天地之道！在路昀的见证下， 你突破了，从${f.getLevelChar( data.level)}变成${f.getLevelChar(data.level + 1)}了！`;

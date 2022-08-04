@@ -1,37 +1,69 @@
 //一些便利功能指令
-import { Context, segment, Time } from "koishi";
+import { Context, segment } from "koishi";
 import { Lunar, Tao } from "lunar-javascript";
 import * as f from "./Function";
-import { CoreDes,  CoreLib,  SkillDes,  SkillLib,  WeaponDes,  WeaponLib,} from "./lib/Library";
+import { CoreDes,	CoreLib,	SkillDes,	SkillLib,	WeaponDes,	WeaponLib,} from "./lib/Library";
 import * as s from "./Setting";
 
 export default function Com(ctx: Context) {
 
-  ctx.command("test [message]", "后台测试专用。")
-	.action(async ({ session }, message) => {
+	/*ctx.before('command/attach-user',({ command, options = {} }, fields) =>{
+		if(!command)return
+		const{ ignore } = command.config
+		let shouldIgnore = ignore
 
-		//let data = await ctx.database.get("YunSave", { qid: session.userId}, ["name","chara"])
-		//console.log(data)
-		s.yunstate.stats = 'free'
-		s.yunstate.work = 0
-		s.yunsave()
-		
+		for(const { name, notUsage } of Object.values(command._options)){
+			if(name in options && notUsage) shouldIgnore = false
+		}
+		if(ignore && shouldIgnore) fields.add('YunData')
+	})
+
+	ctx.before('command/execute', (argv: Argv<'YunData'>)=>{
+		const { session, options, command } = argv
+		if(!session.user) return
+
+		let isIgnore = true
+		for(const{ name, notUsage} of Object.values(command._options)){
+			if(name in options && notUsage) isIgnore = false
+		}
+
+		if(command.config.ignore && isIgnore){
+			session.user.YunData.money += f.random(1,10)
+		}
+	})*/
+
+	async function doUser(user, num) {
+		user.YunData.money += num;
+		console.log(user.YunData.money)
+		await user.$update();
+	}
+
+	ctx.command("test [message]", "后台测试专用。",{ ignore: true})
+	.option('key','-k <key>',{value:''})		
+	.option('var','-v <value>',{ value: 0 ,notUsage:true, authority:4 })
+	.userFields(['YunData'])
+	.action(async ({ session, options }, message) => {
+		//await doUser(session.user, f.random(1,10))
+		//session.user.YunData.money += f.random(1,10)
+		//console.log(session.user.YunData.money)
+		//let data = await ctx.database.get("user", null, ['YunData'] )
+		console.log(options)
 		return `测试结果请看LOG`;
 	});
 
 
-  ctx.command("领取补偿", "开放补偿时才能用。", { maxUsage: 1 })
+	ctx.command("领取补偿", "开放补偿时才能用。", { maxUsage: 1 })
 	.alias("领取奖励")
 	.action(async ({ session }, message) => {
 
 	});
 
-  ctx.command("保留存档","在版本更替前保存存档一部分数据。")
+	ctx.command("保留存档","在版本更替前保存存档一部分数据。")
 	.action( async ({ session })=>{
 		let data = await ctx.database.getUser(session.platform, session.userId)
 		let database = await ctx.database.get("YunSave", null)
 
-		let exist = await ctx.database.get("YunSave", { qid: session.userId})
+		/*let exist = await ctx.database.get("YunSave", { qid: session.userId})
 		let core = {}, chara = {}
 			core = {
 				id: data.YunData['core'].id,
@@ -57,7 +89,7 @@ export default function Com(ctx: Context) {
 				},}
 
 		if(exist.length){
-			await ctx.database.set("YunSave", { qid: session.userId}, {
+			await ctx.database.set("YunSave", { qid: session.userId }, {
 				nick: data.nick,
 				name:data.name,
 				money:data.YunData['money'],
@@ -83,10 +115,10 @@ export default function Com(ctx: Context) {
 			flag:{}, upgrade:(data.YunData['flag'].upgrade? data.YunData['flag'].upgrade : {})
 		})
 
-		return '已存档'
+		return '已存档'*/
 	})
 
-  ctx.command("欧皇排行",'今天的幸运排行')
+	ctx.command("欧皇排行",'今天的幸运排行')
 	.action(async ({ session }) =>{
 		await s.makeRank(ctx)
 		let txt = []
@@ -100,8 +132,8 @@ export default function Com(ctx: Context) {
 			return txt.join("\n")
 		}
 	})
-  
-  ctx.command("战力排行",'战斗力排行')
+	
+	ctx.command("战力排行",'战斗力排行')
 	.action(async ({ session }) =>{
 		await s.makeRank(ctx)
 		let txt = [], c = 0
@@ -117,7 +149,7 @@ export default function Com(ctx: Context) {
 		}
 	})
 
-  ctx.command("修为排行",'修为排行')
+	ctx.command("修为排行",'修为排行')
 	.action(async ({ session }) =>{
 		await s.makeRank(ctx)
 		let txt = [], c = 0
@@ -131,7 +163,7 @@ export default function Com(ctx: Context) {
 		}
 	})
 
-  ctx.command("黄历", "查看黄历时间以及宜忌信息等。").action(({ session }) => {
+	ctx.command("黄历", "查看黄历时间以及宜忌信息等。").action(({ session }) => {
 	let ly = Lunar.fromDate(f.cnTime());
 	let year = `${ly.getYearInChinese()}年，`;
 		year += `天运${ly.getGan() + ly.getZhi()}，`;
@@ -159,9 +191,9 @@ export default function Com(ctx: Context) {
 	f.CountUsage(session.userId, "黄历");
 
 	session.sendQueued(text);
-  });
+	});
 
-  ctx.command("时间", "查看服务器时间")
+	ctx.command("时间", "查看服务器时间")
 	.alias("servertime")
 	.action(({ session }) => {
 		let time = new Date();
@@ -170,7 +202,7 @@ export default function Com(ctx: Context) {
 		return;
 	});
 
-  ctx.command("戳戳 <target>", "戳一戳")
+	ctx.command("戳戳 <target>", "戳一戳")
 	.shortcut("戳我")
 	.action(({ session }, target) => {
 		const parsedTarget = target ? segment.parse(target)[0] : null;
@@ -184,12 +216,12 @@ export default function Com(ctx: Context) {
 		}
 	});
 
-  ctx.command("poke", "teach事件专用版戳一戳。").action(({ session }) => {
+	ctx.command("poke", "teach事件专用版戳一戳。").action(({ session }) => {
 	session.send("o(-。- o)===3 ) σ- . -)σ");
 	return segment("poke", { qq: session.userId });
-  });
+	});
 
-  ctx.command("At [target]", "让路昀bot艾特任意人。")
+	ctx.command("At [target]", "让路昀bot艾特任意人。")
 	.shortcut("艾特我")
 	.action(({ session }, target) => {
 		const parsedTarget = target ? segment.parse(target)[0] : null;
@@ -201,7 +233,7 @@ export default function Com(ctx: Context) {
 		}
 	});
 
-  ctx.command("指令记录", "显示指令的次数记录")
+	ctx.command("指令记录", "显示指令的次数记录")
 	.alias("mylogs")
 	.action(async ({ session }) => {
 		let uid = session.userId;
@@ -225,7 +257,7 @@ export default function Com(ctx: Context) {
 		return;
 	});
 
-  ctx.command("查询 <type> [msg]", "查询功法、心法、技能等效果")
+	ctx.command("查询 <type> [msg]", "查询功法、心法、技能等效果")
 	.alias("library")
 	.option("name", "-n")
 	.action(({ session }, type, msg, option) => {

@@ -38,8 +38,9 @@ plugins:
       admin: 5
       frozen: 5
       context: 4
+      base: 2
   dice: null
   hitokoto: null
   ./YunCore/index: null
-  rate-limit: null  
+  rate-limit: null
   ~puppeteer: {}

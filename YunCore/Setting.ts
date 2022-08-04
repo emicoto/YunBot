@@ -28,7 +28,13 @@ declare module 'koishi'{
     YunData: UserData;
   }
   interface Tables{
-    YunSave: any
+    YunSave: UserData
+  }
+
+  namespace Command{
+    interface Config{
+      ignore?: boolean;
+    }
   }
 }
 

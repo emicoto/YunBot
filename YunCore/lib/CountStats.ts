@@ -150,7 +150,7 @@ export async function CountStats(ctx: Context, uid: string, mode?) {
   if (!mode) {
     await s.setUser(ctx, uid, data);
   } else {
-    console.log(s.yunstate);
+    //console.log(s.yunstate);
     s.yunsave();
   }
 

@@ -169,7 +169,7 @@ export default function getluck(ctx: Context){
 			return
 		})
 	
-	ctx.command("黄大仙灵签","黄大仙灵签",{minInterval: Time.hour})
+	ctx.command("黄大仙灵签","黄大仙灵签",{minInterval: Time.hour, maxUsage:3})
 		.alias("hdxlq")
 		.action(({ session })=>{
 			let no = f.random(99)
