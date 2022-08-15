@@ -1,0 +1,7 @@
+export * from './dailytrain'
+export * from './daily'
+export * from './userregist'
+export * from './checkstatus'
+export * from './gamecom'
+export * from './gamemenu'
+//export * from './pk'

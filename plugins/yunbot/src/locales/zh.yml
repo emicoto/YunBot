@@ -1,0 +1,42 @@
+internal:
+  option-not-usage: （不计入次数）
+  command-max-usage: 已使用次数：{0}/{1}。
+  command-min-interval: 剩余冷却时间：{0}/{1} 秒。
+  times-out: 输入太慢了……当前流程已失效。
+  invalid-input: ……嗯？是不是输入错了……（当前流程已失效）
+  invalid-string: 不可含有特殊字符，或图片。
+
+yunbot:
+  not-signed: '【你在灵虚派的山门附近转悠，被禁制挡在了外面。】'
+  go-to-train: 不知是否被师兄弟们的修炼热情感染，路昀也提起干劲，跟着{0}一起开始修炼了。
+  continue-to-regist1: 嗯……？{0}，原来你还在的吗，那么继续之前的流程吧。
+  continue-to-regist2: 我们之前进行到哪里来着……？
+
+commands:
+  cdtimer:
+    description: 计时器信息
+    options:
+      set: 设置计时器
+      clear: 清空计时器
+    messages:
+      present: '{0} 的剩余时间为：剩余 {1 | time}'
+      absent: 现在并没有在 {0} 。
+      list: '{0}的动作状态一览：'
+      item: '{0}：剩余 {1 | time}'
+      none: 当前没有生效的计时器。
+    
+  bind:
+    description: 绑定到账号
+    messages:
+      generated-1: |
+        bind 指令可用于在多个平台间绑定用户数据。绑定过程中，源平台的用户数据将完全保留，而目标平台的用户数据将被源平台的数据所覆盖。
+        请确认当前平台是你的目标平台，并在 5 分钟内使用你的账号在源平台内向机器人发送以下文本：
+        {0}
+        注意：每个账号只能绑定到每个平台一次，此操作将会抹去你当前平台上的数据，请谨慎操作！
+      generated-2: |
+        令牌核验成功！下面将进行第二步操作。
+        请在 5 分钟内使用你的账号在目标平台内向机器人发送以下文本：
+        {0}
+        注意：当前平台是你的源平台，这里的用户数据将完全保留，而目标平台的用户数据将被覆盖，请谨慎操作！
+      failed: 账号绑定失败：你已经绑定过该平台。
+      success: 账号绑定成功！

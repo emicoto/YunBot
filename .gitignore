@@ -3,7 +3,6 @@ accounts
 logs
 mirai
 yun
-locales
 
 node_modules
 npm-debug.log
@@ -32,5 +31,4 @@ leveldb-v3
 *.jpg
 
 koishi.yml
-Yunstate.json
-usertoday.json
+UserToday.json

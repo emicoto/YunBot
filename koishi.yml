@@ -2,30 +2,47 @@ nickname:
   - 小昀
   - 路昀
 prefix:
-  - .
-  - 。
-port: 5140
-maxPort: 5149
+  - /
+  - '.'
+  - '。'
+  - '-'
+port: 5160
+maxPort: 5169
 plugins:
   help: null
-  insight: null
   suggest: null
   console:
     open: true
-  logger: null
-  manager: null
+  logger:
+    maxAge: 7
   status: null
   sandbox: null
+  insight: null
+  manager: null
+  locales: null
+  dataview: null
+  admin: null
+  chat: null
+  database-mongo:
+    database: Yunbot
   adapter-onebot:
     path: /yun
     protocol: ws
     selfId: '185632406'
     endpoint: ws://127.0.0.1:8080
     secret: my-secret
-  database-mongo: null
-  locales: null
-  dataview: null
-  admin: null
+  adapter-kook:
+    protocol: ws
+    token: 1/MTI0ODE=/NE46CfD1GxlLycBxezy04A==
+    endpoint: https://www.kookapp.cn/api/v3
+    attachMode: card
+  adapter-discord:
+    protocol: ws
+    endpint: https://discord.com/api/v8
+    token: MTAwNzg5MzI2OTA0NjM4MjYyMw.GwQLdh.5f_G30zjtE15tmoCG4fHWJJ7prFXACIj_CUSzc
+    gateway: wss://gateway.discord.gg/?v=8&encoding=json
+    handleExternalAsset: auto
+    handleMixedContent: auto
   broadcast: null
   echo: null
   schedule: null
@@ -41,6 +58,8 @@ plugins:
       base: 2
   dice: null
   hitokoto: null
-  ./YunCore/index: null
-  rate-limit: null
-  ~puppeteer: {}
+  yunbot:
+    autoBreak: true
+    autoRest: true
+    autoWork: false
+    autoSleep: false
