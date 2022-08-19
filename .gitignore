@@ -4,8 +4,8 @@ logs
 mirai
 yun
 
-koishi.yml
-UserToday.json
+*.yml
+*.json
 
 node_modules
 npm-debug.log
