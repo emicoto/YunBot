@@ -4,6 +4,9 @@ logs
 mirai
 yun
 
+koishi.yml
+UserToday.json
+
 node_modules
 npm-debug.log
 yarn-debug.log
@@ -29,6 +32,3 @@ leveldb-v3
 *.ldb
 *.png
 *.jpg
-
-koishi.yml
-UserToday.json
