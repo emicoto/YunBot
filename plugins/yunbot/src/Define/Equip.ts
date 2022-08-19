@@ -1,5 +1,5 @@
 import { Dict } from "koishi";
-import { copy, fixed, GradeName, textp, random, Soul } from "../unit";
+import { copy, fixed, GradeName, txtp, random, Soul, category } from "../unit";
 
 
 type wType = '刀剑' | '暗器' | '扇' | '乐器' | '法杖' | '枪械' | '长柄刀剑' | '鞭绳' | ''
@@ -7,7 +7,7 @@ type range = '短距离' | '中距离' | '长距离' | '全距离' | '可变' | 
 type eType = '衣服' | '鞋子' | '手饰' | '头饰' | '腰饰' | '首饰' | ''
 
 export interface Weapon{
-	id:number; name:string;
+	id:number; name:string; category:category;
 	des:string; type:wType; grade:number;
 
 	range:range;
@@ -59,7 +59,7 @@ export interface grades{
 }
 
 export interface Equip{
-	id:number; name:string;
+	id:number; name:string; category:category;
 	des:string; type:eType; grade:number;
 
 	HP?:number;	HPbuff?:number;
@@ -171,7 +171,7 @@ export class Weapon{
 			des = `一把由${creator}打造的${type}。`
 		}
 		else{
-			des = textp(des,[creator,type])
+			des = txtp(des,[creator,type])
 		}
 		let newitem = new Weapon(id,name, des, type, grade)
 		return newitem
@@ -287,6 +287,7 @@ export class Weapon{
 		this.type = type;
 		this.range = Range[type] ;
 		this.grade = grade;
+		this.category = 'weapon'
 	}
 }
 
@@ -389,7 +390,7 @@ export class Equip{
 			des = `一把由${creator}打造的${type}。`
 		}
 		else{
-			des = textp(des,[creator,type])
+			des = txtp(des,[creator,type])
 		}
 		let newitem = new Equip(id,name, des, type, grade)
 		return newitem
@@ -422,6 +423,7 @@ export class Equip{
 		this.des = des;
 		this.type = type;
 		this.grade = grade;
+		this.category = 'equip'
 	}
 }
 
@@ -433,7 +435,7 @@ export function EquipDes(equip:Equip) {
 	];
 
 	const list = {
-		soul	: { name:'需求灵根',	value: equip.soul.join('') },
+		soul	: { name:'需求灵根',	value: equip.soul ? equip.soul.join('') : '' },
 		HP		: { name:'生命',		value: equip.HP		},
 		SP		: { name:'法力',		value: equip.SP		},
 		ATK		: { name:'攻击',		value: equip.ATK	},

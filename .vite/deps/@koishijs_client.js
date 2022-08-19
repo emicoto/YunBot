@@ -31,7 +31,7 @@ import {
   ElMessage,
   ElMessageBox,
   installer
-} from "./chunk-W2GZ7XO2.js";
+} from "./chunk-3MWN6O2W.js";
 import {
   useLocalStorage
 } from "./chunk-NIGR53XG.js";
@@ -148,7 +148,6 @@ import Markdown from "H:/_YunBot/node_modules/schemastery-vue/src/markdown.vue";
 import Schema from "H:/_YunBot/node_modules/schemastery-vue/src/schema.vue";
 
 // node_modules/schemastery-vue/src/icons/index.ts
-import IconCog from "H:/_YunBot/node_modules/schemastery-vue/src/icons/cog.vue";
 import IconExternal from "H:/_YunBot/node_modules/schemastery-vue/src/icons/external.vue";
 import IconEyeSlash from "H:/_YunBot/node_modules/schemastery-vue/src/icons/eye-slash.vue";
 import IconEye from "H:/_YunBot/node_modules/schemastery-vue/src/icons/eye.vue";
@@ -273,7 +272,6 @@ import Moon from "H:/_YunBot/node_modules/@koishijs/client/client/components/ico
 import Sun from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/activity/sun.vue";
 import Application from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/application.vue";
 import Balance from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/balance.vue";
-import Book from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/book.vue";
 import BoxOpen from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/box-open.vue";
 import CheckFull from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/check-full.vue";
 import ChevronDown from "H:/_YunBot/node_modules/@koishijs/client/client/components/icons/svg/chevron-down.vue";
@@ -311,7 +309,6 @@ register("activity:moon", Moon);
 register("activity:sun", Sun);
 register("application", Application);
 register("balance", Balance);
-register("book", Book);
 register("box-open", BoxOpen);
 register("check-full", CheckFull);
 register("chevron-down", ChevronDown);
@@ -319,7 +316,6 @@ register("chevron-left", ChevronLeft);
 register("chevron-right", ChevronRight);
 register("chevron-up", ChevronUp);
 register("clipboard-list", ClipboardList);
-register("cog", IconCog);
 register("edit", Edit);
 register("exclamation-full", ExclamationFull);
 register("expand", Expand);
@@ -801,9 +797,8 @@ var Runtime = class extends State {
     this.uid = null;
     this.clear();
     if (this.plugin) {
-      const result = this.registry.delete(this.plugin);
       this.context.emit("internal/runtime", this);
-      return result;
+      return true;
     }
   }
   init() {
@@ -873,7 +868,11 @@ var Registry = class extends Map {
     return super.set(this.resolve(plugin), state);
   }
   delete(plugin) {
-    return super.delete(this.resolve(plugin));
+    const runtime = this.get(plugin);
+    if (!runtime)
+      return false;
+    super.delete(plugin);
+    return runtime.dispose();
   }
   using(using, callback) {
     return this.plugin({ using, apply: callback, name: callback.name });
@@ -897,11 +896,7 @@ var Registry = class extends Map {
     return runtime.fork(context, config2);
   }
   dispose(plugin) {
-    const runtime = this.get(plugin);
-    if (!runtime)
-      return;
-    runtime.dispose();
-    return runtime;
+    return this.delete(plugin);
   }
 };
 __publicField2(Registry, "methods", ["using", "plugin", "dispose"]);
@@ -1012,7 +1007,7 @@ Context.prototype[Context.internal] = /* @__PURE__ */ Object.create(null);
 Context.service("registry", Registry);
 Context.service("lifecycle", Lifecycle);
 Context.mixin("state", {
-  properties: ["runtime"]
+  properties: ["runtime", "collect"]
 });
 
 // node_modules/@koishijs/client/client/index.ts
@@ -1188,7 +1183,6 @@ export {
   ChatInput,
   Context2 as Context,
   Dropdown,
-  IconCog,
   IconExternal,
   IconEye,
   IconEyeSlash,

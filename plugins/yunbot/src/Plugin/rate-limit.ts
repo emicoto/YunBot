@@ -1,7 +1,7 @@
 import { Argv, Command, Context, Dict, Session, Time, User } from 'koishi'
 import { adminUser } from '@koishijs/helpers'
 import {} from '@koishijs/plugin-help'
-import { Yun, printTime, setUsage, MaxUsage, TimerRes, textp, LongActRes, FinishAction, bot, getUser, waitTime } from '../unit';
+import { Yun, printTime, setUsage, MaxUsage, TimerRes, txtp, LongActRes, FinishAction, bot, getUser, waitTime } from '../unit';
 
 declare module 'koishi' {
 	namespace Command {
@@ -222,15 +222,16 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 	const notQQ = command.getConfig('notQQ', session);
 	const comname = getUsageName(command)
 
-	//如果设置为系统指令，则直接返回。
-	if(system || command.name == 'help') return;
 
 	if(notQQ && session.platform == 'onebot'){
-		return '当前平台不能使用。'
+		return '【当前平台不能使用。】'
 	}
 
+	//如果设置为系统指令，则直接返回。
+	if(system && !maxUsage || command.name == 'help') return;	
+
 	//处于持续动作间直接返回对应情景与倒计时。
-	if( checkLongAction(session.user) == 'busy' ){
+	/*if( checkLongAction(session.user) == 'busy' ){
 		const now = Date.now()
 		const left = daily.stats.due - now
 		return sendHint(session, 'longterm', daily.stats.com, left)
@@ -239,7 +240,7 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 	//只用settimeout的话，怕会出什么奇怪的问题……？
 	}else if( checkLongAction(session.user) == 'finish' && daily.stats.com != comname){
 		return sendHint(session, 'finish', daily.stats.com)
-	}
+	}*/
 
 	//没有设置的情况立刻返回。
 	if(!maxUsage && !minInterval && !longAction ) return;
@@ -252,14 +253,6 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 		return '呼啊……我累了……（路昀的AP不足了）'
 	}
 
-	//计数器的运作。指令中途取消时则恢复次数。
-	if(maxUsage > 0){
-		if(session.platform !== 'onebot') maxUsage += 1
-		if(!ComUsage(session.user, comname, maxUsage)){
-			return sendHint(session, 'maxUsage', comname)
-		}
-	}
-
 	//计时器的运作。非QQ平台冷却时间缩短。
 	if(minInterval > 0){
 		minInterval = waitTime(minInterval)
@@ -270,15 +263,23 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 		}
 	}
 
+	//计数器的运作。指令中途取消时则恢复次数。
+	if(maxUsage > 0){
+		if(session.platform !== 'onebot' && ['签到','bonus'].includes(comname) === false ) maxUsage += (notQQ ? 0 : 1)
+		if(!ComUsage(session.user, comname, maxUsage)){
+			return sendHint(session, 'maxUsage', comname)
+		}
+	}
+
 	//长期动作的运作。中途取消时直接清除。非QQ平台的话，等待时间缩短。
-	if( longAction > 0){
+	/*if( longAction > 0){
 		longAction = waitTime(longAction);
 
 		daily.stats.com = comname;
 		daily.stats.due = Date.now() + longAction
 		console.log(session.user.game.name, daily.stats)
 		session.user.$update()
-	}
+	}*/
 }
 
 
@@ -289,11 +290,11 @@ export function sendHint( session:Session<'game'|'daily'>, type, command, time?)
 	if(type == 'maxUsage')return MaxUsage[command] ?? `……已超过次数了。`;
 	if(type == 'Timer'){
 		if(TimerRes[command]){
-			return textp(TimerRes[command], [leftime])
+			return txtp(TimerRes[command], [leftime])
 		}
 		return `……剩余冷却时间：${leftime}`
 	}
-	if(type == 'longterm') return textp(LongActRes[command],[leftime])
+	if(type == 'longterm') return txtp(LongActRes[command],[leftime])
 	if(type == 'finish'){
 
 		const retext = daily.stats.result
@@ -305,7 +306,7 @@ export function sendHint( session:Session<'game'|'daily'>, type, command, time?)
 		session.user.$update()
 
 		if(FinishAction[command]){
-			return textp(FinishAction[command],[retext, game.name])
+			return txtp(FinishAction[command],[retext, game.name])
 		}
 		else if(retext && retext.length){
 			return retext

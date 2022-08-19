@@ -1,5 +1,5 @@
-import { Context, Time } from "koishi";
-import { cnTime, Game, getBreakRate, getTimeZone, images, ImgUrl, LevelExp, LevelKan, random, Soul, Yun } from "../unit";
+import { Context } from "koishi";
+import { cnTime, copy, Equip, EquipDes, Game, getBreakRate, getTimeZone, images, ImgUrl, intKan, ItemDes, Items, LevelExp, LevelKan, random, Soul, Weapon, WeaponDes, Yun } from "../unit";
 
 export function CheckStatus(ctx:Context){
 
@@ -7,7 +7,148 @@ export function CheckStatus(ctx:Context){
 		return ( game.flag?.url && game.flag.url.length )
 	}
 
-	ctx.command('mychara <type>', '-小灵通  可以确认自己的详细资料。', { signed:true, system:true, hidden:true })
+	ctx.command('setimgurl <url>','-设置人物头像。只能放网址',{system:true , signed:true, hidden:true, usageName:'设置头像'})
+		.alias('设置头像')
+		.shortcut('》设置头像')
+		.userFields(['userID','game'])
+		.action( async ({ session },url)=>{
+			const { game } = session.user
+			if(!url){
+				await session.send('【请输入头像url链接】\n【结尾得是png或jpg。以及不能用gif。】')
+				url = await session.prompt()
+			}
+			if(session.platform == 'kook'){
+				let get = url.match(/\[(.+)\]/)
+				url = get[1]
+			}
+			const reg = new RegExp('^(http|https)://(.+)(png|jpg)$')
+			if(url.match(reg)){
+				game.flag.url = url
+				session.user.$update()
+				return '【已设置完毕】'
+			}
+			else{
+				return '【输入有误】'
+			}
+		})
+	
+	ctx.command('takeoff <type>','-脱下装备  可脱下指定的装备。',{ system:true, usageName:'脱下装备' })
+		.alias('脱下装备')
+		.shortcut('》摘下头饰',{args:['头饰']})
+		.shortcut('》摘下首饰',{args:['首饰']})
+		.shortcut('》摘下手饰',{args:['手饰']})
+		.shortcut('》摘下腰饰',{args:['腰饰']})
+		.shortcut('》脱下鞋子',{args:['鞋子']})
+		.shortcut('》脱下衣服',{args:['衣服']})
+		.shortcut('》换下法器',{args:['法器']})
+		.userFields(['game'])
+		.action( ({ session },type)=>{
+			const { game } = session.user
+			const typelist = {
+				'头饰':'head', '首饰':'neck', '手饰':'hands', '腰饰':'waist',
+				'鞋子':'shoes', '衣服':'cloth', '法器':'weapon'
+			}
+
+			if(!game?.signed) return '好像也没啥可以脱的。'
+
+			const part = typelist[type]
+
+			if(!part) return '【输入错误】'
+
+			if(!game.equip[part]?.id ) return '没有可以脱的'+type
+
+			let old = copy(game.equip[part])
+			if(old.category=='weapon'){
+				game.equip[part] = new Weapon(null,'无','','',0)
+			}
+			else{
+				game.equip[part] = new Equip(null,'无','','',0)
+			}
+
+			game.storage.push(old)
+			session.user.$update()
+
+			return `${game.name}把${old.name}脱下来放进储物戒了。`
+
+		})
+	
+	ctx.command('storage <id:number>','-储物戒　存放了各种各样东西的地方。主要放非消耗性物品。',{signed:true, system:true, hidden:true, usageName:"储物戒"})
+		.alias('储物戒')
+		.option('equip','-e')
+		.userFields(['game'])
+		.action(({ session, options }, id)=>{
+			const game:Game = session.user.game
+			const typelist = {
+				'头饰':'head', '首饰':'neck', '手饰':'hands', '腰饰':'waist',
+				'鞋子':'shoes', '衣服':'cloth', '法器':'weapon'
+			}
+			
+			if(!id){
+				const { storage } = game
+				let txt = [
+					'储物戒内容物一览：'
+				]
+				for(let i=0; i<storage.length; i++){
+					const item = storage[i]
+					const t = `id:${i+1}. ${item.name}`+(item.category=='material' ? `x${item.num}` : '')
+					txt.push(t)
+				}
+				return txt.join('\n')
+			}
+
+			if(id && !options.equip){
+				const sid = id-1
+				const item = game.storage[sid]
+
+				if(item.category == 'weapon') return WeaponDes(Weapon.data[item.name])
+				if(item.category == 'equip') return EquipDes(Equip.data[item.name])
+				if(item.category == 'items') return ItemDes(Items.data[item.name])
+				
+			}
+
+			if(id && options.equip){
+				const sid = id-1
+				const chk = game.storage[sid]
+				if(chk.category == 'weapon'){
+					const item:Weapon = game.storage.splice(sid,1)[0]
+					let old = copy(game.equip.weapon)
+					if(!game.storage.length || game.storage[0] == null){
+						game.storage = []
+					}
+
+					game.equip.weapon = item
+					if(old.id){
+						game.storage.push(old)						
+					}
+
+					session.user.$update()
+					return `${game.name}装备上了${game.equip.weapon.name}${ old.id? `，把${old.name}放进储物戒了。` : '。'}`
+				}
+				else if(chk.category == 'equip'){
+					const item:Equip = game.storage.splice(sid,1)[0]
+					let old:Equip
+					if(!game.storage.length || game.storage[0] == null){
+						game.storage = []
+					}
+					
+					const part = typelist[item.type]
+					old = copy(game.equip[part])
+					game.equip[part] = item
+
+					if(old.id){
+						game.storage.push(old)
+					}
+
+					session.user.$update()
+					return `${game.name}装备上了${item.name}${ old.id? `，把${old.name}放进储物戒了。` : '。'}`
+				}
+				else{
+					return '【不是可装备的物品】'
+				}
+			}
+		})
+
+	ctx.command('xphone <type>', '-小灵通  可以确认自己的详细资料。', { signed:true, system:true, hidden:true, usageName:'小灵通' })
 		.alias('小灵通')
 		.shortcut(/^(看看|查看)(我的)(小灵通|手机)$/,{args:['主要']})
 		.shortcut(/^(拿出|取出|拿起)(我的){0,1}(小灵通|手机)看\S{0,5}$/,{args:['主要']})
@@ -51,13 +192,13 @@ export function CheckStatus(ctx:Context){
 
 		})
 	
-	ctx.command('yunstatus <type>', '-查看路昀  可以确认路昀的现状。',{ minInterval: Time.minute*5, hidden:true})
+	ctx.command('yunstatus <type>', '-查看路昀  可以确认路昀的现状。',{ hidden:true, usageName:"查看路昀"})
 		.alias('查看路昀')
 		.shortcut('看看路昀',{args:['主要']})
 		.shortcut('》查看路昀数据',{args:['数据']})
 		.shortcut('》查看路昀技能',{args:['技能']})
 		.shortcut('》查看路昀装备',{args:['装备']})
-		.shortcut('》对路昀用破心通',{args:['看法']})		
+		.shortcut('》对路昀用破心通',{args:['看法']})
 		.userFields(['game','userID'])
 		.action( ({ session }, type) =>{
 			const level = LevelKan(Yun.state.level)
@@ -110,8 +251,14 @@ export function CheckStatus(ctx:Context){
 			'》查看路昀数据',
 			'》查看路昀装备',
 			'-----------------------',
-			'输入快捷指令时记得把 - 加上哦。'
+			'输入快捷指令时记得把 》 加上哦。'
 		]
+		return txt.join('\n')
+	}
+
+	function PrintHeart(){
+		const t = Math.max(Math.floor(Yun.mood()/20+0.5),1)
+		return '❤'.repeat(t)
 	}
 
 	function YunPage(uid:string, data:Yun, level:string, soul:Soul){
@@ -126,11 +273,10 @@ export function CheckStatus(ctx:Context){
 
 		if (['凌晨','黎明','晚上','深夜'].includes(zone)) dress = 'sleep';
 		if(['凌晨','黎明'].includes(zone) && random(100) > 90 && Yun.getFavo(uid)) dress = 'sp';
-
 		const txt = [
-			'路昀的状态 <·| Yunbot ver 1.0.0',
+			`路昀的状态 ${Yun.getstats()} <·| Yunbot ver 1.0.0`,
 			`${images(`Yunstand_${dress}_${mood}.png`)}`,
-			`· 心情 ${ '♥'.repeat(Math.floor(data.mood/20))}`,
+			`· 心情 ${ PrintHeart() }`,
 			`· 特征：${data.talent.join('、')}`,
 			`· 灵根：${soul.print}`,
 			`· 境界：${level}`,
@@ -164,6 +310,7 @@ export function CheckStatus(ctx:Context){
 	function Page2(name:string,level:string, soul:Soul, data:Game|Yun){
 		const txt = [
 			`>> ${name}  ${level}  ${soul.print}`,
+			`>> 悟性：${data.INT}　韧性：${data.WIL}`,
 			`------------------------------------>>`,
 			`· 命力  ${data.HP}/${data.maxHP}`,
 			`· 法力  ${data.SP}/${data.maxSP}`,
@@ -183,7 +330,7 @@ export function CheckStatus(ctx:Context){
 	function Page3(data:Game|Yun){
 		let txt = [
 			`>> ${data.name}所掌握的技能一览：`,
-			`>> 主修心法：${data.core.id ? data.core.name : '暂无'}`,
+			`>> 主修心法：${data.core.id ? `${data.core.name} 层数 ${intKan(data.core.level)}` : '暂无'}`,
 			`------------------------------------>>`,
 		]
 		let c = 3
@@ -243,14 +390,14 @@ export function CheckStatus(ctx:Context){
 
 	function Page5(data:Game){
 		let txt:string[]
+		let memory = data.memory.join('，')
 		txt = [
 			`>> ${data.name}的记录：`,
 			`------------------------------------>>`,
 			`· |  获得经验总数：${data.flag.totalexp}`,
 			'· | ',
 			'· |  成就：暂无',
-			'· | ',
-			'· |  解锁记忆：暂无',
+			`· |  解锁记忆：${ data.memory.length ? memory : '暂无'}'`,
 			'· |  ',
 			`------------------------------------>>`,
 			'　[ 主要 ]  [ 数据 ]  [ 技能 ]  [ 装备 ]'

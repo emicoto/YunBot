@@ -150,3 +150,7 @@ export function printTime(t){
 	}
 	return `${ hour>0 ? hour+'时' : ""}${ min>0 ? min+'分' : "" }${sec}秒`
 }
+
+export function isInvalid(str){
+	return str.includes('[CQ:') || str.match(/((?=[\x21-\x7e]+)[^A-Za-z0-9])/) || str.match(/。|【|】|“|”|@|·|…/)
+}

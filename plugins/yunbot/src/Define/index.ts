@@ -11,15 +11,19 @@ export * from "./Equip"
 export * from './items'
 export * from "./Init"
 
-export const master: string = "QQ#1794362968"; //师父我
+export const master: string = "QQ#1794362968"; //我
+export const discord: string = "discord#832608774"
+export const kook:string = 'kook#804622517'
+
 export const yunbot: string = "QQ#185632406"; //小昀
 export const senior: string = "QQ#1742029094"; // 周天
 export const cleaner: string = "QQ#541084126"; //扫地僧
 export const brother: string = "QQ#1632519382"; //好名
 export const elder: string = "QQ#598139265"; //兰兰
 export const pigeon: string = "QQ#1034826119"; //鸽子
-export const discord: string = "discord#832608774" //我
-export const kook:string = 'kook#804622517'
+export const onisan:string = "QQ#329939974" //摩多
+
+export type category = 'weapon' | 'items' | 'equip' | 'skillbook' | 'mindsbook' | 'material'
 
 export const Roles = {
     [master]:'master',
@@ -30,6 +34,7 @@ export const Roles = {
     [pigeon]:'pigeon',
     [discord]:'master',
     [kook]:'maseter',
+    [onisan]:'onisan',
 }
 
 
@@ -53,11 +58,11 @@ export const Authorized= {
     [kook]:6,
     ['Alice']:5,
     [pigeon]:4,
-
+    [onisan]:3,
     [senior]:3,
-    [cleaner]:2,
     [brother]:3,
-    [elder]:3,  
+    [elder]:3, 
+    [cleaner]:2,    
 }
 
 

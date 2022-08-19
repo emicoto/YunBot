@@ -32,7 +32,7 @@ export function LevelExp(level:number){
 
 //计算经验获取值
 export function expCount(getexp:number, data:Game|Yun) {
-	getexp *= LevelBuff(data.level) + Math.floor(data.level/10);
+	getexp *= expLevelBuff(data.level) + Math.floor(data.level/10);
 	getexp *= data.flag.expbuff; //心法、装备、灵根等对经验的总加成
 	getexp *= getINTbuff(data.INT);
 
@@ -41,6 +41,10 @@ export function expCount(getexp:number, data:Game|Yun) {
 
 export function LevelBuff(level:number){
 	return Math.pow(1.25,Math.floor(level/10)) 
+}
+
+export function expLevelBuff(level:number){
+	return Math.pow(1.4,Math.floor(level/10))
 }
 
 
@@ -89,8 +93,8 @@ export function breakProces(data){
 
 
 export function getINTbuff(INT:number){
-	if(INT <= 30) return 0.6;
-	if(INT <= 40) return 0.75;
+	if(INT <= 30) return 0.75;
+	if(INT <= 40) return 0.8;
 	if(INT <= 50) return 0.9;
 	if(INT <= 60) return 1;
 	if(INT <= 70) return 1.05;

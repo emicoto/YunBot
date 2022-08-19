@@ -1,5 +1,5 @@
-import { LevelExp, getBreakRate, Minds, getJrrp,bot,  Equipment, Equip, Soul, getChara, CountStats, Weapon, Game, random, setChara, Upgrade, Today, save, faceicon, textp, YunCom, LevelKan, breakProces, getName } from "../unit"
-import { Config } from "../index";
+import { LevelExp, getBreakRate, Minds, getJrrp,bot,  Equipment, Equip, Soul, getChara, CountStats, Weapon, Game, random, setChara, Upgrade, Today, save, faceicon, txtp, YunCom, LevelKan, breakProces } from "../unit"
+import { Config, shopitems } from "../index";
 import { createHash } from "crypto";
 import fs from "fs"
 import { Dict, Session } from "koishi";
@@ -34,14 +34,14 @@ export interface Yun{
 
 	flag?:any;	memory?:Array<any>;
 	cflag?:any
-	shops?:Array<any>;
+	shops?:Array<shopitems>;
 	work:number;
 }
 
 export type botstats = 'onLoading' | 'failed' | 'botOn' | 'botOff' | 'Running' | 'LoadEnd' | ''
-export type YunStats = 'free' | 'working' | 'sleeping' | 'awake' | 'gaming' | 'learning' | 'goodnight'
+export type YunStats = 'free' | 'working' | 'sleeping' | 'awake' | 'gaming' | 'learning' | 'goodnight' | 'relax'
 
-export const statslist = ['free','working','sleeping' ,'awake','gaming','learning','goodnight']
+export const statslist = ['free','working','sleeping' ,'awake','gaming','learning','goodnight', 'relax']
 
 export class Yun{
 	public static state:Yun;
@@ -190,6 +190,28 @@ export class Yun{
 	public static luck(){
 		return getJrrp(Yun.selfId)
 	}
+
+	public static getstats(){
+		switch(Yun.stats){
+			case 'awake':
+				return '刚睡醒'
+			case 'free':
+				return '空闲'
+			case 'gaming':
+				return '游戏中'
+			case 'goodnight':
+				return '准备睡了'
+			case 'learning':
+				return '学习中'
+			case 'relax':
+				return '放松中'
+			case 'sleeping':
+				return '睡觉中'
+			case 'working':
+				return '修炼中'
+		}
+	}
+
 	public static async getFavo(uid:string){
 		let data = await getChara(uid)
 		return data.favo
@@ -280,12 +302,12 @@ export async function yunTraining(session){
 		Today.save()
 
 		if(Today.data.yun.loads <= 0){
-			const result = Game.getExp(Yun.state,5,60)
+			const result = Game.getExp(Yun.state,3,45)
 			Yun.stats = 'free'
 			Today.data.yun.loads = 0
 			save()
 			
-			const txt = textp(YunCom['修炼完毕'].join('\n'),[result])
+			const txt = txtp(YunCom['修炼完毕'].join('\n'),[result])
 
 			session.send(txt)
 
@@ -318,7 +340,7 @@ export async function yunBreak(session:Session, name){
 	let txt1 = ''
 
 	if(rate <= goal){
-		txt += textp(YunCom['突破成功'].join('\n'),[`在${name}的见证下，`,lv[0],lv[1]])
+		txt += txtp(YunCom['突破成功'].join('\n'),[`在${name}的见证下，`,lv[0],lv[1]])
 		breakProces(Yun.state)
 		await session.send(txt)
 

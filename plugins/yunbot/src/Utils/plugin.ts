@@ -21,7 +21,7 @@ export function getJrrp(uid:string){
 	return luck
 }
 
-export function textp(str:string, arr:Array<any>){
+export function txtp(str:string, arr:Array<any>){
 	for(let i=0; i<arr.length; i++){
 		let mask = '{'+i+'}'
 		str = str.replace(mask,arr[i]).replace(mask,arr[i]).replace(mask,arr[i])
@@ -42,10 +42,14 @@ export function waitTime(time:number){
 
 export async function resetUsage(session:Session<'daily'>,usage:string, longterm?){
 	const { daily } = session.user
+	if(!daily.usage[usage]) return
+
 	daily.usage[usage]--
+
 	if(longterm){
 		daily.stats.com = 'free'
 		daily.stats.due = -1
 	}
+	
 	await session.user.$update()
 }

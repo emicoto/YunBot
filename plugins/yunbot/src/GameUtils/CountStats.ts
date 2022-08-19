@@ -1,4 +1,4 @@
-import { Game, Yun, LevelBuff, Skill, SoulMatcher, bot, Soul, TotalExp} from "../unit";
+import { Game, Yun, LevelBuff, Skill, SoulMatcher, bot, Soul, TotalExp, random} from "../unit";
 
 export async function CountStats( uid:string, mode?){
 	let data : Game | Yun
@@ -16,6 +16,11 @@ export async function CountStats( uid:string, mode?){
 	const soul = new Soul(data.soul)
 
 	const { level, core, skill, equip, upgrade } = data
+
+	if(data.INT <= 5 || data.WIL <= 5){
+		data.INT = random(20,100);
+		data.WIL = random(20,100);
+	}
 
 	let base = {
 		BP: (6 - soul.count) * Math.max(Math.floor(level / 10), 1),
@@ -92,6 +97,11 @@ export async function CountStats( uid:string, mode?){
 		if(eq?.skill){
 			let sk = Skill.data[eq.skill];
 			countSkill(sk, add);
+		}
+
+		if(equip[i]?.id && !equip[i]?.category){
+			if(i=='weapon') equip[i].category = 'weapon';
+			else equip[i].category = 'equip'
 		}
 	}
 
@@ -198,6 +208,9 @@ export async function CountStats( uid:string, mode?){
 	data.flag['expbuff'] = add.Expbuff + soul.Expbuff ?? 0
 
 	data.flag.totalexp = data.exp + TotalExp(data.level)
+	data.money = Math.clamp(Math.floor(data.money),0,10000000000)
+
+	if(!data.flag.pkwin) data.flag.pkwin = 0
 
 	if(mode=='player'){
 		await Game.setChara(uid,data)

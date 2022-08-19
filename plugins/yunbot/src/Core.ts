@@ -1,9 +1,10 @@
 import { Context } from "koishi";
 import { between, bot, cnTime, getResCount, getTimeZone, images, master, Today, Yun, _extend} from "./unit"
-import { BeforeUser, getLuck, RateLimit, TestCom, Bind, UserCommon} from "./Plugin";
-import { DailyTraining, UserRegistry, DailyRoutine, CheckStatus, GameCom, GameMenu } from "./Game";
+import { BeforeUser, getLuck, RateLimit, TestCom, Bind, UserCommon, ToolsCommand} from "./Plugin";
+import { DailyTraining, UserRegistry, DailyRoutine, CheckStatus, GameCom, GameMenu, ShopSystem } from "./Game";
 import { Config } from "./index";
 import { YunAI } from "./AI";
+import { PlayerCombat } from "./Game/pk";
 
 export class Core {
 	private static _instance:Core;
@@ -36,13 +37,15 @@ export class Core {
 
 		this.ctx.plugin(YunAI)
 		this.ctx.plugin(UserCommon)
+		this.ctx.plugin(ShopSystem)	
+		this.ctx.plugin(PlayerCombat)	
 		this.ctx.plugin(GameCom)
 		this.ctx.plugin(GameMenu)
 		this.ctx.plugin(DailyTraining)
 		this.ctx.plugin(DailyRoutine)
 		this.ctx.plugin(CheckStatus)
 		this.ctx.plugin(UserRegistry)
-
+		this.ctx.plugin(ToolsCommand)
 		this.ctx.plugin(getLuck)
 		this.ctx.plugin(RateLimit)		
 		this.ctx.plugin(BeforeUser)	

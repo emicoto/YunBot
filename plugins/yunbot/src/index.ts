@@ -15,10 +15,37 @@ export interface Config {
 	autoSleep?: boolean;
 	usingTime?: string;
 
+	RepeatImg?:number;
+	Laugh?:number;
+	RandomImg?:number;
+	RandomPoke?:number;
+	event?:string;
+	notice?:string;
+	anounce?:string;
+	eventday?:number;
+	bonuslist?:string;
+	shopitems?:shopitems[];
+}
+export interface shopitems {
+	name:string;
+	type:string;
+	stock:number;
+	discount:number;
+	value?:number;
 }
 
 export const name = 'yunbot'
 export const using = ['database'] as const
+
+export const ShopItem:Schema<shopitems> = Schema.object(
+	{
+		name:Schema.string().required().description('商品名称'),
+		type:Schema.string().required().description('种类'),
+		stock:Schema.number().required().description('每日库存'),
+		discount:Schema.number().default(1.10).description('设置折扣')
+	}
+)
+
 export const Config: Schema<Config> = Schema.intersect([
 
 Schema.object({
@@ -40,6 +67,18 @@ Schema.object({
 	RandomImg: Schema.number().default(0.03).description('随机表情包的触发概率'),
 	RandomPoke: Schema.number().default(0.03).description('随机戳一戳的概率'),
 }).description('概率设置'),
+
+Schema.object({
+	event: Schema.string().default('').description('设置活动名称'),
+	notice: Schema.string().default('').description('设置公告名称'),
+	anounce: Schema.string().default('').description('设置公告内容'),
+	eventday: Schema.number().default(0).description('设置活动持续天数'),
+	bonuslist:Schema.string().default('').description('设置奖励物品列表')
+}).description('活动设置'),
+
+Schema.object({
+	shopitems:Schema.array(ShopItem).description('设置每日商店的商品。'),
+}).description('商店设置')
 	
 ])
 export function apply(ctx:Context, config: Config={}){

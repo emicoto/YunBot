@@ -3,8 +3,8 @@ nickname:
   - 路昀
 prefix:
   - /
-  - '.'
-  - '。'
+  - .
+  - 。
   - '-'
 port: 5160
 maxPort: 5169
@@ -39,7 +39,7 @@ plugins:
   adapter-discord:
     protocol: ws
     endpint: https://discord.com/api/v8
-    token: MTAwNzg5MzI2OTA0NjM4MjYyMw.GwQLdh.5f_G30zjtE15tmoCG4fHWJJ7prFXACIj_CUSzc
+    token: MTAwNzg5MzI2OTA0NjM4MjYyMw.GmChz-.2PnbT4bfeF_51ZEm9UBXpFb5hsSiixCYJiVXFg
     gateway: wss://gateway.discord.gg/?v=8&encoding=json
     handleExternalAsset: auto
     handleMixedContent: auto
@@ -63,3 +63,25 @@ plugins:
     autoRest: true
     autoWork: false
     autoSleep: false
+    event: 220819补偿
+    anounce: >-
+      【因为某BUG化身作死触发了数据库BUG，最后导致数据库崩溃。如果有旧档，可以用回忆前尘恢复。如果之前存档成功，则可以用查看日记恢复存档。如果都没有，只能带着小灵通记录找狐狸手动恢复了。作为补偿已经开放所有平台福利的领取，以及重置数提升到5次。】
+    shopitems:
+      - name: 明心丹
+        type: items
+        stock: 10
+      - name: 灵息丹
+        type: items
+        stock: 10
+      - name: 仙书笺
+        type: items
+        stock: 5
+      - name: 风语
+        type: equip
+        stock: 1
+        discount: 1.5
+      - name: 天任
+        type: equip
+        stock: 1
+        discount: 1.2
+    notice: 220819数据出错

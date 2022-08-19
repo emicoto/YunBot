@@ -49,20 +49,20 @@ Items.set('仙书笺','凝聚了仙人修士的灵气与经验的书笺。','道
 Items.set('长生果','据说吃了能长生的果子。','灵果','永久提升')
 	.isUpGradeItem('仙果')
 	.setRequire(35,100)
-	.setLifeUsage(3)	
+	.setLifeUsage(5)	
 	.setHP(500)
 	.setValue(250000)
 
 Items.set('女娲花','散发着光芒十分美丽的仙花，传说为女娲亲自中下的花所变异来的。可直接食用。','灵材','永久提升')
 	.isUpGradeItem('仙材')
-	.setLifeUsage(3)
+	.setLifeUsage(5)
 	.setSP(500)
 	.setValue(250000)
 
 Items.set('伏羲丹','蕴含着太古之力的神秘仙，服下能让实力暴涨，但不是谁都能服用。','丹药','永久提升')
 	.isUpGradeItem('仙丹')
 	.setRequire(35,100)
-	.setLifeUsage(3)
+	.setLifeUsage(5)
 	.setATK(100)
 	.setDEF(100)
 	.setSPD(100)
@@ -76,13 +76,16 @@ Items.set('太虚丹','用了上好天材地宝炼制的仙丹，能永久改善
 	.setValue(64000)
 
 Items.set('火之源种','传说中人王给人类带来的第一把火所残留的种子。','至宝','永久提升')
-	.isUpGradeItem('至宝')
+	.isUpGradeItem('火之源种')
 	.setLifeUsage(1)
 	.setATKbuff(0.5)
 	.setValue(150000)
 
 Items.set('噬火丹','虽然看着像丹，实则是物品。一种能永久改善根骨的神秘物品。','至宝','永久提升')
-	.isUpGradeItem('秘宝')
+	.isUpGradeItem('噬火丹')
 	.setLifeUsage(1)
 	.setATK(100)
 	.setValue(150000)
+
+
+//素材

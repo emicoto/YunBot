@@ -14,8 +14,6 @@ export function getCall(role:string, name:string){
 
 	else if ( role && role.length)
 		return name;
-	else
-		return false
 }
 
 export function getMorningCall(role, nick){
@@ -33,7 +31,7 @@ export function getMorningCall(role, nick){
 }
 
 export const YunCom = {
-	'开始修炼':'',
+	'开始修炼':'不知是否被师兄弟们的修炼热情感染，路昀也提起干劲，跟着{0}一起开始修炼了。',
 	'修炼完毕':
 		[
 			`${faceicon('普通')}`,
@@ -56,7 +54,7 @@ export const YunCom = {
 	'突破成功':
 		[
 			'路昀凝聚心神，聆听天地之音时捕捉到一丝宇宙真理！',
-			'……终于！${0}路昀顺利突破了！从{1}变成{2}了！'
+			'……终于！{0}路昀顺利突破了！从{1}变成{2}了！'
 		],
 	'突破失败':'可惜，突破失败了。看来仙路漫漫长……',
 

@@ -4,3 +4,4 @@ export * from "./getLuck"
 export * from "./testing"
 export * from "./bind"
 export * from "./usercom"
+export * from './tools'

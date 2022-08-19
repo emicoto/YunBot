@@ -44,6 +44,7 @@ export function intKan(i:number){
 	}
 
 	if(i<0) str = '负'+str;
+	if(between(i,11,19)) str = str.slice(1,str.length)
 
 	return str
 }

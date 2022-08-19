@@ -22,6 +22,8 @@ declare module 'koishi'{
 	interface Channel{
 		userList:string[];
 		name:string;
+		announce:Computed<number>;
+		helptimer:Computed<number>;
 	}
 
 	namespace Command {
@@ -35,26 +37,31 @@ declare module 'koishi'{
 }
 
 export interface UserData{
-	id?:any;
+	id:any;
 	uid:string;
 
 	name:string;
 	chara:string;
 	reset:number;
 	charalist:Dict<Game>;
+	onebot?:string;
+	discord?:string;
+	kook?:string;
 }
 
 export function _extend(ctx:Context){
 	ctx.model.extend("YunSave",{
-		id:"unsigned",
+		id:"string",
 		uid:"string",
 		
 		name:"string",
 		chara:"string",
 		reset:"integer",
 		charalist:"json",
+		onebot:"string",
+		discord:"string",
+		kook:"string",
 	}, {
-		autoInc:true,
 		foreign:{
 			uid:['user','userID'],
 			chara:['user','chara'],
@@ -87,7 +94,11 @@ export function _extend(ctx:Context){
 
 	ctx.model.extend("channel",{
 		userList:"list",
-		name:"string"
+		name:"string",
+		announce:'unsigned',
+		helptimer:'unsigned',
+	},{
+		autoInc:true
 	})
 }
 
@@ -137,22 +148,26 @@ export async function initUser( session:Session, userId:string, name:string) {
 		return
 	};
 
-	//const newId = await makeID()
+	const newId = await makeID()
 	let data:UserData = {
+		id:newId,
 		uid: userId,
 		name: name,
-		[session.platform]: session.userId,
 		reset:0,
 		chara:"",
 		charalist:{}
 	}
-
+	data[session.platform] = session.userId
 	await bot.db.create("YunSave", data)
 }
 
 export async function getUser(uid:string):Promise<User> {
 	const chk = await bot.db.get('user', {userID:uid})
 	return chk[0]
+}
+
+export async function setDaily(uid:string, data:DailyData) {
+	await bot.db.set('user', {userID:uid}, { daily: data })
 }
 
 export async function getName(uid:string){
@@ -180,8 +195,18 @@ export async function userExist(uid:string) {
 
 export async function makeID(){
 	let chk = await bot.db.get("YunSave", null)
-	const newid = chk.length +1+random(9)
+	const newid = parseInt(chk[chk.length-1].id)+1 + random(3)
 	const id = (chk.length > 10000000 ? chk.length.toString() :'0'.repeat(8-(newid.toString().length)) + newid )
 
 	return id
+}
+
+export async function checkData(session:Session<'userID'|'name'|'chara'|'game'>, uid:string) {
+
+	let chk = await bot.db.get("YunSave", null)
+	let charalist:Dict<Game>
+	if(!chk[0]?.charalist){
+		await initUser(session, uid, session.user.name)
+		await setTimeout(() => {}, 500);
+	}
 }

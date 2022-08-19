@@ -1,5 +1,5 @@
 import { Context } from "koishi";
-import { ComReply, getJrrp, getLuckBuff, getMorningCall, textp, random } from "../unit";
+import { ComReply, getJrrp, getLuckBuff, getMorningCall, txtp, random } from "../unit";
 import { getJrrpComment } from "../Plugin";
 
 
@@ -23,13 +23,13 @@ export function DailyRoutine(ctx:Context){
 
 			if(daily.luck <= 0){
 				daily.luck = getJrrp(userID);
-				txt += textp(ComReply['签到气运'].join('\n'),[name, daily.luck, getJrrpComment(daily.luck)]) + '\n“……然后，'
+				txt += txtp(ComReply['签到气运'].join('\n'),[name, daily.luck, getJrrpComment(daily.luck)]) + '\n“……然后，'
 			}
 
 			const luck = daily.luck
-			const earn = Math.floor(random(10,50) * getLuckBuff(luck)+0.5)
+			const earn = Math.floor(random(20,50) * getLuckBuff(luck)+0.5)
 
-			txt += textp(ComReply['每日签到'].join('\n'),[earn])
+			txt += txtp(ComReply['每日签到'].join('\n'),[earn])
 			daily.sign = true;
 
 			game.money += earn

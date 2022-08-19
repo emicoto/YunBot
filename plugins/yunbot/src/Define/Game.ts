@@ -28,7 +28,7 @@ export interface Game{
 
 	core?:PlayerCore;	equip?:Equipment;
 	skill:string[];		upgrade?:Dict<Upgrade>;
-	items?:Dict<Items>;	storage?:Array<Items>;
+	items?:Dict<Items>;	storage?:Array<Equip|Weapon|Items>;
 
 	flag?:Flags;	cflag?:Cflags;
 
@@ -55,6 +55,7 @@ export interface Flags{
 
 	daily?:DailyData; //切换角色时把每日档案暂存到此处。
 	url?:string, //头像显示链接
+	pkwin?:number;
 }
 
 //战斗处理
@@ -131,7 +132,7 @@ export class Game{
 	public static getExp(data:Game|Yun, min:number, max?:number){
 		if(!max) max=min;
 		let { luck, level } = data
-		let exp = getTrainExp(data.level, data.luck, min, max)
+		let exp = getTrainExp(level, luck, min, max)
 		exp = expCount(exp, data);
 
 		data.exp = Math.floor(data.exp + exp)
@@ -161,13 +162,24 @@ export class Game{
 		}
 	}
 
-	public static async save( uid:string, data:Game, savename:string){
-		//保存到YunSave里
-		const chk = await bot.db.get("YunSave", {uid: uid})
+	public static async save(session:Session<'userID'|'name'|'chara'|'game'>, data?:Game, savename?:string){
+		//保存到YunSave里。同时更新一下用户信息。
+		const { game, name, chara, userID } = session.user
+		let chk = await bot.db.get("YunSave", {uid: userID})
+		if(!chk[0]?.charalist){
+			initUser(session,session.user.userID,session.user.name)
+			chk = await bot.db.get("YunSave", { uid: userID })
+		}
 		let charalist = chk[0].charalist
 
-		charalist[savename] = data
-		await bot.db.set("YunSave", {uid: uid}, {charalist : charalist})
+		const save = (savename ? savename : chara)
+		charalist[save] = (data ? data : game)
+		
+		await bot.db.set("YunSave", {uid: userID}, {
+			charalist : charalist, 
+			name : name,
+			[session.platform]:[session.userId],
+		})
 	}
 
 	public static async delet( uid:string, savename:string){
@@ -180,10 +192,11 @@ export class Game{
 
 	}
 
-	public static async load( uid:string, savename:string){
+	public static async load(session:Session<'userID'|'name'|'chara'|'game'>, uid:string, savename:string){
 		//从存档中读取。如果totalexp不一致会提示存档不一致。但不在这里。
-		let chk = await bot.db.get("YunSave",{uid: uid})
-		let charalist = chk[0].charalist
+		let chk = await bot.db.get("YunSave",null)
+		const charalist:Dict<Game> = chk[0].charalist
+		console.log(charalist[savename])
 		return charalist[savename]
 	}
 
@@ -219,9 +232,12 @@ export class Game{
 		data.money = old.money;
 		data.exp = old.exp;
 		data.favo = old.favo;
-		data.trust = old.trust; 
-		data.signed = true;
+		data.trust = old.trust;
+		data.INT = old.INT;
+		data.WIL = old.WIL;	
 
+		data.signed = true;
+		
 		data.level -= Math.floor(old.level/10)
 		
 		if(old.core?.id) data.core = old.core;

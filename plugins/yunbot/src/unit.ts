@@ -1,5 +1,5 @@
 export * from "./Define"
-export * from "./Lib"
+export * from "./TextLib"
 export * from "./Utils"
 export * from "./GameUtils"
 export * from "./GameData"

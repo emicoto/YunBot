@@ -1,4 +1,4 @@
-import { Context } from "koishi";
+import { Context, Time } from "koishi";
 import { Config } from "..";
 import * as s from "../unit"
 
@@ -6,11 +6,50 @@ export function TestCom(ctx:Context, config: Config={}){
 	ctx.command('test','',{hidden:true, authority:4})
 	.userFields(['game','name','chara','daily'])
 	.action(async( { session } )=>{
-
-		console.log(session)
+		const database = await ctx.database.get('user',null)
 
 		return s.images('cat_cross.jpg')
 	})
+
+	ctx.command('resetINTWIL',{ hidden:true,signed:true })
+		.alias('恢复数据').alias('数据恢复')
+		.userFields(['game'])
+		.action(async({ session })=>{
+			const id = session.userId
+			if(session.platform !== 'onebot') return '当前平台不存在旧版存档。'
+
+			const chk = await ctx.database.get('oldsave', { uid: 'QQ#'+id })
+			if(!chk.length) return '没找到存档。'
+
+			const chara = chk[0].chara
+			const olddata = chk[0].charalist[chara]
+
+			const { game } = session.user
+
+			await session.send(`${game.name}的当前悟性：${game.INT}　旧档悟性：${olddata.INT}\n当前韧性:${game.WIL}　旧档韧性：${olddata.WIL}\n是否要继承旧版属性？\n [是/否]`)
+			const answer = await session.prompt(Time.minute*2)
+			if(!answer.match('是')) return '【已取消流程。】'
+
+			game.INT = olddata.INT
+			game.WIL = olddata.WIL
+
+			session.user.$update()
+
+			return '已恢复为旧档属性。'
+			
+
+		})
+	
+	ctx.command('clearuser',{hidden:true})
+		.action( async( { session}) =>{
+			const database = await ctx.database.get('user',null)
+			for(let i=0; i<database.length; i++){
+				let user = database[i]
+				if(!user.lastCall && !user.game?.name) await ctx.database.remove('user', { userID: user.userID })
+			}
+
+			return s.images('cat_cross.jpg')
+		})
 
 	ctx.command('testchara', { hidden:true, authority:5 })
 		.userFields(['game','name','chara','daily'])

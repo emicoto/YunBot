@@ -1,5 +1,5 @@
 import { Context, Time, User } from "koishi"
-import { At, Yun, getJrrp, getLuckRes, hdxlq, huandaxian, images, textp, random, setUsage, Today, YunOpinion, zglq, zhougong, getName } from "../unit"
+import { At, Yun, getJrrp, getLuckRes, hdxlq, huandaxian, images, txtp, random, setUsage, Today, YunOpinion, zglq, zhougong, getName } from "../unit"
 
 const levels = [0,20,40,60,80]
 const jackpot = [1,39,42,66,77,100]
@@ -91,7 +91,7 @@ export function getLuck(ctx:Context){
 			let repeat
 
 			if(daily.kuji.no) repeat = true;
-			if( game.money <= 3){
+			if( game.money < 2){
 				console.log(session.user);
 				return getLuckRes['没有钱']
 			}
@@ -108,20 +108,20 @@ export function getLuck(ctx:Context){
 			
 
 			let text1 = repeat ? 
-				textp(getLuckRes['重复算卦：上'].join('\n'),[name,luck]) 
-				: textp(getLuckRes['每日一卦：上'].join('\n'),[name,luck])
+				txtp(getLuckRes['重复算卦：上'].join('\n'),[name,luck]) 
+				: txtp(getLuckRes['每日一卦：上'].join('\n'),[name,luck])
 
 			let text2 = repeat ? 
-				textp(getLuckRes['重复算卦：下'].join('\n'),[name,luck,omikuji]) 
-				: textp(getLuckRes['每日一卦：下'].join('\n'),[name,luck,omikuji])
+				txtp(getLuckRes['重复算卦：下'].join('\n'),[name,luck,omikuji]) 
+				: txtp(getLuckRes['每日一卦：下'].join('\n'),[name,luck,omikuji])
 
-			game.money -=3
+			game.money -=2
 
 			await session.send(text1)
 			return text2
 		})
 	
-	ctx.command("pick <type>","-抽签  从签筒中抽签。需要带签筒的名字。\n快捷指令：抽黄大仙灵签，抽周公灵签，随机抽签", { ignore:true, usageName:"抽签", maxUsage:3, authority:1, hidden:true})
+	ctx.command("pick <type>","-抽签  从签筒中抽签。需要带签筒的名字。", { ignore:true, usageName:"抽签", maxUsage:3, authority:1, hidden:true})
 		.alias('抽签')
 		.shortcut(/(帮忙|帮我|给我)(\S+){0,}抽(\S+)签/, {args:['$3'], prefix:true})
 		.shortcut(/(帮忙|帮我|给我)(\S+){0,}(随机|随便)抽(\S+)签/, {args:['随机'], prefix:true})
@@ -134,7 +134,7 @@ export function getLuck(ctx:Context){
 			const uid = session.user.userID
 			let { game } = session.user
 
-			if(game.money <= 3) return getLuckRes['没有钱'];
+			if(game.money < 2) return getLuckRes['没有钱'];
 
 			const kujitype = ['黄大仙','周公']
 			let pot:string
@@ -143,7 +143,7 @@ export function getLuck(ctx:Context){
 
 			if(!type){
 				const list = ['黄大仙','周公','随机']
-				await session.send('请问要抽什么签呢？（签筒上写着：抽一次3灵石）\n1.黄大仙 2.周公 3.随机 4.取消')
+				await session.send('请问要抽什么签呢？（签筒上写着：抽一次2灵石）\n1.黄大仙 2.周公 3.随机 4.取消')
 				let answer = await session.prompt(Time.minute*2)
 				if(!answer) return session.text('internal.times-out')
 
@@ -176,9 +176,9 @@ export function getLuck(ctx:Context){
 			let url = `https://www.zgjm.org/chouqian/${ pot=='周公' ? 'zhougong' : 'huangdaxian' }/${kuji.no}.html`
 			let file = `${ pot=='周公' ? 'zglq' : 'hdxlq'}/${kuji.no}.png`
 
-			txt += `(收下3灵石。)\n第${kuji.no}签  ${kuji.luck}签  ${kuji.title}\n${kuji.text}\n解签链接：${url}\n${images(file)}`
+			txt += `(收下2灵石。)\n第${kuji.no}签  ${kuji.luck}签  ${kuji.title}\n${kuji.text}\n解签链接：${url}\n${images(file)}`
 
-			game.money -= 3;
+			game.money -= 2;
 			session.sendQueued(At(uid)+txt);
 			return
 		})

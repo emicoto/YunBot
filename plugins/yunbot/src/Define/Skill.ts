@@ -247,7 +247,7 @@ export function SkillDes(skill:Skill) {
 		DEFbuff : { name:'防御加成',	value: skill.DEFbuff * 100 + '%'	},
 		SPDbuff : { name:'速度加成',	value: skill.SPDbuff * 100 + '%'	},
 
-		ATKRoll : { name:'攻击骰',		value: skill.ATKRoll[0]+'D'+skill.ATKRoll[1] },
+		ATKRoll : { name:'攻击骰',		value: skill.ATKRoll ?  skill.ATKRoll[0]+'D'+skill.ATKRoll[1] : ''},
 		costSP	: { name:'技能消耗',	value: skill.costSP + 'SP'		},
 		costSPper: { name:'技能消耗',	value: skill.costSPper * 100 + '% SP'}
 	}

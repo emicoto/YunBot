@@ -1,4 +1,4 @@
-import { Argv, Command, Context, Session } from "koishi";
+import { Argv, Command, Context, Session, Time } from "koishi";
 import { Config } from "..";
 import { Authorized, bot, Common, DailyData, Game, initUser, initUserFirst,  Roles,  Today, whileSleeping, whileWorking, Yun} from "../unit";
 import { checkUsageEvent } from "./rate-limit";
@@ -51,7 +51,7 @@ export function BeforeUser(ctx:Context, config: Config={}){
 		if(!fields.has('game')) fields.add('game');
 		if(!fields.has('authority')) fields.add('authority')
 		if(!fields.has('daily')) fields.add('daily')
-		fields.add('userID')
+		fields.add('userID').add('flags')
 
 	})
 
@@ -62,7 +62,7 @@ export function BeforeUser(ctx:Context, config: Config={}){
 		}
 	})
 
-	ctx.before("command/execute",async (argv: Argv<'name'|'game'|'daily'|'userID'|'chara' | 'authority'>)=>{
+	ctx.before("command/execute",async (argv: Argv<'name'|'game'|'daily'|'userID'|'chara'|'authority'|'flags'>)=>{
 		const { session, options, command } = argv	
 		if(!session || !session?.user ) return;
 
@@ -75,7 +75,7 @@ export function BeforeUser(ctx:Context, config: Config={}){
 		await UpdateUser(session)
 		await Yun.count()
 
-		//next = await notice()
+		await notice(session)
 
 		next = await beforeEvent(session, command)
 		if(next) return next;
@@ -85,8 +85,32 @@ export function BeforeUser(ctx:Context, config: Config={}){
 
 	})
 
-async function notice() {
+async function notice(session:Session<'flags'>) {
+	const { flags } = session.user
+	const newsname = Yun.config.notice
+	const newscontext = Yun.config.anounce
+	const channel = await bot.db.getChannel(session.platform, session.channelId)
+	const now = Date.now()
 	
+
+	if( !flags?.newscheck ){
+		flags.newscheck = {}
+	};
+
+	if(!newsname || !newscontext ) return
+	
+	//console.log(( now > channel.announce))
+	if( !channel?.announce || now > channel.announce){
+
+		if(!flags?.newscheck[newsname] && session.platform == 'onebot' ){
+			flags.newscheck[newsname] = true
+			await session.send(newscontext)
+
+			const due = now + Time.hour
+			await bot.db.setChannel(session.platform, session.channelId, { announce : due })			
+		}
+	}
+
 }
 
 //------------Init user------------->>
@@ -100,7 +124,7 @@ async function InitUser( session:Session ){
 	let userID = init[1]
 	let name = init[0]
 	let role = ''
-	await initUser(session, userID, name)	
+	//await initUser(session, userID, name)	
 
 	let authority = 1
 	//自动设置权限分配
@@ -160,7 +184,7 @@ async function beforeEvent(session:Session<'userID' | 'game' | 'authority'>, com
 	}
 
 	if(!user.game?.signed && shouldSigned){
-		if(command.name == 'mychara' || command.name == 'setimgurl'){
+		if( command.config.system ){
 			return Common['not-signed-phone']
 		}
 		return Common['not-signed']

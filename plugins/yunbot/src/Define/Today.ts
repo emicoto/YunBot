@@ -1,4 +1,4 @@
-import { Dict } from "koishi";
+import { Computed, Dict } from "koishi";
 import fs from "fs"
 import { Yun, bot, Upgrade, getUser, getJrrp} from "../unit";
 
@@ -9,6 +9,7 @@ export interface Today{
 	totaltrain:number;
 	totalbreak:number;
 	totalwork:number;
+	shopinit:Computed<number>;
 
 	rank:any;
 	lvrank:any;
@@ -58,6 +59,7 @@ export interface YunDaily{
 
 export interface todayFlags{
 	party?:string[],
+	pkflag?:boolean,
 	pkTarget?:string,
 	Mapfield?:string,
 }
@@ -167,5 +169,6 @@ export class Today{
 		this.rank = [];
 		this.luckrank = [];
 		this.lvrank = [];
+		this.shopinit = 0;
 	}
 }

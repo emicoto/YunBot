@@ -71,10 +71,11 @@ export class Minds{
 
 		let exp = 1+random(game.core.grade) + (game.luck > 60 ? 1 : 0)
 		exp *= getINTbuff(game.INT)
+		exp = Math.max(Math.floor(exp+0.5),1)
 
 		game.core.exp = Math.floor(game.core.exp+exp+0.5)
 		
-		return `${game.name}的心法进度 + ${Math.floor(exp)}=>${game.core.exp}/${this.nextExp(game.core)}`
+		return `${game.name}的心法进度 + ${exp}=>${game.core.exp}/${this.nextExp(game.core)}`
 	}
 
 	public static nextExp(core:PlayerCore){
@@ -82,10 +83,11 @@ export class Minds{
 	}
 	public static levelUP(core:PlayerCore){
 		if(core.level < core.maxlevel && core.exp >= this.nextExp(core)){
+			console.log('心法升级',core.level,core.maxlevel)
 			core.exp -= this.nextExp(core);
 			core.exp = Math.max(Math.floor(core.exp/2),0);
 			core.level ++
-			return core
+			return `\n日积月累，滴水成河。你对心法的研修达到了一个圆满阶段！你对心法的理解更加深入了，从${ core.level }层升级为${core.level + 1}层了。`
 		}
 		else{
 			return false

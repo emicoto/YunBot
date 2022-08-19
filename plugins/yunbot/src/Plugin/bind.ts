@@ -22,7 +22,7 @@ export function Bind(ctx: Context, config: Config = {}) {
 
   async function bind(user: User.Observed<never>, platform: string, userId: string) {
     await ctx.database.remove('user', { [platform]: [userId] })
-    await ctx.database.remove('YunSave', { [platform]: [userId] })
+    //await ctx.database.remove('YunSave', { [platform]: [userId] })
     user[platform] = userId as never
     await user.$update()
   }
