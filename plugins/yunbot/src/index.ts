@@ -35,7 +35,6 @@ export interface shopitems {
 }
 
 export const name = 'yunbot'
-export const using = ['database'] as const
 
 export const ShopItem:Schema<shopitems> = Schema.object(
 	{
@@ -79,10 +78,10 @@ Schema.object({
 Schema.object({
 	shopitems:Schema.array(ShopItem).description('设置每日商店的商品。'),
 }).description('商店设置')
-	
+
 ])
 export function apply(ctx:Context, config: Config={}){
-  ctx.using(['console'], (ctx) => {
+  ctx.inject(['console'], (ctx) => {
     ctx.console.addEntry({
       dev: resolve(__dirname, '../client/index.ts'),
       prod: resolve(__dirname, '../dist'),

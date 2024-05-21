@@ -1,4 +1,4 @@
-import { Argv, Command, Context, Dict, Session, Time, User } from 'koishi'
+import {Argv, Command, Computed, Context, Dict, Session, Time, User} from 'koishi'
 import { adminUser } from '@koishijs/helpers'
 import {} from '@koishijs/plugin-help'
 import { Yun, printTime, setUsage, MaxUsage, TimerRes, txtp, LongActRes, FinishAction, bot, getUser, waitTime } from '../unit';
@@ -45,7 +45,7 @@ export function RateLimit(ctx: Context) {
 			if(options?.set){
 				if(!name|| !value) return '缺少需要的参数。';
 				usage[name] = value
-				
+
 				return `指令${name}已设置使用次数：${value}`
 			}
 
@@ -62,10 +62,10 @@ export function RateLimit(ctx: Context) {
 			}
 			return msg;
 		})
-	
+
 	ctx.command("cdtimer [key] [value:date]","-计时器  显示指令的冷却CD",{ authority: 1, usageName:"计时器", system:true } )
 		.alias('计时器')
-		.shortcut(/(还有多久|什么时候|啥时候|何时)(能|可以){0,1}(\S+)(啊？|呀？){0,1}$/,{args:['$3'], prefix:true})
+		.alias(/(还有多久|什么时候|啥时候|何时)(能|可以){0,1}(\S+)(啊？|呀？){0,1}$/,{args:['$3'], prefix:true})
 		.option('clear','-c', { authority:4 })
 		.option('set','-s',{ authority:4 })
 		.userFields(['authority','daily','name'])
@@ -109,7 +109,7 @@ export function RateLimit(ctx: Context) {
 		if(!session.user) return
 
 		const name = getUsageName(command)
-		let maxUsage = command.getConfig('maxUsage', session) ?? 0 
+		let maxUsage = command.getConfig('maxUsage', session) ?? 0
 		let minInterval = command.getConfig('minInterval', session) ?? 0
 
 		if(maxUsage > 0){
@@ -123,7 +123,7 @@ export function RateLimit(ctx: Context) {
 		if(minInterval > 0){
 			const due = session.user.daily.timer[name]
 			const left =  due ? (Math.max(0, due - Date.now()) / 1000).toFixed() : 0
-			
+
 			if(session.platform !== 'onebot') minInterval /= 2
 
 			output.push(`剩余冷却时间： ${left}/${Math.floor(minInterval/1000)}秒`)
@@ -151,7 +151,7 @@ export function ComUsage({daily}:Pick<User, 'daily'>, str: string, limit: number
 
 	daily.usage[str]++
 	console.log(daily.usage)
-	
+
 	return true;
 }
 
@@ -196,7 +196,7 @@ export function getUsageName(command: Command){
 export function checkLongAction({ daily }:Pick<User,'daily'>){
 
 	if(daily?.stats.com === 'free') return 'free';
-	
+
 	const now = Date.now()
 	if(now < daily?.stats?.due) return 'busy';
 	else return 'finish';
@@ -204,13 +204,13 @@ export function checkLongAction({ daily }:Pick<User,'daily'>){
 
 export function checkUsageEvent( session:Session<'daily'|'game'>, options, command:Command ){
 	if( !command || (options && options?.help)) return;
-	
+
 	const { daily } = session.user
 	let isUsage = true
 	if(options){
 		for(const{ name, notUsage } of Object.values(command._options)){
 			if(name in options && notUsage) isUsage = false
-		}			
+		}
 	}
 	if(!isUsage) return;
 
@@ -228,7 +228,7 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 	}
 
 	//如果设置为系统指令，则直接返回。
-	if(system && !maxUsage || command.name == 'help') return;	
+	if(system && !maxUsage || command.name == 'help') return;
 
 	//处于持续动作间直接返回对应情景与倒计时。
 	/*if( checkLongAction(session.user) == 'busy' ){
@@ -286,7 +286,7 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 export function sendHint( session:Session<'game'|'daily'>, type, command, time?):string{
 	let leftime = printTime(time)
 	const { daily, game } = session.user
-	
+
 	if(type == 'maxUsage')return MaxUsage[command] ?? `……已超过次数了。`;
 	if(type == 'Timer'){
 		if(TimerRes[command]){
@@ -315,7 +315,7 @@ export function sendHint( session:Session<'game'|'daily'>, type, command, time?)
 			return `……${command}已经结束了。具体结果还是用.${command}检查吧。`
 		}
 	}
-	
+
 	return `未知错误：t${type},c${command},t${time}`
 }
 

@@ -83,7 +83,7 @@ export class Soul{
 	constructor(str:string){
 		this.unique = str.includes('异');
 		this.tian = str.includes('天');
-		this.chara = str.match(/金|木|水|火|土/g);
+		this.chara = str.match(/[金木水火土]/g);
 		console.log(this.chara)
 		this.count = this.chara.length;
 		this.buff = this.getBuffInfo();
@@ -113,7 +113,7 @@ export class Soul{
 		if(this.unique && this.count >= 3) {
 			buff += 0.05 * ( 7 - this.count )
 			subuff *= 2;
-		}		
+		}
 		else if(this.unique){
 			buff += 0.1 * ( 6 - this.count ) * (this.count == 1 ? 2 : 1);
 			subuff += 0.2;
@@ -274,7 +274,7 @@ export class SoulUtils{
 		let el = [Elements.木, Elements.火, Elements.金, Elements.水, Elements.土]
 		let arr = [];
 		const equalQA = this.equalQA();
-		const equalQB = this.equalQB();		
+		const equalQB = this.equalQB();
 		const equalQAB = this.equalQAB();
 
 		const re = this._result;
@@ -284,7 +284,7 @@ export class SoulUtils{
 		switch(num){
 			case 1:
 				return [el[re]];
-			
+
 			case 2:
 				arr.push(...el.splice(re,1))
 
@@ -294,7 +294,7 @@ export class SoulUtils{
 					arr.push(el[random(3)]);
 				}
 				return arr;
-			
+
 			case 3:
 				if(!equalQA && !equalQB && !equalQAB){
 					arr.push(el[re],el[a],el[b])
@@ -313,7 +313,7 @@ export class SoulUtils{
 					}
 				}
 				return arr;
-			
+
 			case 4:
 			case 5:
 				arr.push(...el.splice(re,1));
