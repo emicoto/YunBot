@@ -10,13 +10,24 @@
     "dist"
   ],
   "license": "MIT",
-  "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
     "plugin"
   ],
   "peerDependencies": {
-    "koishi": "^4.8.4"
+    "koishi": "^4.17.4"
+  },
+  "koishi": {
+    "description": {
+      "zh": "路昀的聊天机器人插件"
+    },
+    "service": [
+      "database"
+    ],
+    "locales": [
+      "zh"
+    ],
+    "preview": true
   }
 }

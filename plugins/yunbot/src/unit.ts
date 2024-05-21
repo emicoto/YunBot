@@ -1,6 +1,6 @@
 export * from "./Define"
 export * from "./TextLib"
 export * from "./Utils"
-export * from "./GameUtils"
+export * as GameUtils from "./GameUtils"
 export * from "./GameData"
-export * from "@koishijs/plugin-adapter-kook"
+//export * from "@koishijs/plugin-adapter-kook"

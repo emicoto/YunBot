@@ -1,5 +1,5 @@
 import { Dict } from "koishi";
-import { copy, fixed, GradeName, txtp, random, Soul, category } from "../unit";
+import { copy, fixed, GradeName, txtp, random, GameUtils, category } from "../unit";
 
 
 type wType = '刀剑' | '暗器' | '扇' | '乐器' | '法杖' | '枪械' | '长柄刀剑' | '鞭绳' | ''
@@ -37,7 +37,7 @@ export interface natalstats{
 	ATK?: number[]; ATKbuff?: number[];
 	DEF?: number[]; DEFbuff?: number[];
 	SPD?: number[]; SPDbuff?: number[];
-	gradesp?:grades[];	
+	gradesp?:grades[];
 }
 
 export interface upGrade{
@@ -137,7 +137,7 @@ export class Weapon{
 		return this
 	}
 	setRandomSoul?(str?){
-		this.soul = Soul.Random(str)
+		this.soul = GameUtils.Soul.Random(str)
 		return this
 	}
 	setSkill?(str:string){
@@ -222,7 +222,7 @@ export class Weapon{
 					weapon.lvstats[i][1] = Math.floor(newmin*1.5+0.5)
 					weapon[i] = newmin
 				}
-				
+
 				if(listb.includes(i)){
 					let max = weapon.lvstats[i][1]
 					let newmin = max+0.01
