@@ -2,7 +2,7 @@ import { Context, segment, Session } from "koishi";
 import { between, either, getName, images, random, Respond, save, Today, wakeYunUp, whileSleeping, whileWorking, Yun } from "./unit";
 
 export async function YunAI(ctx:Context) {
-	
+
 	ctx.on('guild-member-added',(session)=>{
 		console.log('新人进入')
 		session.send('……欢迎新人？')
@@ -23,17 +23,17 @@ export async function YunAI(ctx:Context) {
 		session.send('?')
 	})
 
-	ctx.on('guild-emoji-added',(session)=>{
-		console.log('new emoji!')
-		session.send('……似乎多了什么新东西？')
-	
-	})
+	// ctx.on('guild-emoji-added',(session)=>{
+	// 	console.log('new emoji!')
+	// 	session.send('……似乎多了什么新东西？')
+  //
+	// })
 
 
 	ctx.middleware( async(session:Session, next)=>{
 
 		let timetick = new Date()
-		if(Today.data.day !== timetick.getDate()){
+		if(Today.data?.day !== timetick.getDate()){
 			Today.new()
 			save()
 		}

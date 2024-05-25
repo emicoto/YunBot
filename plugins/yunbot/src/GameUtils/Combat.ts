@@ -1,5 +1,4 @@
 import { between, copy, Game, getLuckBuff, random, Roll } from "../unit";
-
 export type situation = 'A>>B' | 'B>>A' | 'A~=~B' | 'A>B' | 'B>A' | ''
 
 export interface compare {
@@ -26,7 +25,7 @@ export class Combat{
 
 		this.pn = player.name;
 		this.tn = target.name;
-		
+
 		this.plv = player.level;
 		this.tlv = target.level;
 		this.plk = player.luck;
@@ -114,9 +113,9 @@ export class Combat{
 
 		if(re == 'A>>B'){
 			hit = true
-			return { hit, re}			
+			return { hit, re}
 		}
-		
+
 		if(re == 'B>>A'){
 			hit = false;
 			fb = (random(100) < 80 )
@@ -131,7 +130,7 @@ export class Combat{
 			hit = (ra + alk/10 >= rb + (blk ? blk/12 : 0))
 
 			if(!hit) fb = (random(100) < 20)
-			return { hit, re, fb };	
+			return { hit, re, fb };
 		}
 
 		if(re=='A>B'){
@@ -139,7 +138,7 @@ export class Combat{
 			const rate = random(1,100)
 			hit = ( rate >= chance )
 			console.log('rate/chance',rate,chance, hit)
-	
+
 			return { hit, re, fb }
 		}
 		else{
@@ -179,8 +178,8 @@ export class Combat{
 		const shield = Math.floor( rng(def) +0.5 )
 
 		const max = Math.max(Math.floor(atk/100+0.5),2)
-		const lstdmg = Math.floor( 
-				dmg(damage, shield)  + random(1,max) 
+		const lstdmg = Math.floor(
+				dmg(damage, shield)  + random(1,max)
 			+ 0.5 )
 
 		return { damage, lstdmg, shield }
@@ -213,7 +212,7 @@ export class Combat{
 
 		if(Math.abs(this.plv-this.tlv) >10)
 			lvbuff = 0.75 + Math.abs(this.plv-this.tlv)/20;
-		
+
 		if(this.plv > this.tlv) atk = Math.floor(atk*lvbuff);
 		if(this.tlv > this.plv) shd = Math.floor(shd*lvbuff)
 

@@ -29,5 +29,8 @@
       "zh"
     ],
     "preview": true
+  },
+  "dependencies": {
+    "lunar-javascript": "^1.6.12"
   }
 }

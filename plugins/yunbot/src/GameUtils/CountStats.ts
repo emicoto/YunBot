@@ -1,5 +1,4 @@
-import { Game, Yun, LevelBuff, Skill, SoulMatcher, bot, Soul, TotalExp, random} from "../unit";
-
+import {Game, Yun,  Skill,  bot, random, Soul,TotalExp, LevelBuff, SoulMatcher, breakProces} from "../unit";
 export async function CountStats( uid:string, mode?){
 	let data : Game | Yun
 
@@ -13,6 +12,8 @@ export async function CountStats( uid:string, mode?){
 	const levelStats = (lv)=>{
 		return 5 + Math.floor((lv-1)/10)*1.2 + Math.floor(lv/2)
 	}
+  console.log(data)
+  console.log(Yun.state)
 	const soul = new Soul(data.soul)
 
 	const { level, core, skill, equip, upgrade } = data
@@ -69,7 +70,7 @@ export async function CountStats( uid:string, mode?){
 			if(skill?.BPbuff) add.BPbuff += skill.BPbuff;
 		}
 	}
-	
+
 	if(skill.length >= 1){
 		for(let i=0; i<skill.length; i++){
 			let s = Skill.data[skill[i]]
@@ -84,7 +85,7 @@ export async function CountStats( uid:string, mode?){
 	for(let i in equip){
 		const eq = equip[i];
 		let m = 1;
-		
+
 		if(!eq?.id) continue;
 		if(eq?.soul){
 			m = SoulMatcher(soul.chara, eq.soul)
@@ -112,7 +113,7 @@ export async function CountStats( uid:string, mode?){
 		ATKbuff:0, DEFbuff:0, SPDbuff:0,
 		HPbuff:0, SPbuff:0, Expbuff:0
 	}
-	
+
 	if(core?.id){
 		const minds = Game.Corebuff(data)
 		for(let i in minds){
@@ -157,7 +158,7 @@ export async function CountStats( uid:string, mode?){
 	for(let i in soul.buff){
 		base[i] *= 1 + soul.buff[i]
 	}
-	
+
 
 	//对至宝的buff进行计算
 	//console.log('至宝',buffs)
@@ -165,7 +166,7 @@ export async function CountStats( uid:string, mode?){
 		let n = i+'buff'
 		if(buffs[n])  base[i] *= 1+buffs[n]
 	}
-	
+
 	//console.log('最终加算',add)
 	//对HP,SP,ATK,DEF,SPD进行最后的计算
 	for(let i in base){
@@ -174,7 +175,7 @@ export async function CountStats( uid:string, mode?){
 			if(add[i]) base[i] += add[i];
 		}
 	}
-	
+
 	//console.log('最终基础值',base)
 
 	//最后做战力计算

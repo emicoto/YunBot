@@ -9,7 +9,7 @@ export function CheckStatus(ctx:Context){
 
 	ctx.command('setimgurl <url>','-设置人物头像。只能放网址',{system:true , signed:true, hidden:true, usageName:'设置头像'})
 		.alias('设置头像')
-		.shortcut('》设置头像')
+		.alias('》设置头像')
 		.userFields(['userID','game'])
 		.action( async ({ session },url)=>{
 			const { game } = session.user
@@ -31,16 +31,16 @@ export function CheckStatus(ctx:Context){
 				return '【输入有误】'
 			}
 		})
-	
+
 	ctx.command('takeoff <type>','-脱下装备  可脱下指定的装备。',{ system:true, usageName:'脱下装备' })
 		.alias('脱下装备')
-		.shortcut('》摘下头饰',{args:['头饰']})
-		.shortcut('》摘下首饰',{args:['首饰']})
-		.shortcut('》摘下手饰',{args:['手饰']})
-		.shortcut('》摘下腰饰',{args:['腰饰']})
-		.shortcut('》脱下鞋子',{args:['鞋子']})
-		.shortcut('》脱下衣服',{args:['衣服']})
-		.shortcut('》换下法器',{args:['法器']})
+		.alias('》摘下头饰',{args:['头饰']})
+		.alias('》摘下首饰',{args:['首饰']})
+		.alias('》摘下手饰',{args:['手饰']})
+		.alias('》摘下腰饰',{args:['腰饰']})
+		.alias('》脱下鞋子',{args:['鞋子']})
+		.alias('》脱下衣服',{args:['衣服']})
+		.alias('》换下法器',{args:['法器']})
 		.userFields(['game'])
 		.action( ({ session },type)=>{
 			const { game } = session.user
@@ -71,7 +71,7 @@ export function CheckStatus(ctx:Context){
 			return `${game.name}把${old.name}脱下来放进储物戒了。`
 
 		})
-	
+
 	ctx.command('storage <id:number>','-储物戒　存放了各种各样东西的地方。主要放非消耗性物品。',{signed:true, system:true, hidden:true, usageName:"储物戒"})
 		.alias('储物戒')
 		.option('equip','-e')
@@ -82,14 +82,14 @@ export function CheckStatus(ctx:Context){
 				'头饰':'head', '首饰':'neck', '手饰':'hands', '腰饰':'waist',
 				'鞋子':'shoes', '衣服':'cloth', '法器':'weapon'
 			}
-			
+
 			if(!id){
 				const { storage } = game
 				let txt = [
 					'储物戒内容物一览：'
 				]
 				for(let i=0; i<storage.length; i++){
-					const item = storage[i]
+					const item = storage[i] as Items
 					const t = `id:${i+1}. ${item.name}`+(item.category=='material' ? `x${item.num}` : '')
 					txt.push(t)
 				}
@@ -103,14 +103,14 @@ export function CheckStatus(ctx:Context){
 				if(item.category == 'weapon') return WeaponDes(Weapon.data[item.name])
 				if(item.category == 'equip') return EquipDes(Equip.data[item.name])
 				if(item.category == 'items') return ItemDes(Items.data[item.name])
-				
+
 			}
 
 			if(id && options.equip){
 				const sid = id-1
 				const chk = game.storage[sid]
 				if(chk.category == 'weapon'){
-					const item:Weapon = game.storage.splice(sid,1)[0]
+					const item:Weapon = game.storage.splice(sid,1)[0] as Weapon
 					let old = copy(game.equip.weapon)
 					if(!game.storage.length || game.storage[0] == null){
 						game.storage = []
@@ -118,19 +118,19 @@ export function CheckStatus(ctx:Context){
 
 					game.equip.weapon = item
 					if(old.id){
-						game.storage.push(old)						
+						game.storage.push(old)
 					}
 
 					session.user.$update()
 					return `${game.name}装备上了${game.equip.weapon.name}${ old.id? `，把${old.name}放进储物戒了。` : '。'}`
 				}
 				else if(chk.category == 'equip'){
-					const item:Equip = game.storage.splice(sid,1)[0]
+					const item:Equip = game.storage.splice(sid,1)[0] as Equip
 					let old:Equip
 					if(!game.storage.length || game.storage[0] == null){
 						game.storage = []
 					}
-					
+
 					const part = typelist[item.type]
 					old = copy(game.equip[part])
 					game.equip[part] = item
@@ -191,7 +191,7 @@ export function CheckStatus(ctx:Context){
 			}
 
 		})
-	
+
 	ctx.command('yunstatus <type>', '-查看路昀  可以确认路昀的现状。',{ hidden:true, usageName:"查看路昀"})
 		.alias('查看路昀')
 		.shortcut('看看路昀',{args:['主要']})
@@ -337,7 +337,7 @@ export function CheckStatus(ctx:Context){
 
 		for(let i=0; i < data.skill.length ; i++){
 			if(!txt[c]) txt[c] = '';
-			
+
 			txt[c] += `【${data.skill[i]}】　`
 
 			if((i-2)%3==0) c++
@@ -377,7 +377,7 @@ export function CheckStatus(ctx:Context){
 
 		for(let i in items){
 			if(!txt[c]) txt[c] = '';
-			
+
 			txt[c] += `${items[i].name}x${items[i].num}　`
 
 			if(v%2==0) c++

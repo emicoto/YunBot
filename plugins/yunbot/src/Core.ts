@@ -5,16 +5,22 @@ import { DailyTraining, UserRegistry, DailyRoutine, CheckStatus, GameCom, GameMe
 import { Config } from "./index";
 import { YunAI } from "./AI";
 import { PlayerCombat } from "./Game/pk";
+import {} from "koishi-plugin-adapter-onebot"
 
 export class Core {
 	private static _instance:Core;
 	private loading:number = 0;
 
 	public static init(app:Context, config:Config={}){
+    console.log('Core已初始化')
 		if(!Core._instance){
 			Core._instance = new Core(app, config);
 			Core._instance.Start();
+      console.log('Core已启动')
+      console.log(Core._instance)
 		}
+
+    console.log(Core._instance)
 		return Core._instance;
 	}
 
@@ -25,6 +31,7 @@ export class Core {
 		this.ctx = app;
 		this.conf = config;
 		bot.db = app.database;
+
 	}
 
 	private Start(){
@@ -37,8 +44,8 @@ export class Core {
 
 		this.ctx.plugin(YunAI)
 		this.ctx.plugin(UserCommon)
-		this.ctx.plugin(ShopSystem)	
-		this.ctx.plugin(PlayerCombat)	
+		this.ctx.plugin(ShopSystem)
+		this.ctx.plugin(PlayerCombat)
 		this.ctx.plugin(GameCom)
 		this.ctx.plugin(GameMenu)
 		this.ctx.plugin(DailyTraining)
@@ -47,8 +54,8 @@ export class Core {
 		this.ctx.plugin(UserRegistry)
 		this.ctx.plugin(ToolsCommand)
 		this.ctx.plugin(getLuck)
-		this.ctx.plugin(RateLimit)		
-		this.ctx.plugin(BeforeUser)	
+		this.ctx.plugin(RateLimit)
+		this.ctx.plugin(BeforeUser)
 		this.ctx.plugin(Bind)
 		this.ctx.plugin(TestCom)
 
@@ -84,13 +91,13 @@ export class Core {
 					setTimeout(() => {
 						if(bot.s){
 							console.log('数据加载完毕。')
-						}						
+						}
 					}, 1000);
 				}
 				Yun.config = that.conf
 				console.log('设置已读取：',Yun.config)
 			}, 2000);
-		})		
+		})
 	}
 
 	private async initYun(){
@@ -98,7 +105,7 @@ export class Core {
 		this.ctx.on("bot-status-updated", async (session)=>{
 			if(Yun.state){
 				console.log("本地数据已读取完毕！开始唤醒路昀bot。")
-
+        console.log(`userid:${session.userId}`)
 				const time = new Date()
 				const res = [
 					`${time.toLocaleString()}`,
@@ -110,7 +117,7 @@ export class Core {
 				let txt = res.join('\n'), txt1 = ""
 				let now = time.getHours()
 				let zone = getTimeZone(now)
-				
+
 				if(Yun.stats == 'sleeping'){
 					Yun.stats = 'awake';
 					Yun.save()
@@ -127,15 +134,18 @@ export class Core {
 
 				setTimeout(()=>{
 					if(session.platform == 'onebot'){
+
 						session.sendPrivateMessage(master, txt)
 					}
-					
+
 				},1000)
+
+       await session.sendPrivateMessage("1034826119", "测试")
 				setTimeout(() => {
 					if(session.platform == 'onebot'){
 						session.sendPrivateMessage(master, txt1)
 					}
-					
+
 				}, 2000);
 
 				Yun.botstats = 'LoadEnd'
@@ -143,7 +153,7 @@ export class Core {
 			}
 		})
 	}
-	
+
 	get comlist(){
 		const $ = this.ctx.$commander
 		const commands = $._commandList.filter(cmd => cmd.parent === null)
@@ -167,9 +177,9 @@ export class Core {
 					if(zone == '中午') text +='“师父……还有各位……中午好……”';
 					if(['下午','傍晚'].includes(zone)) text += '“师父……还有各位……下午好……”\n“……？我是不是起太晚了……？”';
 
-					if(Yun.stats == 'awake'){
-						await that.ctx.broadcast(['4709267978629327','246789096'],text)
-					}
+					// if(Yun.stats == 'awake'){
+					// 	await that.ctx.broadcast(['4709267978629327','246789096'],text)
+					// }
 					console.log('路昀bot已启动完毕。')
 					Yun.botstats = 'Running'
 

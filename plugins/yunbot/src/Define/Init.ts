@@ -1,4 +1,4 @@
-import { Context, Dict, Session, User } from "koishi";
+import {Computed, Context, Dict, Session, User} from "koishi";
 import { bot, DailyData, Game, Today, Yun} from ".";
 import fs from "fs"
 import { random } from "../Utils";
@@ -53,7 +53,7 @@ export function _extend(ctx:Context){
 	ctx.model.extend("YunSave",{
 		id:"string",
 		uid:"string",
-		
+
 		name:"string",
 		chara:"string",
 		reset:"integer",
@@ -71,7 +71,7 @@ export function _extend(ctx:Context){
 	ctx.model.extend("oldsave",{
 		id:"unsigned",
 		uid:"string",
-		
+
 		name:"string",
 		chara:"string",
 		reset:"integer",
@@ -82,7 +82,7 @@ export function _extend(ctx:Context){
 
 	ctx.model.extend("user",{
 		userID:"string",
-		chara:"string",		
+		chara:"string",
 		role:"string",
 		reset:"integer",
 		game:"json",
@@ -105,7 +105,7 @@ export function _extend(ctx:Context){
 export async function save() {
 	let data1 = JSON.stringify(Today.data)
 	await fs.writeFileSync("UserToday.json", data1);
-	
+
 	Yun.state.stats = Yun.stats
 	let data2 = JSON.stringify(Yun.state)
 	await fs.writeFileSync("YunData.json", data2);

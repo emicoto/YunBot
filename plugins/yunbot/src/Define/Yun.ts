@@ -1,9 +1,8 @@
-import { LevelExp, getBreakRate, Minds, getJrrp,bot,  Equipment, Equip, Soul, getChara, CountStats, Weapon, Game, random, setChara, Upgrade, Today, save, faceicon, txtp, YunCom, LevelKan, breakProces } from "../unit"
+import { Soul,CountStats, LevelExp, getBreakRate, breakProces,Minds, getJrrp,bot,  Equipment, Equip,  getChara, Weapon, Game, random, setChara, Upgrade, Today, save, faceicon, txtp, YunCom, LevelKan } from "../unit"
 import { Config, shopitems } from "../index";
 import { createHash } from "crypto";
 import fs from "fs"
 import { Dict, Session } from "koishi";
-
 export interface Yun{
 	name:string;	title:string;
 	talent:string[];	soul:string;
@@ -19,7 +18,7 @@ export interface Yun{
 	BP:number;
 
 	ATK:number;	DEF:number;	SPD:number;
-	INT:number;	WIL:number;	
+	INT:number;	WIL:number;
 
 	luck?:number;
 	lastluck?:number;
@@ -69,7 +68,7 @@ export class Yun{
 			this.talent = ['灵兽','灵泉','内向','淡漠','散漫'];
 			this.soul = '天水';
 
-			this.level = 21; this.exp = 0;	
+			this.level = 21; this.exp = 0;
 
 			this.mood = Yun.mood();	this.stats = 'sleeping';
 			this.money = 500;
@@ -254,7 +253,7 @@ export class Yun{
 
 		console.log(data.name,'信赖变化：',trust,"+",val,'=>', await (await getChara(uid)).trust )
 	}
-	
+
 	public static async count(){
 		return CountStats(this.selfId, 'yun')
 	}
@@ -263,7 +262,7 @@ export class Yun{
 	}
 	public static yunrate(){
 		const mood = Yun.mood()
-		const rate = random(103) + (mood > 60 ? mood/10 : -(mood/5)) 
+		const rate = random(103) + (mood > 60 ? mood/10 : -(mood/5))
 		return rate
 	}
 	public static trainCheck(){
@@ -306,7 +305,7 @@ export async function yunTraining(session){
 			Yun.stats = 'free'
 			Today.data.yun.loads = 0
 			save()
-			
+
 			const txt = txtp(YunCom['修炼完毕'].join('\n'),[result])
 
 			session.send(txt)

@@ -1,9 +1,8 @@
-import { between } from "./common";
+import {between} from "./common";
 
 export function cnTime() {
-	var cn = new Date().toLocaleString("jpn", { timeZone: "Hongkong" });
-	var cntime = new Date(cn);
-	return cntime;
+  const cn = new Date().toLocaleString("jpn", {timeZone: "Hongkong"});
+  return new Date(cn);
 }
 
 export function getTimeZone(hour:number) {
@@ -17,9 +16,11 @@ export function getTimeZone(hour:number) {
 	return "深夜";
 }
 
+
+const gan = [ "子", "丑", "寅", "卯", "巳", "午", "未", "申", "酉", "戌", "亥", ];
+const ke = ["一", "二", "三", "四", "五", "六", "七", "八"];
+
 export function getShichen() {
-	const gan = [ "子", "丑", "寅", "卯", "巳", "午", "未", "申", "酉", "戌", "亥", ];
-	const ke = ["一", "二", "三", "四", "五", "六", "七", "八"];
 
 	let now = cnTime();
 
@@ -36,21 +37,21 @@ export function getShichen() {
 
 	return s + "刻";
 }
-
+const level = [
+  "炼心", //0-10
+  "破幻", //11+
+  "灵动", //21+
+  "开元", //31+
+  "结丹", //41+
+  "解灵", //51+
+  "归一", //61+
+  "通天", //71+
+  "大乘", //81+
+  "真仙", //91+
+];
+const char = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
 export function LevelKan(lv) {
-	let level = [
-		"炼心", //0-10
-		"破幻", //11+
-		"灵动", //21+
-		"开元", //31+
-		"结丹", //41+
-		"解灵", //51+
-		"归一", //61+
-		"通天", //71+
-		"大乘", //81+
-		"真仙", //91+
-	];
-	let char = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+
 
 	lv = Math.min(lv - 1, 100);
 
@@ -63,6 +64,5 @@ export function LevelKan(lv) {
 		t = "大圆满";
 	}
 
-	let text = `${level[m]} ${t}`;
-	return text;
+  return `${level[m]} ${t}`;
 }
