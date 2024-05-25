@@ -1,5 +1,6 @@
-import { segment } from "koishi"
-import path from "path";
+import { segment ,h} from "koishi"
+import {sep,normalize,resolve} from "path";
+import { readFileSync,existsSync } from "fs";
 import { pathToFileURL } from "url";
 import { bot } from "../Define";
 
@@ -42,44 +43,34 @@ export function either(arr: Array<any>) {
 }
 
 export function At(uid: string) {
-	return segment("at", { id: uid });
+	return h("at", { id: uid });
 }
 
 export function getSegmentImage(url: string) {
-	return segment("image", { url });
+	return h("image", { url });
 }
 
 export function getImagePath(paths: string) {
-	const url = path.normalize(paths).split(path.sep).join("/");
+	const url = normalize(paths).split(sep).join("/");
 	return pathToFileURL(url).toString();
 }
 
 export function ImgUrl(url){
-	return segment('image', { url: url})
+	return h('image', { url: url})
 }
 
 export function faceicon(str:string) {
-  let path ;
-
-  if(bot.pf == 'discord'){
-	path = `file://H:/_Yunbot/data/images/Yun_${str}.png`
-  }else{
-	path = `file:///H:/_Yunbot/data/images/Yun_${str}.png`
-  }
-
-  return segment("image", { url: path });
+  return images(`Yun_${str}.png`);
 }
-
-export function images(str:string) {
-  let path;
-
-  if(bot.pf == 'discord'){
-	path = `file://H:/_Yunbot/data/images/${str}`
-  }else{
-	path = `file:///H:/_Yunbot/data/images/${str}`
+export function getImage(filepath:string){
+  const image = resolve(__dirname, `../data/images/${filepath}`);
+  if (!existsSync(image)) {
+    return null;
   }
-
-  return segment("image", { url: path });
+  return `data:image/png;base64,${readFileSync(image,"base64")}`;
+}
+export function images(str:string) {
+  return h("image", { url: getImage(str) });
 }
 
 export function gmatch(a, arr: Array<any>) {
@@ -117,7 +108,7 @@ export function slicer(arr:Array<any>, id){
 
 export function Roll(times:number, max:number) {
 	let re
-	
+
 	re = {
 		roll: [],
 		result: 0,

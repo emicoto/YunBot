@@ -71,5 +71,7 @@ plugins:
       root: .
   adapter-onebot:89gydp:
     selfId: '1034826119'
-  ~yunbot:ott6gg: {}
+    protocol: ws
+    endpoint: ws://43.153.29.21:3001
+  yunbot:ott6gg: {}
   ~yunbot:7c4689: {}

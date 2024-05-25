@@ -80,12 +80,16 @@ Schema.object({
 }).description('商店设置')
 
 ])
+export const inject = {
+  required: ['database'],
+}
 export function apply(ctx:Context, config: Config={}){
-  ctx.inject(['console'], (ctx) => {
-    ctx.console.addEntry({
-      dev: resolve(__dirname, '../client/index.ts'),
-      prod: resolve(__dirname, '../dist'),
-    })
+  ctx.inject(['console',"database"], (ctx) => {
+    // ctx.console.addEntry({
+    //   dev: resolve(__dirname, '../client/index.ts'),
+    //   prod: resolve(__dirname, '../dist'),
+    // })
+    console.log(ctx)
   })
 	Core.init(ctx, config)
 }

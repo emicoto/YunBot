@@ -1,5 +1,6 @@
 import { Dict } from "koishi";
-import { copy, fixed, GradeName, txtp, random, GameUtils, category } from "../unit";
+import { copy, fixed, GradeName, txtp, random, category } from "../unit";
+import {Soul} from "../GameUtils";
 
 
 type wType = '刀剑' | '暗器' | '扇' | '乐器' | '法杖' | '枪械' | '长柄刀剑' | '鞭绳' | ''
@@ -137,7 +138,7 @@ export class Weapon{
 		return this
 	}
 	setRandomSoul?(str?){
-		this.soul = GameUtils.Soul.Random(str)
+		this.soul = Soul.Random(str)
 		return this
 	}
 	setSkill?(str:string){

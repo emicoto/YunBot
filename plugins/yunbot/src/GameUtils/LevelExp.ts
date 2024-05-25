@@ -1,5 +1,4 @@
-import { random, Game, Yun, between, getJrrp, Soul  } from "../unit";
-
+import {random, Game, Yun, between, getJrrp, Soul} from "../unit";
 //获取经验
 export function getTrainExp(level:number, luck:number, min:number, max:number){
     let next = LevelExp(level);
@@ -26,7 +25,7 @@ export function LevelExp(level:number){
 	let y = 1+(level/100)
 	if(level >= 40) re += Math.atan(0.05*(level-40))*5000000
 	if(level > 10) re *= y
-	
+
 	return Math.floor(re/20)*20
 }
 
@@ -40,7 +39,7 @@ export function expCount(getexp:number, data:Game|Yun) {
 }
 
 export function LevelBuff(level:number){
-	return Math.pow(1.25,Math.floor(level/10)) 
+	return Math.pow(1.25,Math.floor(level/10))
 }
 
 export function expLevelBuff(level:number){
@@ -79,7 +78,7 @@ export function getBreakRate(data:Game|Yun, uid:string) {
 
 	if(data.flag?.breakbuff) goal += data.flag.breakbuff;
 	if(data.flag?.equipBreak) goal += data.flag.equipBreak;
-	
+
 	return Math.max(Math.floor(goal+0.5),3)
 
 }

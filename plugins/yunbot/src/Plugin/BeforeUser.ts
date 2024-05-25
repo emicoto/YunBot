@@ -36,7 +36,7 @@ export function BeforeUser(ctx:Context, config: Config={}){
 	//小昀的数据处理。只有小昀的数据有变动时才会进行
 	ctx.before("command/attach-user", async ( command:Command )=>{
 		if(!command || !command.config?.yunAction ) return;
-		
+
 		if(Yun.state.AP <= 3){
 			//监听中时，不足3时概率触发休息事件。
 		}
@@ -63,9 +63,11 @@ export function BeforeUser(ctx:Context, config: Config={}){
 	})
 
 	ctx.before("command/execute",async (argv: Argv<'name'|'game'|'daily'|'userID'|'chara'|'authority'|'flags'>)=>{
-		const { session, options, command } = argv	
+		const { session, options, command } = argv
 		if(!session || !session?.user ) return;
-
+    if (!Yun.state){
+      Yun.init();
+    }
 		bot.user = session.user //暂存一下方便调用
 		bot.pf = session.platform
 
@@ -91,14 +93,14 @@ async function notice(session:Session<'flags'>) {
 	const newscontext = Yun.config.anounce
 	const channel = await bot.db.getChannel(session.platform, session.channelId)
 	const now = Date.now()
-	
+
 
 	if( !flags?.newscheck ){
 		flags.newscheck = {}
 	};
 
 	if(!newsname || !newscontext ) return
-	
+
 	//console.log(( now > channel.announce))
 	if( !channel?.announce || now > channel.announce){
 
@@ -107,7 +109,7 @@ async function notice(session:Session<'flags'>) {
 			await session.send(newscontext)
 
 			const due = now + Time.hour
-			await bot.db.setChannel(session.platform, session.channelId, { announce : due })			
+			await bot.db.setChannel(session.platform, session.channelId, { announce : due })
 		}
 	}
 
@@ -124,7 +126,7 @@ async function InitUser( session:Session ){
 	let userID = init[1]
 	let name = init[0]
 	let role = ''
-	//await initUser(session, userID, name)	
+	//await initUser(session, userID, name)
 
 	let authority = 1
 	//自动设置权限分配
@@ -140,15 +142,15 @@ async function InitUser( session:Session ){
 }
 
 async function Initdaily(session:Session<'daily'|'game'>) {
-	const now = new Date()		
+	const now = new Date()
 	const { daily } = session.user
-
+  console.log(daily)
 	//每日刷新
-	if( !daily?.lastDay || daily.lastDay.getDate() !== now.getDate() ){
+	if( !daily?.lastDay || new Date(daily.lastDay).getDate() !== now.getDate() ){
 		session.user.daily = new DailyData()
 		session.user.game.AP = session.user.game.maxAP;
 		session.user.$update()
-	}	
+	}
 }
 
 //---------Update User------------>>

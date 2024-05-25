@@ -1,5 +1,5 @@
-import {Argv, Command, Computed, Context, Dict, Session, Time, User} from 'koishi'
-import { adminUser } from '@koishijs/helpers'
+import {Argv, Command, Computed, Context, Dict, Session, Time, User,} from 'koishi'
+// import { adminUser } from '@koishijs/helpers'
 import {} from '@koishijs/plugin-help'
 import { Yun, printTime, setUsage, MaxUsage, TimerRes, txtp, LongActRes, FinishAction, bot, getUser, waitTime } from '../unit';
 
@@ -65,11 +65,11 @@ export function RateLimit(ctx: Context) {
 
 	ctx.command("cdtimer [key] [value:date]","-计时器  显示指令的冷却CD",{ authority: 1, usageName:"计时器", system:true } )
 		.alias('计时器')
-		.alias(/(还有多久|什么时候|啥时候|何时)(能|可以){0,1}(\S+)(啊？|呀？){0,1}$/,{args:['$3'], prefix:true})
+		.shortcut(/(还有多久|什么时候|啥时候|何时)(能|可以){0,1}(\S+)(啊？|呀？){0,1}$/,{args:['$3'], prefix:true})
 		.option('clear','-c', { authority:4 })
 		.option('set','-s',{ authority:4 })
 		.userFields(['authority','daily','name'])
-		.use(adminUser)
+		// .use(adminUser)
 		.action(async({ session, options }, name, value)=>{
 			if(!session || !session.user) return;
 			const { user } = session
@@ -105,7 +105,7 @@ export function RateLimit(ctx: Context) {
 	})
 
 	//extend command help
-	ctx.on('help/command', (output, command, session: Session<'daily' | 'name'>) => {
+	ctx.on('help/command', (output, command:Command, session: Session<'daily' | 'name'>) => {
 		if(!session.user) return
 
 		const name = getUsageName(command)
@@ -134,6 +134,7 @@ export function RateLimit(ctx: Context) {
 	// extend command option
 	ctx.on('help/option', (output, option, command, session) => {
 		const maxUsage = command.getConfig('maxUsage', session)
+
 		if (option.notUsage && maxUsage !== Infinity) {
 			output += session.text('internal.option-not-usage')
 		}
@@ -202,7 +203,7 @@ export function checkLongAction({ daily }:Pick<User,'daily'>){
 	else return 'finish';
 }
 
-export function checkUsageEvent( session:Session<'daily'|'game'>, options, command:Command ){
+export function checkUsageEvent( session:Session<'daily'|'game'>, options, command ){
 	if( !command || (options && options?.help)) return;
 
 	const { daily } = session.user

@@ -17,7 +17,7 @@ export function intKan(i:number){
 
 	let str = "", num = Math.abs(i)
 	let int = num.toString()
-	
+
 	if(i >= Math.pow(10,15)) return "过万兆";
 	if(i <= -Math.pow(10,15)) return "负万兆";
 	if(between(i,0,10)) return n[i]

@@ -1,6 +1,24 @@
 import { Dict, Session } from "koishi";
-import { random ,CountStats, expCount, bot, Skill, Soul, Yun, Equip, PlayerCore,  Weapon, Minds, Items, Upgrade, LevelExp, between, getTrainExp, copy, DailyData, getUser, initUser, userExist, UserData, makeID } from "../unit"
-
+import {
+  random,
+  bot,
+  Skill,
+  Yun,
+  Equip,
+  PlayerCore,
+  Weapon,
+  Minds,
+  Items,
+  Upgrade,
+  between,
+  copy,
+  DailyData,
+  getUser,
+  initUser,
+  userExist,
+  UserData,
+  makeID,Soul,CountStats, LevelExp, expCount, breakProces,getTrainExp
+} from "../unit"
 export interface Game{
 	name:string;	nick?:string;
 	savename?:string;
@@ -69,7 +87,7 @@ export interface Condition{
 	name:playerStats;
 	type:condType;
 	time:number;
-	
+
 	HP?:number; reHP?:number; dwHP?:number; redHP?:number;
 	SP?:number; reSP?:number; dwSP?:number; redSP?:number;
 
@@ -99,7 +117,7 @@ export class Game{
 		this.money = 5;
 
 		this.soul = "金木水火土";
-		
+
 		this.level = 1;	this.exp = 0;
 		this.stats = "";
 
@@ -109,7 +127,7 @@ export class Game{
 
 		this.ATK = 5;	this.DEF = 5;	this.SPD = 5;
 		this.INT = 5;	this.WIL = 5;
-		
+
 		this.skill = [];
 	}
 
@@ -119,7 +137,7 @@ export class Game{
 
 	public static async getChara(uid:string):Promise<Game>{
 		const chk = await bot.db.get("user", {"userID": uid})
-		let data:Game = chk[0].game 
+		let data:Game = chk[0].game
 		return data
 	}
 
@@ -174,9 +192,9 @@ export class Game{
 
 		const save = (savename ? savename : chara)
 		charalist[save] = (data ? data : game)
-		
+
 		await bot.db.set("YunSave", {uid: userID}, {
-			charalist : charalist, 
+			charalist : charalist,
 			name : name,
 			[session.platform]:[session.userId],
 		})
@@ -212,21 +230,21 @@ export class Game{
 
 		const chk1 = await bot.db.get("YunSave",{uid:userID})
 		let charalist = chk1[0].charalist
-		
+
 		charalist[chara] = this.initChara(chara, nick)
 		charalist[chara].soul = soul
-		
+
 		//console.log(charalist)
 
 		await bot.db.set("YunSave", {uid: userID}, { charalist } )
 		return charalist[chara]
-		
+
 	}
 
 	public static initOldSave(save){
 		const old = copy(save)
 		let data = this.initChara(save.name, save.nick)
-		
+
 		data.level = old.level
 		data.soul = old.soul;
 		data.money = old.money;
@@ -234,12 +252,12 @@ export class Game{
 		data.favo = old.favo;
 		data.trust = old.trust;
 		data.INT = old.INT;
-		data.WIL = old.WIL;	
+		data.WIL = old.WIL;
 
 		data.signed = true;
-		
+
 		data.level -= Math.floor(old.level/10)
-		
+
 		if(old.core?.id) data.core = old.core;
 		if(old.skill) data.skill = old.skill;
 
@@ -249,7 +267,7 @@ export class Game{
 		}
 
 		const up = Object.keys(old.upgrade)
-	
+
 		if(up.length){
 			for(let i in old.upgrade){
 				const oi:any = old.upgrade[i]
@@ -279,14 +297,14 @@ export class Game{
 	public static initChara(chara:string, nick?:string){
 		let newChara = new Game(chara)
 		if(nick) newChara.nick = nick;
-			
+
 
 		const obj = {
 			title:'', money:50, favo:0, trust:0,
 			luck:0, lastluck:0,
 			AP:8, maxAP:8,
 			mine:100,	plant:100,
-			medicine:100,	craft:100,	research:100,		
+			medicine:100,	craft:100,	research:100,
 		}
 
 		for(let i in obj){
@@ -311,7 +329,7 @@ export class Game{
 			breakbuff:0, equipBreak:0, expbuff:0,
 			farm:[], 	stove:[], 	craftable:[],
 			researchTree:[],
-			
+
 			event:{}, eventbonus:{},
 			totalexp:0,
 		}
@@ -339,13 +357,13 @@ export class Game{
 		const chk = await bot.db.get("YunSave", { uid: uid })
 		let charalist = chk[0].charalist
 			delete charalist[chara] //把旧的删除
-		
+
 		const targetname = Object.keys(charalist)[0] //获取另一个角色的名字。
 		charalist[chara] = now //又放回去。
 
 		const data = charalist[targetname]
 		session.user.chara = targetname
-		
+
 		if(data.flag?.daily?.lastDay){ //切换每日档案。
 			user.daily = data.flag.daily
 			delete data.flag.daily
@@ -389,7 +407,7 @@ export class Game{
 }
 
 
-export const { 
-	getChara, setChara, getExp, setMoney, 
+export const {
+	getChara, setChara, getExp, setMoney,
 	setCondbySkill, setCondbyItem, Corebuff
 } = Game

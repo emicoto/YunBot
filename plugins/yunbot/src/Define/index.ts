@@ -1,6 +1,8 @@
-import { DatabaseService } from "koishi";
+// import { DatabaseService } from "koishi";
 import { Today } from "./Today";
 import { Yun} from "./Yun";
+import DatabaseProvider from "koishi-plugin-dataview";
+import {Database} from "koishi";
 
 export * from "./Yun"
 export * from "./Today"
@@ -39,7 +41,7 @@ export const Roles = {
 
 
 interface global{
-    db?:DatabaseService;
+    db?:Database<any,any,any>;
     pf?:string;//平台名
 
     temp:any; //暂存位
@@ -61,8 +63,8 @@ export const Authorized= {
     [onisan]:3,
     [senior]:3,
     [brother]:3,
-    [elder]:3, 
-    [cleaner]:2,    
+    [elder]:3,
+    [cleaner]:2,
 }
 
 
@@ -74,6 +76,6 @@ if(!bot.s){
     setTimeout(() => {
         if(bot.s){
             console.log('数据初始化完毕。')
-        }        
+        }
     }, 2000);
 }
