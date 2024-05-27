@@ -185,7 +185,7 @@ export async function getName(uid:string){
 
 export async function getSaves(uid:string):Promise<Dict<Game>>{
 	const chk = await bot.db.get('YunSave', { uid: uid})
-	return chk[0].charalist
+	return chk[0]?.charalist ?? []
 }
 
 export async function userExist(uid:string) {
@@ -194,8 +194,9 @@ export async function userExist(uid:string) {
 }
 
 export async function makeID(){
-	let chk = await bot.db.get("YunSave", null)
-	const newid = parseInt(chk[chk.length-1].id)+1 + random(3)
+	let chk = await bot.db.get("YunSave", null);
+	let lastId = chk && chk.length > 0 ? parseInt(chk[chk.length -1]?.id ?? 0) : 0
+	const newid =  lastId +1 + random(3)
 	const id = (chk.length > 10000000 ? chk.length.toString() :'0'.repeat(8-(newid.toString().length)) + newid )
 
 	return id

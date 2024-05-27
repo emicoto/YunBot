@@ -169,8 +169,7 @@ async function UpdateUser(session:Session<'userID' | 'game' | 'chara'>) {
 //指令触发前的对话事件。
 async function beforeEvent(session:Session<'userID' | 'game' | 'authority'>, command:Command) {
 	const { user } = session;
-	const shouldIgnore = command.getConfig('ignore', session)
-	const shouldSigned = command.getConfig('signed', session)
+	const {ignore:shouldIgnore,signed:shouldSigned} = command.config;
 
 	if(user.authority < 1) return '……（已被拉黑）';
 

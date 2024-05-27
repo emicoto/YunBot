@@ -16,11 +16,8 @@ export class Core {
 		if(!Core._instance){
 			Core._instance = new Core(app, config);
 			Core._instance.Start();
-      console.log('Core已启动')
-      console.log(Core._instance)
 		}
 
-    console.log(Core._instance)
 		return Core._instance;
 	}
 
@@ -140,7 +137,6 @@ export class Core {
 
 				},1000)
 
-       await session.sendPrivateMessage("1034826119", "测试")
 				setTimeout(() => {
 					if(session.platform == 'onebot'){
 						session.sendPrivateMessage(master, txt1)

@@ -107,10 +107,10 @@ export function RateLimit(ctx: Context) {
 	//extend command help
 	ctx.on('help/command', (output, command:Command, session: Session<'daily' | 'name'>) => {
 		if(!session.user) return
-
+		let { maxUsage:max, minInterval:min } = command.config;
 		const name = getUsageName(command)
-		let maxUsage = command.getConfig('maxUsage', session) ?? 0
-		let minInterval = command.getConfig('minInterval', session) ?? 0
+		let maxUsage = max as number ?? 0
+		let minInterval = min as number ?? 0
 
 		if(maxUsage > 0){
 			const usage = getUsage(name, session.user)
@@ -133,7 +133,7 @@ export function RateLimit(ctx: Context) {
 
 	// extend command option
 	ctx.on('help/option', (output, option, command, session) => {
-		const maxUsage = command.getConfig('maxUsage', session)
+		const {maxUsage} = command.config
 
 		if (option.notUsage && maxUsage !== Infinity) {
 			output += session.text('internal.option-not-usage')
@@ -203,7 +203,7 @@ export function checkLongAction({ daily }:Pick<User,'daily'>){
 	else return 'finish';
 }
 
-export function checkUsageEvent( session:Session<'daily'|'game'>, options, command ){
+export function checkUsageEvent( session:Session<'daily'|'game'>, options: { help?: any; }, command: Command<never, never, any[], {}> ){
 	if( !command || (options && options?.help)) return;
 
 	const { daily } = session.user
@@ -214,13 +214,10 @@ export function checkUsageEvent( session:Session<'daily'|'game'>, options, comma
 		}
 	}
 	if(!isUsage) return;
-
-	let minInterval = command.getConfig("minInterval", session)
-	let maxUsage = command.getConfig("maxUsage", session);
-	let longAction = command.getConfig("longAction", session);
-	const yunAction = command.getConfig("yunAction", session);
-	const system = command.getConfig('system',session);
-	const notQQ = command.getConfig('notQQ', session);
+	const { minInterval:min, maxUsage:max ,longAction:lAction,yunAction,system,notQQ} = command.config
+	let minInterval = min as number ?? 0
+	let maxUsage = max as number ?? 0
+	let longAction = lAction as number ?? 0
 	const comname = getUsageName(command)
 
 
