@@ -6,7 +6,8 @@ import { getJrrpComment } from "../Plugin";
 export function DailyRoutine(ctx:Context){
 
 	ctx.command('signin', '-每日签到  签到前最好找小昀算一卦。',{ ignore:true, signed:true, usageName:'签到', maxUsage:1, hidden:true} )
-		.alias('每日签到')
+		.alias('每日签到').
+  alias("",{})
 		.shortcut('签到')
 		.shortcut('打卡')
 		.shortcut(/^我(要|来)签到\S{0,3}$/,{})
@@ -14,7 +15,7 @@ export function DailyRoutine(ctx:Context){
 		.action( async ({ session })=>{
 			const { game, daily, userID, role } = session.user;
 			const name = (game.nick ? game.nick : game.name)
-			
+
 			let txt = '路昀：“'
 
 			if(role.length){
@@ -38,12 +39,12 @@ export function DailyRoutine(ctx:Context){
 			session.send(txt)
 
 		})
-	
+
 	ctx.command('dailyquest [type]', '-每日任务  还没弄好，准备开放。', { signed:true, usageName: '每日任务', maxUsage: 5, hidden:true })
 		.alias('每日任务')
 		.userFields(['game','daily','userID'])
 		.action(async ({ session }) => {
-			
+
 		})
 
 }

@@ -1,7 +1,6 @@
 {
   "name": "koishi-plugin-yunbot",
-  "description": "yunbot",
-  "private": true,
+  "description": "(自用) 路昀的修仙插件",
   "version": "1.0.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,18 +12,22 @@
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "game"
   ],
+  "homepage":"https://github.com/emicoto/YunBot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emicoto/YunBot.git"
+  },
   "peerDependencies": {
     "koishi": "^4.17.4"
   },
   "koishi": {
     "description": {
-      "zh": "路昀的聊天机器人插件"
+      "zh": "(自用) 路昀的修仙插件"
     },
-    "service": [
-      "database"
-    ],
+    "service":{ "required": ["database"]},
     "locales": [
       "zh"
     ],

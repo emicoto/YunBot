@@ -8,7 +8,11 @@ import { PlayerCombat } from "./Game/pk";
 import {} from "koishi-plugin-adapter-onebot"
 
 export class Core {
-	private static _instance:Core;
+	private static _instance: Core;
+	public static get instance() { 
+		return Core._instance;
+	
+	}
 	private loading:number = 0;
 
 	public static init(app:Context, config:Config={}){
@@ -16,16 +20,13 @@ export class Core {
 		if(!Core._instance){
 			Core._instance = new Core(app, config);
 			Core._instance.Start();
-      console.log('Core已启动')
-      console.log(Core._instance)
 		}
 
-    console.log(Core._instance)
 		return Core._instance;
 	}
 
-	private ctx: Context;
-	private conf: Config;
+	public ctx: Context;
+	public conf: Config;
 
 	constructor(app:Context, config:Config={}){
 		this.ctx = app;
@@ -140,7 +141,6 @@ export class Core {
 
 				},1000)
 
-       await session.sendPrivateMessage("1034826119", "测试")
 				setTimeout(() => {
 					if(session.platform == 'onebot'){
 						session.sendPrivateMessage(master, txt1)

@@ -103,13 +103,9 @@ export function _extend(ctx:Context){
 }
 
 export async function save() {
-	let data1 = JSON.stringify(Today.data)
-	await fs.writeFileSync("UserToday.json", data1);
-
+	await Today.save()
 	Yun.state.stats = Yun.stats
-	let data2 = JSON.stringify(Yun.state)
-	await fs.writeFileSync("YunData.json", data2);
-	console.log('已保存全部本地数据。')
+	await Yun.save()
 }
 
 export async function initUserFirst( session:Session ) {
@@ -185,7 +181,7 @@ export async function getName(uid:string){
 
 export async function getSaves(uid:string):Promise<Dict<Game>>{
 	const chk = await bot.db.get('YunSave', { uid: uid})
-	return chk[0].charalist
+	return chk[0]?.charalist ?? []
 }
 
 export async function userExist(uid:string) {
@@ -194,8 +190,9 @@ export async function userExist(uid:string) {
 }
 
 export async function makeID(){
-	let chk = await bot.db.get("YunSave", null)
-	const newid = parseInt(chk[chk.length-1].id)+1 + random(3)
+	let chk = await bot.db.get("YunSave", null);
+	let lastId = chk && chk.length > 0 ? parseInt(chk[chk.length -1]?.id ?? 0) : 0
+	const newid =  lastId +1 + random(3)
 	const id = (chk.length > 10000000 ? chk.length.toString() :'0'.repeat(8-(newid.toString().length)) + newid )
 
 	return id

@@ -3,7 +3,7 @@ import { bot, Common, faceicon, Game, getCall, txtp, random, Soul, UserMessage, 
 import {  } from  "@koishijs/plugin-adapter-kook"
 
 export function UserRegistry(ctx:Context){
-	
+
 	ctx.command('regist [name]', '-入门申请  仅限第一次时。用于初始化数据。',{ hidden:true, usageName:'入门申请' })
 		.alias('用户注册')
 		.alias('入门申请')
@@ -38,7 +38,7 @@ export function UserRegistry(ctx:Context){
 			if(!daily.temp['qa']){
 				await session.send(
 					txtp(UserMessage['注册：准备'].join('\n'), [chara])
-				)				
+				)
 				 next = await questionA(session,chara)
 				if(!next) return
 			}
@@ -56,7 +56,7 @@ export function UserRegistry(ctx:Context){
 
 			if(!daily.temp['qc']){
 				next = await questionC(session)
-				if(!next) return	
+				if(!next) return
 			}
 
 			if(!daily.temp['newsoul']){
@@ -70,12 +70,12 @@ export function UserRegistry(ctx:Context){
 			const username = await session.prompt(Time.minute*3)
 			//console.log(username)
 
-			if(!username) 
+			if(!username)
 				return session.text('internal.times-out');
 			else if( isInvalid(username) )
 				return session.text('internal.invalid-input');
 
-			session.user.name = username	
+			session.user.name = username
 			session.user.chara = chara
 			session.user.game = await Game.new(session,daily.temp['newsoul'],  chara)
 			session.user.game.signed = true;
@@ -87,7 +87,7 @@ export function UserRegistry(ctx:Context){
 			)
 
 		})
-	
+
 	ctx.command('recallex', '-回忆前尘  从旧档中继承。',{ hidden:true })
 		.alias('回忆前尘')
 		.alias('继承旧档')
@@ -105,7 +105,7 @@ export function UserRegistry(ctx:Context){
 			await session.send( UserMessage['继承：开始'].join('\n') )
 
 			await session.send( UserMessage['继承：询问'].join('\n') )
-			
+
 			answer = await session.prompt()
 			if(answer=='不是'){
 				return '啊……只是错觉吧。'
@@ -127,7 +127,7 @@ export function UserRegistry(ctx:Context){
 			await await ctx.database.remove('oldsave', { uid:userID })
 
 			await Game.setChara(userID, newsave)
-			await Game.delet(userID,chara)				
+			await Game.delet(userID,chara)
 			await Game.save(session, newsave, newsave.savename)
 			const cname = (oldsave.nick ? oldsave.nick : oldsave.name)
 
@@ -139,14 +139,14 @@ export function UserRegistry(ctx:Context){
 			)
 
 		})
-	
+
 	ctx.command('savechara', '-写日记  更新人物存档', { signed:true, hidden:true, usageName:'写日记' })
 		.alias('写日记')
 		.alias('保存人物')
 		.userFields(['game','userID','chara','name'])
 		.action( async ({ session })=>{
 			const { userID, chara} = session.user
-			await checkData(session, userID)//保存前先检查一下存档		
+			await checkData(session, userID)//保存前先检查一下存档
 
 			await session.send(`@${chara} 你回到了自己的房间，把最近经历记录下来。`)
 
@@ -154,7 +154,7 @@ export function UserRegistry(ctx:Context){
 			return '……这样就可以了吧。（保存完毕）'
 
 		})
-	
+
 	/*ctx.command('checksave', '-查看日记  查看存档情况', { signed:true, hidden:true, system:true })
 		.alias('查看日记')
 		.userFields(['userID','chara','name','game'])
@@ -163,7 +163,7 @@ export function UserRegistry(ctx:Context){
 			await checkData(session, userID) //总之先读档做个检测
 
 			const cli = await getSaves(userID)
-			const nli = Object.keys(cli)			
+			const nli = Object.keys(cli)
 
 			if(!nli.length) return '你翻了翻自己的日记，一片空白。'
 
@@ -174,7 +174,7 @@ export function UserRegistry(ctx:Context){
 			return txt
 
 		})*/
-	
+
 	function readDairy(sav, char?, nn1?, nn2?, mode?){
 		const txt = [
 			`桌上摆放着${char}本日记。上面标着日记主人的名字：${nn1}${nn2? '、'+nn2 : ''}。`,
@@ -193,14 +193,14 @@ export function UserRegistry(ctx:Context){
 		}
 		return txt2.join('\n')
 	}
-	
+
 	ctx.command('loadsave','-查看日记　读取人物档案', { hidden:true, system:true, usageName:"查看日记"})
 		.alias('查看日记').alias('阅读日记')
 		.userFields(['userID', 'chara', 'name', 'game'])
 		.action( async ({ session })=>{
 			const { userID, chara, game } = session.user
 			await checkData(session, userID) //老样子，先做个检测。
-			
+
 			const cli = await getSaves(userID)
 			const nli = Object.keys(cli)
 
@@ -211,7 +211,7 @@ export function UserRegistry(ctx:Context){
 
 			let txt = readDairy(cli[nli[0]], char[nli.length], nli[0], nli[1])
 			if(nli[1]) txt += '\n'+readDairy(cli[nli[1]], '', '', '', 1);
-			
+
 			txt+= `\n\n要读取哪本日记呢？\n1.${nli[0]}的日记  ${nli[1] ? `2.${nli[1]}的日记` : ' '}\n【请输入数字，输入其他退出】`
 
 			await session.send(txt)
@@ -222,20 +222,20 @@ export function UserRegistry(ctx:Context){
 			const n = nli[id]
 
 			sav = cli[n]
-			
+
 			if(game && game.signed){
 				await Game.save(session, game, chara)
 			}
-			
+
 			session.user.game = sav
 			session.user.chara = n
 			session.user.$update()
-			
+
 			return '你确认了最近发生的事情，回到了日常的工作中。（读档成功）'
 
 		})
 
-	
+
 	ctx.command('switchchara', '-工作交接  切换到存档中的另一个人物', { signed:true, hidden:true, usageName:'工作交接' })
 		.alias('工作交接')
 		.alias('切换人物')
@@ -251,7 +251,7 @@ export function UserRegistry(ctx:Context){
 			if(namelist.length < 2){
 				return '好像也没有可以交接的人……（你没有两个角色）'
 			}
-			
+
 			if(namelist.indexOf(chara)==0) target = namelist[1]
 			else target = namelist[0]
 
@@ -261,7 +261,7 @@ export function UserRegistry(ctx:Context){
 			return `接下来的事，就拜托${target}了。`
 
 		})
-	
+
 	ctx.command('newchara', '-新弟子报道  新建一个人物', { signed:true, hidden:true, usageName:'介绍新人' })
 		.alias('新建人物').alias('新弟子报道').alias('介绍新人')
 		.shortcut(/^看{0,2}我带(来了谁|谁来了|新人来了)\S{0,3}$/,{prefix:true})
@@ -292,7 +292,7 @@ export function UserRegistry(ctx:Context){
 				+'你敲了敲桌子与杂役弟子打招呼。'
 			)
 
-			let next 
+			let next
 
 			if(!daily.temp['chara']){
 				await session.send(
@@ -304,7 +304,7 @@ export function UserRegistry(ctx:Context){
 			else{
 				await session.send(session.text('yunbot.continue-to-regist1'))
 			}
-			
+
 			const newchara = daily.temp['chara']
 
 			if(!daily.temp['qa']){
@@ -346,7 +346,7 @@ export function UserRegistry(ctx:Context){
 			)
 
 		})
-	
+
 	ctx.command('delchara', '-离开宗门  删除当前角色', { signed:true, hidden:true, usageName:'离开宗门'})
 		.alias('删除角色')
 		.alias('离开宗门')
@@ -415,7 +415,7 @@ export function UserRegistry(ctx:Context){
 
 		})
 
-	
+
 	async function loadOld(uid:string) {
 		const chk = await ctx.database.get('oldsave', { uid: uid })
 		if(!chk.length){
@@ -443,13 +443,13 @@ export function UserRegistry(ctx:Context){
 		}
 
 		if(chara.length > 5) return '最大五个字。'
-		
-		const chk = await ctx.database.get('user', { 'game.name': chara })
+
+		const chk = await ctx.database.get('user', { 'name': chara })
 		if(chk.length && chk[0].userID !== userID){
 			await session.send('不能重名。')
 			return
 		}
-		
+
 
 		daily.temp['chara'] = chara
 		await session.user.$update()

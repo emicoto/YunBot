@@ -27,7 +27,7 @@ export function BeforeUser(ctx:Context, config: Config={}){
 			userList.push(session.userId)
 		}
 		if(!name || !name.length){
-			name = session.channelName
+			name = channel.name
 		}
 		await ctx.database.setChannel(session.platform, session.channelId, { userList : userList, name: name })
 	})
@@ -91,8 +91,10 @@ async function notice(session:Session<'flags'>) {
 	const { flags } = session.user
 	const newsname = Yun.config.notice
 	const newscontext = Yun.config.anounce
-	const channel = await bot.db.getChannel(session.platform, session.channelId)
-	const now = Date.now()
+  const database = ctx.database
+	const channel = await database.getChannel(session.platform, session.channelId)
+
+  const now = Date.now()
 
 
 	if( !flags?.newscheck ){
@@ -102,14 +104,15 @@ async function notice(session:Session<'flags'>) {
 	if(!newsname || !newscontext ) return
 
 	//console.log(( now > channel.announce))
-	if( !channel?.announce || now > channel.announce){
+  const announce = channel?.announce as number
+	if( !announce || now > announce){
 
 		if(!flags?.newscheck[newsname] && session.platform == 'onebot' ){
 			flags.newscheck[newsname] = true
 			await session.send(newscontext)
 
 			const due = now + Time.hour
-			await bot.db.setChannel(session.platform, session.channelId, { announce : due })
+			await session.bot.ctx.database.setChannel(session.platform, session.channelId, { announce : due })
 		}
 	}
 
@@ -169,8 +172,7 @@ async function UpdateUser(session:Session<'userID' | 'game' | 'chara'>) {
 //指令触发前的对话事件。
 async function beforeEvent(session:Session<'userID' | 'game' | 'authority'>, command:Command) {
 	const { user } = session;
-	const shouldIgnore = command.getConfig('ignore', session)
-	const shouldSigned = command.getConfig('signed', session)
+	const {ignore:shouldIgnore,signed:shouldSigned} = command.config;
 
 	if(user.authority < 1) return '……（已被拉黑）';
 

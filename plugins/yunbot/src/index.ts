@@ -2,6 +2,7 @@ import { Context, Schema } from "koishi";
 import { Core } from "./Core";
 import { resolve } from 'path'
 import {} from '@koishijs/plugin-console'
+import { Today, Yun } from "./Define";
 
 
 export interface Config {
@@ -84,12 +85,14 @@ export const inject = {
   required: ['database'],
 }
 export function apply(ctx:Context, config: Config={}){
-  ctx.inject(['console',"database"], (ctx) => {
-    // ctx.console.addEntry({
-    //   dev: resolve(__dirname, '../client/index.ts'),
-    //   prod: resolve(__dirname, '../dist'),
-    // })
-    console.log(ctx)
-  })
+//   ctx.inject(['console',"database"], (ctx) => {
+//     // ctx.console.addEntry({
+//     //   dev: resolve(__dirname, '../client/index.ts'),
+//     //   prod: resolve(__dirname, '../dist'),
+//     // })
+//     console.log(ctx)
+	//})
+	Today.baseDir = ctx.baseDir;
+	Yun.baseDir = ctx.baseDir;
 	Core.init(ctx, config)
 }

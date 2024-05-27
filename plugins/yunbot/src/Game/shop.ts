@@ -80,7 +80,7 @@ export function ShopSystem(ctx:Context, config:Config={}){
 			}
 
 			if( !options?.count && isInvalid(id) || !parseInt(id) ) return '……？？\n【输入错误】'
-			
+
 			let sid = parseInt(id)-1
 
 			if( (!options?.count && game.money < shop[sid].value) || game.money < shop[sid].value*options.count ) return '……钱不够啊？'
@@ -121,7 +121,7 @@ export function ShopSystem(ctx:Context, config:Config={}){
 			session.user.$update()
 			return `你购买了${shopitem.name}并放进了储物戒中。`
 		})
-	
+
 	ctx.command('trade <target>','-交易  玩家之间交易物品。',{ hidden:true, signed:true, usageName:'交易', system:true })
 		.alias('交易')
 		.option('count','-c <value>')
@@ -154,7 +154,7 @@ export function ShopSystem(ctx:Context, config:Config={}){
 						money:(options.money ? options.money : 0),
 					}
 
-					//console.log(daily.temp['tradeinfo'])				
+					//console.log(daily.temp['tradeinfo'])
 				}
 
 				if(!parseInt(options.money)) return '【输入有误，价格只能是数字。】'
@@ -162,11 +162,12 @@ export function ShopSystem(ctx:Context, config:Config={}){
 
 				if(options.storage && options.item){
 					if(!parseInt(options.item)) return '【输入有误，储物戒id只能是数字。】'
-					
+
 
 					const sid = parseInt(options.item)-1
-					if(!game.storage[sid]?.name) return `【储物戒第${sid}格内没有任何有效物品】`
-					if(game.storage[sid].num < options.count) return '【持有的'+options.item+'数量不足以交易】'
+          const item = game.storage[sid] as Items
+					if(!item?.name) return `【储物戒第${sid}格内没有任何有效物品】`
+					if(item.num < options.count) return '【持有的'+options.item+'数量不足以交易】'
 
 					daily.temp['tradeinfo']={
 						sid: sid,
@@ -195,9 +196,9 @@ export function ShopSystem(ctx:Context, config:Config={}){
 			const data = await ctx.database.getUser(session.platform, tid)
 
 			if(tid == session.userId) return '【不能自己跟自己交易】'
-			
+
 			if(!data.daily.temp['tradeinfo']) return '【对方没有挂任何交易单】'
-			
+
 			const info = copy(data.daily.temp['tradeinfo'])
 
 			if(game.money < info.money) return '【金钱不足以交易】'
@@ -260,12 +261,12 @@ export function ShopSystem(ctx:Context, config:Config={}){
 				}
 
 				await ctx.database.setUser(session.platform, tid, { game: data.game, daily:data.daily })
-				return '【交易已顺利完成】'	
+				return '【交易已顺利完成】'
 
 			}
-			
+
 		})
-	
+
 	ctx.command('hongbao <target> <money:natural>','-红包  直接给被艾特的人打钱。', { hidden:true, signed:true, system:true })
 		.alias('红包')
 		.userFields(['game'])

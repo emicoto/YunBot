@@ -36,16 +36,18 @@ export function TestCom(ctx:Context, config: Config={}){
 			session.user.$update()
 
 			return '已恢复为旧档属性。'
-			
+
 
 		})
-	
+
 	ctx.command('clearuser',{hidden:true})
 		.action( async( { session}) =>{
 			const database = await ctx.database.get('user',null)
 			for(let i=0; i<database.length; i++){
 				let user = database[i]
-				if(!user.lastCall && !user.game?.name) await ctx.database.remove('user', { userID: user.userID })
+
+				// if(!user.lastCall && !user.game?.name) await ctx.database.remove('user', { userID: user.userID })
+        if(!user.game?.name) await ctx.database.remove('user', { userID: user.userID })
 			}
 
 			return s.images('cat_cross.jpg')

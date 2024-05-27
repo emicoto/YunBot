@@ -3,6 +3,8 @@ import { Config, shopitems } from "../index";
 import { createHash } from "crypto";
 import fs from "fs"
 import { Dict, Session } from "koishi";
+import { resolve } from "path";
+import { Core } from "../Core";
 export interface Yun{
 	name:string;	title:string;
 	talent:string[];	soul:string;
@@ -43,6 +45,14 @@ export type YunStats = 'free' | 'working' | 'sleeping' | 'awake' | 'gaming' | 'l
 export const statslist = ['free','working','sleeping' ,'awake','gaming','learning','goodnight', 'relax']
 
 export class Yun{
+	public static baseDir: string = "";
+	public static getDataPath() {
+		return resolve(Yun.baseDir, 'data', "yunSaves");
+	}
+	public static get YunPath(): string { 
+
+		return resolve(Yun.getDataPath(), 'YunData.json');
+	}
 	public static state:Yun;
 	public static botstats:botstats = '';
 
@@ -117,7 +127,7 @@ export class Yun{
 	public static load():Yun{
 		let data:Yun = Yun.state
 		if(!data){
-			fs.readFile('YunData.json',"utf-8", (err, file)=>{
+			fs.readFile(Yun.YunPath,"utf-8", (err, file)=>{
 				if(!file) return;
 				if(err) throw new Error("error occured while reading file:YunData.json")
 				data = JSON.parse(file.toString());
@@ -147,7 +157,8 @@ export class Yun{
 		Yun.state.stats = Yun.stats
 
 		const data = JSON.stringify(Yun.state);
-		await fs.writeFileSync("YunData.json", data);
+		if(!fs.existsSync(Yun.getDataPath())) fs.mkdirSync(Yun.getDataPath(),{recursive:true})
+		await fs.writeFileSync(Yun.YunPath, data);
 		console.log("已保存本地数据:YunData.json");
 	}
 

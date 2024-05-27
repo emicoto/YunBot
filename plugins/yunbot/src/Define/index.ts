@@ -13,7 +13,7 @@ export * from "./Equip"
 export * from './items'
 export * from "./Init"
 
-export const master: string = "QQ#1794362968"; //我
+export const master: string = "1794362968"; //我
 export const discord: string = "discord#832608774"
 export const kook:string = 'kook#804622517'
 

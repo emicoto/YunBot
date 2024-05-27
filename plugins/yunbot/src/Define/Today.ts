@@ -1,6 +1,7 @@
 import { Computed, Dict } from "koishi";
 import fs from "fs"
 import { Yun, bot, Upgrade, getUser, getJrrp} from "../unit";
+import { join, resolve } from "path";
 
 export interface Today{
 	genTime:string;
@@ -92,7 +93,15 @@ export class DailyData{
 }
 
 export class Today{
-	public static data:Today;
+	public static data: Today;
+	public static baseDir: string = "";
+	public static getDataPath() {
+		return resolve(Today.baseDir, 'data', "yunSaves");
+	}
+	public static get TodayPath() : string {
+		return join(Today.getDataPath(), 'UserToday.json');
+	}
+	
 
 	public static async get(uid:string):Promise<DailyData>{
 		const chk = await getUser(uid)
@@ -108,8 +117,9 @@ export class Today{
 		let data: Today = Today.data
 		let isNewday
 
-		if(!data){
-			fs.readFile("UserToday.json","utf-8", (err,file)=>{
+		if (!data) {
+		
+			fs.readFile(Today.TodayPath,"utf-8", (err,file)=>{
 				if(!file) return;
 				if(err) throw new Error("error occured while reading file:UserToday.json");
 				data = JSON.parse(file.toString());
@@ -139,7 +149,8 @@ export class Today{
 
 	public static async save(){
 		const data = JSON.stringify(Today.data);
-		await fs.writeFileSync("UserToday.json", data);
+		if(!fs.existsSync(Today.getDataPath())) fs.mkdirSync(Today.getDataPath(),{recursive:true})
+		await fs.writeFileSync(Today.TodayPath, data);
 		console.log('已保存本地数据：UserToday.json');
 	}
 
