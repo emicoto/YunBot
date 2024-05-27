@@ -2,6 +2,7 @@ import { Context, Schema } from "koishi";
 import { Core } from "./Core";
 import { resolve } from 'path'
 import {} from '@koishijs/plugin-console'
+import { Today, Yun } from "./Define";
 
 
 export interface Config {
@@ -90,6 +91,8 @@ export function apply(ctx:Context, config: Config={}){
 //     //   prod: resolve(__dirname, '../dist'),
 //     // })
 //     console.log(ctx)
-  //})
+	//})
+	Today.baseDir = ctx.baseDir;
+	Yun.baseDir = ctx.baseDir;
 	Core.init(ctx, config)
 }

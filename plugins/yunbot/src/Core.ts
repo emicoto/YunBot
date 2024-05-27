@@ -8,7 +8,11 @@ import { PlayerCombat } from "./Game/pk";
 import {} from "koishi-plugin-adapter-onebot"
 
 export class Core {
-	private static _instance:Core;
+	private static _instance: Core;
+	public static get instance() { 
+		return Core._instance;
+	
+	}
 	private loading:number = 0;
 
 	public static init(app:Context, config:Config={}){
@@ -21,8 +25,8 @@ export class Core {
 		return Core._instance;
 	}
 
-	private ctx: Context;
-	private conf: Config;
+	public ctx: Context;
+	public conf: Config;
 
 	constructor(app:Context, config:Config={}){
 		this.ctx = app;

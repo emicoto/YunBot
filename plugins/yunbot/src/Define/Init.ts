@@ -103,13 +103,9 @@ export function _extend(ctx:Context){
 }
 
 export async function save() {
-	let data1 = JSON.stringify(Today.data)
-	await fs.writeFileSync("UserToday.json", data1);
-
+	await Today.save()
 	Yun.state.stats = Yun.stats
-	let data2 = JSON.stringify(Yun.state)
-	await fs.writeFileSync("YunData.json", data2);
-	console.log('已保存全部本地数据。')
+	await Yun.save()
 }
 
 export async function initUserFirst( session:Session ) {
