@@ -102,7 +102,8 @@ export function GameMenu(ctx: Context){
 		.action( async ({ session })=>{
 			const chk = await ctx.database.getChannel(session.platform, session.channelId)
 			const now = Date.now()
-			if( !chk.helptimer || now > chk.helptimer ){
+      const helptimer = chk.helptimer as number
+			if( !helptimer || now > helptimer){
 				await ctx.database.setChannel(session.platform, session.channelId, { announce : Date.now()+Time.minute*30 })
 				return gethelp(session)
 			}
@@ -172,7 +173,7 @@ export function GameMenu(ctx: Context){
 			}
 			if(type=='物品' || type =='道具'){
 				list = Object.keys(Items.data)
-			}			
+			}
 
 			if(!name && ['法器','装备','技能','心法','物品','道具'].includes(type)){
 
