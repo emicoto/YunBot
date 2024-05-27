@@ -1,5 +1,5 @@
 {
-  "name": "koishi-plugin-yunbot",
+  "name": "@zerxz/koishi-plugin-yunbot",
   "description": "(自用) 路昀的修仙插件",
   "version": "1.0.0",
   "main": "lib/index.js",
