@@ -74,6 +74,7 @@ export interface Flags{
 	daily?:DailyData; //切换角色时把每日档案暂存到此处。
 	url?:string, //头像显示链接
 	pkwin?:number;
+  evil?:boolean;
 }
 
 //战斗处理

@@ -50,6 +50,7 @@ Skill.set('净化之风', '净玉扇的专属技能。玉扇一舞，净化一�
 	.setBP(50)
 	.setcostSP(100)
 	.setAct((target:Game)=>{
+
 		if(target.flag?.evil){
 			target.cflag.condition['迷茫'] = {
 				name:'迷茫', type:'debuff', time:3,
@@ -71,7 +72,7 @@ Skill.set('乾坤护体', '乾坤锁的专属技能。乾坤护体，无人能�
 	.setEffectDes('技能使用后对防御力大幅提升，持续10回合。')
 	.setDEFbuff(1.5)
 	.setBufftime(10)
-	.setCondType('护盾')	
+	.setCondType('护盾')
 	.setBPbuff(0.3)
 	.setcostSPper(0.5)
 
