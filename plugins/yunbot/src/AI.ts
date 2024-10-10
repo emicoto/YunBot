@@ -1,6 +1,6 @@
 import { Context, segment, Session } from "koishi";
 import { between, either, getName, images, random, Respond, save, Today, wakeYunUp, whileSleeping, whileWorking, Yun } from "./unit";
-
+const bannedChannelId =["79074766" ,"297169602","661494893","575820136"]
 export async function YunAI(ctx:Context) {
 
 	ctx.on('guild-member-added',(session)=>{
@@ -31,8 +31,11 @@ export async function YunAI(ctx:Context) {
 
 
 	ctx.middleware( async(session:Session, next)=>{
-
-		let timetick = new Date()
+		if (bannedChannelId.includes(session.channelId)) {
+			
+			return next();
+		} else {
+			let timetick = new Date()
 		if(Today.data?.day !== timetick.getDate()){
 			Today.new()
 			save()
@@ -88,8 +91,9 @@ export async function YunAI(ctx:Context) {
 				])
 			}
 		}
-
-		if( !txt || txt == 'next'){
+		
+		if (!txt || txt == 'next') {
+			
 			if(session.content.length > 1 && between( random(1000),666,696)  ){
 				session.send('o(-。- o)===3 ) σ- . -)σ"')
 				return segment("poke", { qq: session.userId });
@@ -117,7 +121,9 @@ export async function YunAI(ctx:Context) {
 		else{
 			return next()
 		}
-
+		}
+		
+		return next()
 	})
 
 }

@@ -69,6 +69,3 @@ plugins:
     $if: env.NODE_ENV === 'development'
     hmr:z69is7:
       root: .
-  adapter-onebot:89gydp:
-  yunbot:ott6gg: {}
-  ~yunbot:7c4689: {}

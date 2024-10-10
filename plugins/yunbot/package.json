@@ -1,7 +1,7 @@
 {
-  "name": "koishi-plugin-yunbot",
+  "name": "@zerxz/koishi-plugin-yunbot",
   "description": "(自用) 路昀的修仙插件",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -15,19 +15,24 @@
     "plugin",
     "game"
   ],
-  "homepage":"https://github.com/emicoto/YunBot",
+  "homepage": "https://github.com/emicoto/YunBot",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emicoto/YunBot.git"
   },
   "peerDependencies": {
-    "koishi": "^4.17.4"
+    "@koishijs/plugin-console": "*",
+    "koishi": "^4.18.0"
   },
   "koishi": {
     "description": {
       "zh": "(自用) 路昀的修仙插件"
     },
-    "service":{ "required": ["database"]},
+    "service": {
+      "required": [
+        "database"
+      ]
+    },
     "locales": [
       "zh"
     ],
@@ -35,5 +40,8 @@
   },
   "dependencies": {
     "lunar-javascript": "^1.6.12"
+  },
+  "devDependencies": {
+    "@koishijs/client": "^5.29.4"
   }
 }
